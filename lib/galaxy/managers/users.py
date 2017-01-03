@@ -242,6 +242,32 @@ class UserManager( base.ModelManager, deletable.PurgableManagerMixin ):
         return bool( user.requests or request_types )
 
 
+    # ---- project admin
+    def is_project_admin( self, user ):
+        """
+        Return True if this user is a project admin.
+        """
+        project_admin_emails = self._project_admin_emails()
+        return user and project_admin_emails and user.email in project_admin_emails
+
+    def _project_admin_emails( self ):
+        """
+        Return a list of project admin email addresses from the config file.
+        """
+        
+        import Project_managers
+        
+        project_admin_users = self.app.config.project_admin_users_list
+        
+        ## Add project_managers (not project_admins) to the project_admin - read from file project_managers.txt 
+        project_managers = Project_managers.get_project_managers()
+        
+        ## Merge the lists from galaxy.ini and project_managers.txt
+        project_admin_users = list( set(project_admin_users) | set(project_managers) )
+        
+        return [ email.strip() for email in project_admin_users ]
+        
+
 class UserSerializer( base.ModelSerializer, deletable.PurgableSerializerMixin ):
     model_manager_class = UserManager
 
@@ -283,6 +309,8 @@ class UserSerializer( base.ModelSerializer, deletable.PurgableSerializerMixin ):
             'create_time'   : self.serialize_date,
             'update_time'   : self.serialize_date,
             'is_admin'      : lambda i, k, **c: self.user_manager.is_admin( i ),
+            'is_project_admin'      : lambda i, k, **c: self.user_manager.is_project_admin( i ),
+
 
             'preferences'   : lambda i, k, **c: self.user_manager.preferences( i ),
 

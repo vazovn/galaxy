@@ -12,6 +12,10 @@ from galaxy.exceptions import error_codes, MessageException
 from galaxy.util.json import safe_dumps
 from galaxy.web.framework import url_for
 
+## Nikolay - USIT
+from decorators_usit import require_project_admin
+
+
 log = logging.getLogger( __name__ )
 
 JSON_CONTENT_TYPE = "application/json"
@@ -97,7 +101,6 @@ def require_admin( func ):
                 return trans.show_error_message( msg )
         return func( self, trans, *args, **kwargs )
     return decorator
-
 
 # ----------------------------------------------------------------------------- (original) api decorators
 def expose_api( func, to_json=True, user_required=True ):

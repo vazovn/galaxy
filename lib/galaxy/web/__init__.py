@@ -21,7 +21,8 @@ from .framework.decorators import (
     json,
     json_pretty,
     require_admin,
-    require_login
+    require_login,
+    require_project_admin
 )
 from .framework.formbuilder import (
     form,
@@ -29,7 +30,7 @@ from .framework.formbuilder import (
 )
 
 __all__ = ('url_for', 'error', 'expose', 'json', 'json_pretty',
-           'require_admin', 'require_login', 'expose_api', 'expose_api_anonymous',
+           'require_admin', 'require_login','require_project_admin', 'expose_api', 'expose_api_anonymous',
            'expose_api_raw', 'expose_api_raw_anonymous', '_future_expose_api',
            '_future_expose_api_anonymous', '_future_expose_api_raw',
            '_future_expose_api_raw_anonymous',

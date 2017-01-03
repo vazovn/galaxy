@@ -74,6 +74,9 @@ ${ h.dumps( get_config_dict() )}
                     value_mapper={ 'id': trans.security.encode_id, 'total_disk_usage': float, 'email': escape, 'username': escape } )
                 user_dict[ 'quota_percent' ] = trans.app.quota_agent.get_percent( trans=trans )
                 user_dict[ 'is_admin' ] = trans.user_is_admin()
+                
+                ## Nikolay - USIT
+                user_dict[ 'is_project_admin' ] = trans.user_is_project_admin()
 
                 # tags used
                 users_api_controller = trans.webapp.api_controllers[ 'users' ]

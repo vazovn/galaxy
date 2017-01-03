@@ -154,6 +154,16 @@ class ProvidesUserContext( object ):
             ))
             return path
 
+    # Galaxy - GOLD - Nikolay - USIT
+    def user_is_project_admin( self ):
+        import Project_managers
+        project_admin_users = self.app.config.project_admin_users_list
+        ### Add project_managers (not project_admins) to the project_admin - read from file project_managers.txt : 
+        project_managers = Project_managers.get_project_managers()
+        ### Merge the lists from universe_wsgi.ini and project_managers.txt
+        project_admin_users = list( set(project_admin_users) | set(project_managers) )
+        return self.user and project_admin_users and self.user.email in project_admin_users       
+
 
 class ProvidesHistoryContext( object ):
     """ For transaction-like objects to provide Galaxy convience layer for

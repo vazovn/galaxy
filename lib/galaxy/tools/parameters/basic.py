@@ -779,6 +779,18 @@ class SelectToolParameter( ToolParameter ):
             except Exception as e:
                 log.debug( "Error determining dynamic options for parameter '%s' in tool '%s':", self.name, self.tool.id, exc_info=e )
                 return []
+        
+        ## Nikolay - USIT
+        ## Dynamically update the projects in the project job parameter dropdown
+        elif self.__dict__['name'] == 'project':
+           import Accounting_project_management
+           self.static_options = Accounting_project_management.project_dropdown_update ( trans.user.email, self.static_options )
+           for (title, value, selected) in self.static_options:
+                self.legal_values.add( value )
+           return self.static_options
+        
+        
+        
         else:
             return self.static_options
 

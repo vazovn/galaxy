@@ -184,6 +184,11 @@ class Configuration( object ):
             self.job_walltime_delta = timedelta( 0, s, 0, 0, m, h )
         self.admin_users = kwargs.get( "admin_users", "" )
         self.admin_users_list = [u.strip() for u in self.admin_users.split(',') if u]
+        
+        ## Nikolay - USIT
+        self.project_admin_users = kwargs.get( "project_admin_users", "" )
+        self.project_admin_users_list = [u.strip() for u in self.project_admin_users.split(',') if u]
+        
         self.mailing_join_addr = kwargs.get('mailing_join_addr', 'galaxy-announce-join@bx.psu.edu')
         self.error_email_to = kwargs.get( 'error_email_to', None )
         # activation_email was used until release_15.03
@@ -696,6 +701,17 @@ class Configuration( object ):
         """
         admin_users = [ x.strip() for x in self.get( "admin_users", "" ).split( "," ) ]
         return user is not None and user.email in admin_users
+
+     ## Nikolay - USIT
+    def is_project_admin_user( self,user ):
+        """
+        Determine if the provided user is listed in `project_admin_users`.
+
+        NOTE: This is temporary, project_admin users will likely be specified in the
+              database in the future.
+        """
+        project_admin_users = [ x.strip() for x in self.get( "project_admin_users", "" ).split( "," ) ]
+        return ( user is not None and user.email in project_admin_users )
 
     def resolve_path( self, path ):
         """ Resolve a path relative to Galaxy's root.

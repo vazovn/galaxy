@@ -137,9 +137,33 @@ var Collection = Backbone.Collection.extend({
             id              : 'admin',
             title           : 'Admin',
             url             : 'admin',
-            tooltip         : 'Administer this Galaxy',
+            tooltip         : 'Administer this Galaxy Instance',
             cls             : 'admin-only'
         });
+
+
+        //
+        // Project Application Tab
+        //
+        this.add({
+            id              : 'project_application',
+            title           : 'Apply for a project',
+            url             : 'project_application',
+            tooltip         : 'Project Application'
+        });
+        
+        
+        //
+        // Project Admin.
+        //
+        Galaxy.user.get( 'is_project_admin' ) && this.add({
+            id              : 'project_admin',
+            title           : 'ProjecjAdmin',
+            url             : 'project_admin',
+            tooltip         : 'Project Administration Section'
+        });
+
+
 
         //
         // Help tab.
