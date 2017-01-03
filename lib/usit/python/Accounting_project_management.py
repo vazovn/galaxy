@@ -14,7 +14,13 @@ from operator import itemgetter, attrgetter
 
 
 ## ==== ACTIVATE THE DB ENGINE variable GOLDDB defined in startup_settings.sh  =====
-GOLDDB="postgresql://vd_galaxy_accounting_core1_user:7d0209df@dbpg-abel.uio.no:5432/vd_galaxy_accounting_core1"
+
+if os.environ['GOLDDB'] :
+    GOLDDB = os.environ['GOLDDB']
+else:
+    print "GOLDDB not accessible or not set!"
+    exit 1
+
 application_db_engine = create_engine(GOLDDB, encoding='utf-8')
 metadata = MetaData(application_db_engine)
 
