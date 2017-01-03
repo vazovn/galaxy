@@ -19,6 +19,11 @@ from galaxy.jobs.runners import (
 )
 from galaxy.util import asbool
 
+## Milen USIT start
+from drmaa_usit import create_job_safe,charge_job
+import Dumper
+
+
 drmaa = None
 
 log = logging.getLogger( __name__ )
@@ -117,7 +122,11 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
         # prepare the job
 
         # external_runJob_script can be None, in which case it's not used.
-        external_runjob_script = job_wrapper.get_destination_configuration("drmaa_external_runjob_script", None)
+        
+        ### Nikolay USIT - BUG?? - external_runjob_script is not used      
+        #external_runjob_script = job_wrapper.get_destination_configuration("drmaa_external_runjob_script", None)
+        external_runjob_script = None
+
 
         include_metadata = asbool( job_wrapper.job_destination.params.get( "embed_metadata_in_job", True) )
         if not self.prepare_job( job_wrapper, include_metadata=include_metadata):
@@ -142,19 +151,33 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
         )
 
         # Avoid a jt.exitCodePath for now - it's only used when finishing.
-        native_spec = job_destination.params.get('nativeSpecification', None)
-        if native_spec is not None:
-            jt['nativeSpecification'] = native_spec
+        
+        ### USIT CODE ###
+        ### Milen - Here starts USIT code intrusion. The native spacification is not read  from job_destination.params but is
+        ### obtained by executing the function create_job_safe in drmaa_usit.py
+        ### If the output of the function is 'error' this means that the usit function failed and the launch was interupted.
+        ### The script will provide the user with the correct messages. 
 
+        native_spec = create_job_safe(jt,job_wrapper,job_destination,log,self.ds)
+        if native_spec is None :
+            return;
+        jt['nativeSpecification'] = native_spec
+        for key, value in jt.iteritems() :
+            print " JobTemplate ==== :" , key, " ", value
+        ### USIT CODE end ###
+        
         # fill in the DRM's job run template
         script = self.get_job_file(job_wrapper, exit_code_path=ajs.exit_code_file)
+        
         try:
             self.write_executable_script( ajs.job_file, script )
         except:
             job_wrapper.fail( "failure preparing job script", exception=True )
             log.exception( "(%s) failure writing job script" % galaxy_id_tag )
             return
-
+            
+        print "GOT HERE (%s) submitting file %s", galaxy_id_tag, ajs.job_file 
+        
         # job was deleted while we were preparing it
         if job_wrapper.get_state() == model.Job.states.DELETED:
             log.debug( "(%s) Job deleted by user before it entered the queue" % galaxy_id_tag )
@@ -163,6 +186,7 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
             return
 
         log.debug( "(%s) submitting file %s", galaxy_id_tag, ajs.job_file )
+        
         if native_spec:
             log.debug( "(%s) native specification is: %s", galaxy_id_tag, native_spec )
 
@@ -238,6 +262,10 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
                 self._handle_metadata_externally( ajs.job_wrapper, resolve_requirements=True )
             if ajs.job_wrapper.get_state() != model.Job.states.DELETED:
                 self.work_queue.put( ( self.finish_job, ajs ) )
+                
+                ### USIT CODE ###
+                ### The job has completed. The time is charged with this function in the user gold account.
+                charge_job(ajs,log)
 
     def check_watched_items( self ):
         """

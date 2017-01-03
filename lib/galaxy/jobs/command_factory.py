@@ -103,8 +103,15 @@ def build_command(
 
 def __externalize_commands(job_wrapper, shell, commands_builder, remote_command_params, script_name="tool_script.sh"):
     local_container_script = join( job_wrapper.working_directory, script_name )
+    
+    ## USIT NIKOLAY -- prepend sbatch formatting commands for USIT slurm
+    if job_wrapper.job_destination.get( "runner", False) == "drmaa" :
+        usit_slurm_prepended = "source /etc/profile;source /cluster/bin/jobsetup"
+        tool_commands = commands_builder.prepend_command(usit_slurm_prepended)
+
     tool_commands = commands_builder.build()
     config = job_wrapper.app.config
+    
     integrity_injection = ""
     # Setting shell to none in job_conf.xml disables creating a tool command script,
     # set -e doesn't work for composite commands but this is necessary for Windows jobs

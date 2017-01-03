@@ -23,6 +23,12 @@
   <section id="send" name="Send Data">
     <tool file="genomespace/genomespace_exporter.xml" />
   </section>
+  
+  <section id="hello_abel" name="Hello Abel!">
+    <tool file="myTools/helloabel.xml" />
+  </section>
+
+  
   <section id="liftOver" name="Lift-Over">
     <tool file="extract/liftOver_wrapper.xml" />
   </section>

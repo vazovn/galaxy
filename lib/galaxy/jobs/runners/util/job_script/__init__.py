@@ -106,7 +106,7 @@ def write_script(path, contents, config, mode=0o755):
             contents = contents.encode("UTF-8")
         f.write(contents)
     os.chmod(path, mode)
-    _handle_script_integrity(path, config)
+    #_handle_script_integrity(path, config)
 
 
 def _handle_script_integrity(path, config):
