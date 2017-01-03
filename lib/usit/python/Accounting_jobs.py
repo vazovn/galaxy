@@ -17,9 +17,10 @@ from operator import itemgetter, attrgetter
 
 if os.environ['GOLDDB'] :
     GOLDDB = os.environ['GOLDDB']
+    print "Accounting jobs : GOLDDB INSTANTIATED!!"
 else:
     print "GOLDDB not accessible or not set!"
-    exit 1
+    sys.exit()
 
 
 application_db_engine = create_engine(GOLDDB, encoding='utf-8')
