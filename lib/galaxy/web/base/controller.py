@@ -240,7 +240,7 @@ class JSAppLauncher( BaseUIController ):
     USER_BOOTSTRAP_KEYS = ( 'id', 'email', 'username', 'is_admin', 'tags_used', 'requests',
                             'total_disk_usage', 'nice_total_disk_usage', 'quota_percent', 'preferences' )
 
-    USER_BOOTSTRAP_KEYS = USER_BOOTSTRAP_KEYS + ('is_project_admin',)
+    USER_BOOTSTRAP_KEYS = USER_BOOTSTRAP_KEYS + ('is_project_admin', 'can_apply_for_project' ,)
 
     def __init__( self, app ):
         super( JSAppLauncher, self ).__init__( app )

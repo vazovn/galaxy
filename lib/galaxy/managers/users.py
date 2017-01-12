@@ -267,6 +267,15 @@ class UserManager( base.ModelManager, deletable.PurgableManagerMixin ):
         
         return [ email.strip() for email in project_admin_users ]
         
+        
+    ## can apply for project
+    def can_apply_for_project ( self, user ) :
+        """
+        Return True if this user is a feide user and thus can apply for projects.
+        """
+        import Accounting_project_management
+        return Accounting_project_management.check_if_user_is_feide( user.email )
+        
 
 class UserSerializer( base.ModelSerializer, deletable.PurgableSerializerMixin ):
     model_manager_class = UserManager
@@ -309,7 +318,9 @@ class UserSerializer( base.ModelSerializer, deletable.PurgableSerializerMixin ):
             'create_time'   : self.serialize_date,
             'update_time'   : self.serialize_date,
             'is_admin'      : lambda i, k, **c: self.user_manager.is_admin( i ),
+            
             'is_project_admin'      : lambda i, k, **c: self.user_manager.is_project_admin( i ),
+            'can_apply_for_project'	: lambda i, k, **c: self.user_manager.can_apply_for_project( i ),
 
 
             'preferences'   : lambda i, k, **c: self.user_manager.preferences( i ),

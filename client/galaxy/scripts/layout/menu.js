@@ -145,7 +145,7 @@ var Collection = Backbone.Collection.extend({
         //
         // Project Application Tab
         //
-        this.add({
+        Galaxy.user.get( 'can_apply_for_project' ) && this.add({
             id              : 'project_application',
             title           : 'Apply for a project',
             url             : 'project_application',

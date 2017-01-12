@@ -1532,6 +1532,12 @@ def project_dropdown_update ( email, static_options ) :
     return static_options
          
     
+def check_if_user_is_feide ( username ):
+    connection = application_db_engine.connect()
+    result = connection.execute("select * from g_user where g_name = '%s' and g_description = 'Default FEIDE-Galaxy user' " % username )
+    connection.close()
     
-    
-                     
+    if result.rowcount > 0:               
+        return True
+    else :
+        return False
