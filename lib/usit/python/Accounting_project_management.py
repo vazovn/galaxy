@@ -403,7 +403,7 @@ def get_owned_GOLD_projects ( username ) :
     """
     Selects the GOLD projects owned/created by the user calling the function  
     """
-    get_projects_command = "/opt/gold/bin/glsproject --show Name,Organization | grep %s " % username
+    get_projects_command = "sudo -u gold  /opt/gold/bin/glsproject --show Name,Organization | grep %s " % username
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     p.wait()
     projects = []
