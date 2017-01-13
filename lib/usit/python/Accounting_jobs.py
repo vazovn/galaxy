@@ -31,7 +31,7 @@ def get_member_of_GOLD_projects ( username )  :
     Selects the GOLD projects the user is member of  
     """
     
-    get_projects_command = "sudo /opt/gold/bin/glsproject  --raw --show Name,Users | grep %s " % username
+    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject  --raw --show Name,Users | grep %s " % username
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = p.communicate()[0]
     output = out.split("\n")
@@ -69,9 +69,9 @@ def job_check_project_balance (project, username, requested_time) :
    Check jobs balance prior to reservation / check multiple reservations
    """
    if re.search("gx_default", project ):
-         balance_command = "sudo /opt/gold/bin/gbalance --show Available -p gx_default -u %s" % ( username )
+         balance_command = "sudo -u gold /opt/gold/bin/gbalance --show Available -p gx_default -u %s" % ( username )
    else :
-         balance_command = "sudo /opt/gold/bin/gbalance --show Available -p %s " % (project)
+         balance_command = "sudo -u gold /opt/gold/bin/gbalance --show Available -p %s " % (project)
          
    p = subprocess.Popen(balance_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
    p.wait()
@@ -104,7 +104,7 @@ def job_reservations_check (requested_time, available, project, username) :
    e.g. greserve -J lp7 -p <project_name> -u <username> -m Abel-Galaxy -P 2 -t 3600
    """
 
-   reserve_command = "sudo /opt/gold/bin/glsres --show Amount -p %s -u %s" % (project,username)
+   reserve_command = "sudo -u gold /opt/gold/bin/glsres --show Amount -p %s -u %s" % (project,username)
    p = subprocess.Popen(reserve_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
    p.wait()
 
@@ -136,7 +136,7 @@ def job_reserve(jobname,project, username, time, pe) :
    """
 
    machine = "Abel-Galaxy"
-   reserve_command = "sudo /opt/gold/bin/greserve -J %s -p %s -u %s -m %s -P %s -t %s" % (jobname,project,username,machine,pe,time)
+   reserve_command = "sudo -u gold /opt/gold/bin/greserve -J %s -p %s -u %s -m %s -P %s -t %s" % (jobname,project,username,machine,pe,time)
    p = subprocess.Popen(reserve_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
    p.wait()
 
@@ -192,7 +192,7 @@ def job_charge( slurm_job_id, galaxy_job_id ):
 
                 # charge the job
                 machine = "Abel-Galaxy"
-                job_charge_command = "sudo /opt/gold/bin/gcharge -J %s -p %s -u %s -m %s -P %s -t %s" % ( job_data['galaxy_job_id'],
+                job_charge_command = "sudo -u gold /opt/gold/bin/gcharge -J %s -p %s -u %s -m %s -P %s -t %s" % ( job_data['galaxy_job_id'],
                                                                                                                                                              job_data['lifeportal_project'],
                                                                                                                                                              job_data['user'],
                                                                                                                                                              machine,
