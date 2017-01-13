@@ -1,8 +1,10 @@
 <tool id="sort1" name="Sort" version="1.0.3">
     <description>data in ascending or descending order</description>
     <command interpreter="python">
-        sorter.py
+	module load galaxy-python;
+        module load galaxy-scripts;
         
+	sorter.py
         --input=${input}
         --output=${out_file1}
         

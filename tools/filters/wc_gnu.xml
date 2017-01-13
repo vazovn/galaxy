@@ -1,6 +1,8 @@
 <tool id="wc_gnu" name="Line/Word/Character count" version="1.0.0">
     <description>of a dataset</description>
     <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
         #set $word_to_arg = { 'characters':'m', 'words':'w', 'lines':'l' }
         #set $arg_order = [ 'lines', 'words', 'characters' ]
         #if not isinstance( $options.value, list ):

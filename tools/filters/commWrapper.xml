@@ -1,6 +1,10 @@
 <tool id="Comm1" name="Find Similarities and Differences" version="1.0.0">
   <description>between two datasets</description>
-  <command interpreter="perl">commWrapper.pl $input1 $input2 $mode $out_file1</command>
+  <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	commWrapper.pl $input1 $input2 $mode $out_file1
+  </command>
   <inputs>
     <param format="tabular" name="input1" type="data" label="Compare Dataset1"/>
     <param format="tabular" name="input2" type="data" label="with Dataset2"/>

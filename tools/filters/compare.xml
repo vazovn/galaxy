@@ -1,6 +1,10 @@
 <tool id="comp1" name="Compare two Datasets" version="1.0.2">
   <description>to find common or distinct rows</description>
-  <command interpreter="python">joinWrapper.py $input1 $input2 $field1 $field2 $mode $out_file1</command>
+  <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	joinWrapper.py $input1 $input2 $field1 $field2 $mode $out_file1
+  </command>
   <inputs>
     <param format="tabular" name="input1" type="data" label="Compare"/>
     <param name="field1" label="Using column" type="data_column" data_ref="input1">

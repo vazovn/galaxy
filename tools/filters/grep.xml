@@ -1,6 +1,10 @@
 <tool id="Grep1" name="Select" version="1.0.1">
   <description>lines that match an expression</description>
-  <command interpreter="python">grep.py -i $input -o $out_file1 -pattern '$pattern' -v $invert</command>
+  <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	grep.py -i $input -o $out_file1 -pattern '$pattern' -v $invert
+ </command>
   <inputs>
     <param format="txt" name="input" type="data" label="Select lines from"/>
     <param name="invert" type="select" label="that">

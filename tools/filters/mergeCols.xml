@@ -1,14 +1,16 @@
 <tool id="mergeCols1" name="Merge Columns" version="1.0.1">
   <description>together</description>
-  <command interpreter="python">
-   mergeCols.py 
-      $input1
-      $out_file1
-      $col1
-      $col2
-      #for $col in $columns
-        ${col.datacol}
-      #end for
+  <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	   mergeCols.py 
+      		$input1
+	      	$out_file1
+      		$col1
+      		$col2
+      		#for $col in $columns
+        		${col.datacol}
+      		#end for
   </command>
   <inputs>
     <param format="tabular" name="input1" type="data" label="Select data" help="Dataset missing? See TIP below."/>

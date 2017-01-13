@@ -10,6 +10,8 @@
       <regex match="^Error"/>
   </stdio>
   <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
       <![CDATA[
       grep -v "^track" $input1 | wigToBigWig stdin $chromInfo $out_file1
     #if $settings.settingsType == "full":

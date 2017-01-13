@@ -1,6 +1,10 @@
 <tool id="join1" name="Join two Datasets" version="2.0.2">
   <description>side by side on a specified field</description>
-  <command interpreter="python">join.py $input1 $input2 $field1 $field2 $out_file1 $unmatched $partial --index_depth=3 --buffer=50000000 --fill_options_file=$fill_options_file</command>
+  <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	join.py $input1 $input2 $field1 $field2 $out_file1 $unmatched $partial --index_depth=3 --buffer=50000000 --fill_options_file=$fill_options_file
+ </command>
   <inputs>
     <param format="tabular" name="input1" type="data" label="Join"/>
     <param name="field1" label="using column" type="data_column" data_ref="input1" />

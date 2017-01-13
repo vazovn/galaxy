@@ -1,9 +1,9 @@
 <tool id="trimmer" name="Trim" version="0.0.1">
     <description>leading or trailing characters</description>
     <command>
-<![CDATA[
-python $__tool_directory__/trimmer.py -a -f '$input1' -c $col -s $start -e $end -i '$ignore' $fastq > '$out_file1'
-]]>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	<![CDATA[python $__tool_directory__/trimmer.py -a -f '$input1' -c $col -s $start -e $end -i '$ignore' $fastq > '$out_file1']]>
     </command>
     <inputs>
         <param format="tabular,txt" name="input1" type="data" label="this dataset"/>

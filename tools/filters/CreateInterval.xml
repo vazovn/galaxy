@@ -1,6 +1,10 @@
 <tool id="createInterval" name="Create single interval" version="1.0.0">
   <description>as a new dataset</description>
-  <command interpreter="perl">CreateInterval.pl $chrom $start $end "$name" $strand $out_file1</command>
+  <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	CreateInterval.pl $chrom $start $end "$name" $strand $out_file1
+  </command>
   <inputs>
     <param name="chrom" size="20" type="text" value="chr7" label="Chromosome"/>
     <param name="start" size="20" type="integer" value="100" label="Start position"/>

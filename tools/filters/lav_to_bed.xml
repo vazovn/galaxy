@@ -1,6 +1,10 @@
 <tool id="lav_to_bed1" name="LAV to BED" version="1.0.0">
   <description>Converts a LAV formatted file to BED format</description>
-  <command interpreter="python">lav_to_bed.py $lav_file $bed_file1 $bed_file2</command>
+  <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
+	lav_to_bed.py $lav_file $bed_file1 $bed_file2
+  </command>
   <inputs>
     <param name="lav_file" type="data" format="lav" label="LAV File" optional="False"/>
   </inputs>

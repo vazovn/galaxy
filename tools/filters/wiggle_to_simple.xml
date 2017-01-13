@@ -1,6 +1,10 @@
 <tool id="wiggle2simple1" name="Wiggle-to-Interval" version="1.0.0">
   <description>converter</description>
-  <command interpreter="python">wiggle_to_simple.py $input $out_file1 </command>
+  <command>
+	module load galaxy-python;
+ 	module load galaxy-scripts;
+	wiggle_to_simple.py $input $out_file1 
+  </command>
   <inputs>
     <param format="wig" name="input" type="data" label="Convert"/>
   </inputs>

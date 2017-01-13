@@ -1,6 +1,8 @@
 <tool id="cat1" name="Concatenate datasets" version="1.0.0">
     <description>tail-to-head</description>
-    <command interpreter="python">
+    <command>
+	module load galaxy-python;
+        module load galaxy-scripts;
         catWrapper.py
         $out_file1
         $input1

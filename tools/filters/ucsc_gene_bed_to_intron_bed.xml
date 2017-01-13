@@ -1,6 +1,10 @@
 <tool id="gene2intron1" name="Gene BED To Intron BED" version="1.0.0">
 <description>expander</description>
-  <command interpreter="python">ucsc_gene_bed_to_intron_bed.py --input=$input1 --output=$out_file1</command>
+  <command>
+	module load galaxy-python;
+	module load galaxy-scripts;
+	ucsc_gene_bed_to_intron_bed.py --input=$input1 --output=$out_file1
+ </command>
   <inputs>
     <param name="input1" type="data" format="interval" label="UCSC Gene Table"/>
     

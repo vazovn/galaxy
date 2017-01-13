@@ -1,6 +1,8 @@
 <tool id="fileGrep1" name="Match" version="1.0.0">
   <description>a column from one Query against another Query</description>
-  <command>cut -f $col $input1 | grep -f - $match $input2 > $out_file1</command>
+  <command>
+	cut -f $col $input1 | grep -f - $match $input2 > $out_file1
+  </command>
   <inputs>
     <param name="col" size="2" type="text" value="1" label="Match content of column"/>
     <param format="tabular" name="input1" type="data" label="From Query1"/>
