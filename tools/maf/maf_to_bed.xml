@@ -1,9 +1,12 @@
-<tool id="MAF_To_BED1" name="MAF to BED" force_history_refresh="True" version="1.0.0">
+<tool id="MAF_To_BED1" name="Maf to BED" force_history_refresh="True">
   <description>Converts a MAF formatted file to the BED format</description>
-  <macros>
-      <import>macros.xml</import>
-  </macros>
-  <command interpreter="python">maf_to_bed.py "${ input1 }" "${ out_file1 }" "${ species }" "${ complete_blocks }" "." "${ out_file1.id }"</command>
+
+  <command>
+     module load galaxy-python;
+     module load galaxy-scripts;
+     maf_to_bed.py $input1 $out_file1 $species $complete_blocks $__new_file_path__
+  </command>
+
   <inputs>
     <param format="maf" name="input1" type="data" label="MAF file to convert"/>
     <param name="species" type="select" label="Select species" display="checkboxes" multiple="true" help="a separate history item will be created for each checked species">
@@ -126,9 +129,14 @@ Additional (optional) fields are::
     5. score - A score between 0 and 1000.
     6. strand - Defines the strand - either '+' or '-'.
 
-@HELP_CITATIONS@
+------
+
+**Citation**
+
+If you use this tool, please cite `Blankenberg D, Taylor J, Nekrutenko A; The Galaxy Team. Making whole genome multiple alignments usable for biologists. Bioinformatics. 2011 Sep 1;27(17):2426-2428. &lt;http://www.ncbi.nlm.nih.gov/pubmed/21775304&gt;`_
+
+
     </help>
-    <expand macro="citations" />
     <code file="maf_to_bed_code.py"/>
 </tool>
 

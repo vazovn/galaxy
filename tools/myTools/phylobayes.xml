@@ -1,0 +1,503 @@
+<tool id="PhyloBayes" name="PhyloBayes - pb (3.3e)" version="3.3e">
+  <description>Bayesian Monte Carlo Markov Chain (MCMC) sampler for phylogenetic reconstruction.</description>
+
+  <parallelism method="basic"></parallelism>
+
+  <command>
+   module load phylobayes/3.3e;
+   pb 
+
+   ## (-d)
+   -d "$infile"  
+
+   ## (-dc)
+   #if str( $constantsites ) == "true":
+     -dc
+   #end if
+
+   ##(-cov)
+   #if str( $covmatfile ) != 'None':
+     -cov "$covmatfile"
+   #end if  
+
+   ##(-t)
+   #if str( $treefile ) != 'None':
+     -t "$treefile"
+   #end if  
+
+   ##(-T)
+   #if str( $topotreefile ) != 'None':
+     -T "$topotreefile"
+   #end if  
+   
+   ##(-r)
+   #if str( $outgroupfile ) != 'None':
+     -r "$outgroupfile"
+   #end if  
+
+   ## (-s)
+   #if str( $saveparamvec ) == "true":
+     -s
+   #end if
+
+   ## (-f)
+   #if str( $forceoverwrite ) == "true":
+     -f
+   #end if
+
+   
+   ##(-x)
+   #if str( $savefreq ) != '':
+     -x "$savefreq"
+     #if str( $numpoints ) != '':
+       "$numpoints"
+     #end if 
+   #end if  
+
+
+   ##(-nchain)
+   #if str( $numchain ) != '':
+     -nchain "$numchain"
+     #if (str( $step ) != '') and  (str( $cutoff ) != '') and (str( $effsize ) != ''):
+            "$step" "$cutoff" "$effsize"
+     #end if 
+   #end if  
+
+   ##(-b)
+   #if str( $burnin ) != '':
+     -b $burnin
+   #end if  
+
+
+   ## (prior on branch lengths)
+   #if str( $prior_selector.branchprior ) == 'meanlength':
+      #if str( $prior_selector.meanlength ) != '':
+        -"$prior_selector.branchprior" "$prior_selector.meanlength"
+      #end if
+   #else
+      #if str( $prior_selector.branchprior ) != 'default':
+          -"$prior_selector.branchprior"
+      #end if 
+   #end if
+
+
+   ## (rates across sites)
+   #if (str( $rates_selector.rates ) != 'default') and (str( $rates_selector.rates ) != 'dgam') :
+     -"$rates_selector.rates"
+   #end if
+   #if (str( $rates_selector.rates ) == 'dgam') and (str( $rates_selector.catdgam ) != '') :
+     -"$rates_selector.rates" "$rates_selector.catdgam"
+   #end if
+
+   ## (exchange rates)
+   #if (str( $exchange_selector.exchange ) != 'default') and (str( $exchange_selector.exchange ) != 'rr') :
+     -"$exchange_selector.exchange"
+   #end if
+   #if (str( $exchange_selector.exchange ) == 'rr') and (str($exchange_selector.rrfile) != 'None') :
+     -"$exchange_selector.exchange" "$exchange_selector.rrfile"
+   #end if
+
+   
+
+
+   ##(profile mixture and matrix mixture models) 
+   #if str( $profile_selector.profile ) == 'ncat':  
+     #if str( $profile_selector.nprofiles ) != '':
+        -"$profile_selector.profile" "$profile_selector.nprofiles"
+     #end if 
+   #else if  str( $profile_selector.profile ) == 'catfix':
+     #if str( $profile_selector.catfix_selector.catfix ) == 'WLSR5':
+        -"$profile_selector.profile" "$profile_selector.catfix_selector.catfix"
+     #else if str( $profile_selector.catfix_selector.catfix ) == 'user':
+        #if str( $profile_selector.catfix_selector.catfixfile) != 'None':
+           -"$profile_selector.profile" "$profile_selector.catfix_selector.catfixfile"
+        #end if
+     #else:
+       #if  str($profile_selector.catfix_selector.fixweights)  == 'true':
+         -"$profile_selector.profile" "$profile_selector.catfix_selector.catfix" -fxw
+       #else:
+         -"$profile_selector.profile" "$profile_selector.catfix_selector.catfix"
+       #end if
+     #end if
+   #else if str( $profile_selector.profile ) == 'qmmfix':
+     #if str( $profile_selector.qmmfix_selector.qmmfix ) != 'user':
+        -"$profile_selector.profile" "$profile_selector.qmmfix_selector.qmmfix"
+     #else if str( $profile_selector.qmmfix_selector.qmmfixfile) != 'None':
+        -"$profile_selector.profile" "$profile_selector.qmmfix_selector.qmmfixfile"
+     #end if
+   #else:
+     #if str( $profile_selector.profile ) != 'default':
+     -"$profile_selector.profile"
+     #end if
+   #end if  
+   
+
+
+   ## (heterotachy)
+   #if (str( $hetero_selector.hetero ) != 'default') and (str( $hetero_selector.hetero ) != 'gbl') :
+     -"$hetero_selector.hetero"
+   #end if
+   #if (str( $hetero_selector.hetero ) == 'gbl') and (str($hetero_selector.gblfile) != 'None') :
+     -"$hetero_selector.hetero" "$hetero_selector.gblfile"
+   #end if
+
+
+   ## (relaxed clock models)
+   #if str( $clock_selector.clock ) != 'default':  
+       -"$clock_selector.clock"
+   #end if 
+
+
+   ## (gamma prior)
+   #if (str( $rpmean ) != '') and  (str( $rpstdev ) != ''):
+       -rp "$rpmean" "$rpstdev"
+   #end if 
+
+   ## (-unitime) - How does one turn it off!???
+   #if str( $unitime ) == "true":
+     -unitime 
+   #end if
+  
+   ## (-bd)
+   #if str( $birthdeath ) == "true":
+     #if (str( $bdp1 ) != '') and (str( $bdp2 ) != ''):
+        -bd "$bdp1" "$bdp1"
+     #else:
+         -bd
+     #end if
+   #end if
+  
+   ## (-bdhyperprior)
+   #if str( $bdhyper ) == "true":
+     #if (str( $bdhypmean1 ) != '') and (str( $bdhypstdev1 ) != '') and (str( $bdhypmean2 ) != '') and (str( $bdhypstdev2 ) != ''):
+        -bdhyperprior "$bdhypmean1" "$bdhypstdev1" "$bdhypmean2" "$bdhypstdev2"
+     #else:
+         -bdhyperprior
+     #end if
+   #end if
+
+  ## (-dir)
+  #if (str( $dir ) == "true"):
+    #if (str( $chi ) != ''):
+       -dir "$chi"
+    #else:
+        -dir
+    #end if
+  #end if
+
+  ## (-cal) 
+  #if str( $calfile ) != 'None':
+     -cal "$calfile"
+  #end if  
+
+  ##(-sb)
+  #if (str( $sb ) == "true"):
+    #if (str( $sbcutoff ) != ''):
+       -sb "$sbcutoff"
+    #else:
+        -sb
+    #end if
+  #end if
+
+  ##(-lb)
+  #if str( $lb ) == "true":
+     #if (str( $lbp ) != '') and (str( $lbc ) != ''):
+        -lb "$lbp" "$lbc"
+     #else:
+         -lb
+     #end if
+   #end if
+
+
+   ## (-prior)
+   #if str( $prior ) == "true":
+     -prior
+   #end if
+
+
+   ##(recording scheme)
+   #if str( $rec_selector.rec ) == 'user':
+     #if str( $rec_selector.recfile ) != 'None':
+       -rec "$rec_selector.recfile" 
+     #end if
+   #else if str( $rec_selector.rec ) != 'default':
+     -rec "$rec_selector.rec"
+   #end if
+ 
+   #if str( $outname ) != '':
+     $outname > phylobayeslog;
+     tar cvf pb.tar ${outname}.*
+   #else
+     bioportal > phylobayeslog;
+     tar cvf pb.tar bioportal.*
+   #end if  
+
+
+  </command>
+
+  <requirements>
+    <requirement type="binary">pb</requirement>
+  </requirements>
+
+
+  <inputs>
+
+    ##(-d)
+    <param name="infile" type="data" label="Input file (-d)" help="Data in PHYLIP format." optional="false" format="txt" />
+ 
+    ##(output name base)
+    <param name="outname" type="text" value="" size="15" label="base name for output files"  help="" />
+
+    ##(-dc)
+    <param name="constantsites" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Remove constant sites (-dc)" help="Optional."/>
+
+    ##(-cov)
+    <param name="covmatfile" type="data" label="Variance-covariance matrix (-cov)" help="" optional="true" format="txt" />
+
+    ##(-t)
+    <param name="treefile" type="data" label="Starting tree file (-t)" help="" optional="true" format="txt" />
+
+    ##(-T)
+   <param name="topotreefile" type="data" label="Topology treefile (-T)" help="" optional="true" format="txt" />
+   
+    ##(-r)
+    <param name="outgroupfile" type="data" label="Re-rooting outgroup file (-r)"  help="Only for clock models. Optional." optional="true" format="txt" />
+
+    ##(-s)
+    <param name="saveparamvec" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Save whole parameter vector (-s)" help="Automatically activated by -T. Optional."/>
+
+    ##(-f)
+    <param name="forceoverwrite" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Force overwrite chain with same name (-f)" help="Optional."/>
+
+   ## (-x)
+   <param name="savefreq" type="integer" value="" size="8" label="Save frequency (-x)" help="Optional." optional="true"/>
+   <param name="numpoints" type="integer" value="" size="8" label="Number of saving points to stop chain (-x)" help="Optional." optional="true"/>
+
+   ## (-nchain)
+   <param name="numchain" type="integer" value="" size="8" label="Number of parallel chains (-nchain)" help="Optional." optional="true"/>
+   <param name="step" type="integer" value="" size="8" label="Step (-nchain)" help="Optional." optional="true"/>
+   <param name="cutoff" type="integer" value="" size="8" label="Cutoff (-nchain)" help="Optional." optional="true"/>
+   <param name="effsize" type="integer" value="" size="8" label="Eff-size (-nchain)" help="Optional." optional="true"/> 
+
+   ## (-b)
+   <param name="burnin" type="integer" value="" size="8" label="Burnin factor (-b)" help="Optional. Default: 5" optional="true"/>
+   
+
+  ##(prior on branch lengths) 
+  <conditional name="prior_selector">  
+  <param name="branchprior" type="select" label="Prior on branch lengths" optional="true" >
+     <option value="default" select="true">Default</option> 
+     <option value="lexp">exponential (-lexp)</option> 
+     <option value="lgam">gamma (-lgam)</option> 
+     <option value="meanlength">fixed mean length (-meanlength)</option>
+  </param>
+  <when value="meanlength">
+     <param name="meanlength" type="float" value="" size="8" label="Meanlength (-meanlength)" help="" optional="true"/>
+  </when>
+  </conditional> 
+
+
+  ##(rates across sites)
+  <conditional name="rates_selector">  
+  <param name="rates" type="select" label="Rates across sites" optional="true" >
+     <option value="default" select="true">Default</option> 
+     <option value="ratecat">Dirichlet (-ratecat)</option> 
+     <option value="uni">uniform rate (-uni)</option> 
+     <option value="cgam">continuous gamma (-cgam)</option>
+     <option value="dgam">discrete gamma (-dgam)</option>
+  </param>
+  <when value="dgam">
+     <param name="catdgam" type="integer" value="" size="8" label="Number of discrete gamma categories (-dgam)" help="" optional="true"/>
+  </when>
+  </conditional> 
+
+  ##(exchange rates) 
+  <conditional name="exchange_selector">  
+  <param name="exchange" type="select" label="Exchange rates" optional="true" >
+     <option value="default" select="true">Default</option> 
+     <option value="poi">poisson (-poi/-poisson)</option> 
+     <option value="wag">empirical (-wag)</option> 
+     <option value="jtt">empirical (-jtt)</option> 
+     <option value="mtrev">empirical (-mtrev)</option> 
+     <option value="mtzoa">empirical (-mtzoa)</option>
+     <option value="mtart">empirical (-mtart)</option>  
+     <option value="lg">empirical by Le and Gascuel (-lg)</option>
+     <option value="gtr">general time reversible (-gtr)</option>
+     <option value="rr">fixed exchange rates (-rr)</option>
+  </param>
+  <when value="rr">
+     <param name="rrfile" type="data" label="Fixed exchange rates file (-rr)" help="" optional="true" format="txt" />
+  </when>
+  </conditional> 
+
+  
+
+  ##(profile mixture and matrix mixture models)
+  <conditional name="profile_selector">  
+  <param name="profile" type="select" label="Profile mixture" optional="true" >
+     <option value="default" select="true">Default</option> 
+     <option value="cat">Dirichlet (-cat)</option> 
+     <option value="ncat">mixture of n profiles (-ncat)</option> 
+     <option value="catfix">empirical profile mixture (-catfix)</option> 
+     <option value="qmm">QMM model (-qmm)</option> 
+     <option value="qmmfix">empirical mixture with 2 or 3 components (-qmmfix)</option> 
+  </param>
+  <when value="ncat">
+     <param name="nprofiles" type="integer" value="" size="8" label="Mixture of n profiles (-ncat)" help="" optional="true"/>
+  </when>
+  <when value="catfix">
+      <conditional name="catfix_selector">  
+      <param name="catfix" type="select" label="Empirical profile mixture" optional="true" >
+          <option value="C20" select="true">C20</option>
+          <option value="C30">C30</option>
+          <option value="C40">C40</option>
+          <option value="C50">C50</option>
+          <option value="C60">C60</option>
+          <option value="WLSR5">WLSR5</option>
+          <option value="user">user defined</option>
+      </param>
+      <when value="user">
+         <param name="catfixfile" type="data" label="Set of pre-defined profiles file (-catfix)" help="" format="txt" />
+      </when>
+      <when value="C20">
+         <param name="fixweights" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Fix weights (-fxw)" help="Fix weights to the values obtained from HSSP database."/>
+      </when>
+      <when value="C30">
+         <param name="fixweights" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Fix weights (-fxw)" help="Fix weights to the values obtained from HSSP database."/>
+      </when>
+      <when value="C40">
+         <param name="fixweights" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Fix weights (-fxw)" help="Fix weights to the values obtained from HSSP database."/>
+      </when>
+      <when value="C50">
+         <param name="fixweights" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Fix weights (-fxw)" help="Fix weights to the values obtained from HSSP database."/>
+      </when>
+      <when value="C60">
+         <param name="fixweights" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Fix weights (-fxw)" help="Fix weights to the values obtained from HSSP database."/>
+      </when>
+      </conditional> 
+  </when>
+  <when value="qmmfix">
+      <conditional name="qmmfix_selector">  
+      <param name="qmmfix" type="select" label="Empirical mixture of components (-qmmfix)" optional="true" >
+          <option value="u12" select="true">u12</option>
+          <option value="u13">u13</option>
+          <option value="user">user defined</option>
+      </param>
+      <when value="user">
+         <param name="qmmfixfile" type="data" label="User defined matrix mixture model file (-qmmfix)" help="" format="txt" />
+      </when>
+      </conditional>
+  </when>
+  </conditional> 
+
+  ##(heterotachy) 
+  <conditional name="hetero_selector">  
+  <param name="hetero" type="select" label="Heterotachy" optional="true" >
+     <option value="default" select="true">Default</option> 
+     <option value="covarion">-covarion</option> 
+     <option value="covext">-covext</option> 
+     <option value="mmbl">-mmbl</option> 
+     <option value="gbl">-gbl</option> 
+  </param>
+  <when value="gbl">
+     <param name="gblfile" type="data" label="Partition file (-gbl)" help="" optional="true" format="txt" />
+  </when>
+  </conditional> 
+
+
+  ##(relaxed clock models) 
+  <conditional name="clock_selector">  
+  <param name="clock" type="select" label="Relaxed clock model" optional="true" >
+     <option value="default" select="true">Default</option> 
+     <option value="cl">strict molecular clock (-cl)</option> 
+     <option value="ln">log normal model (-ln)</option> 
+     <option value="cir">CIR process (-cir)</option> 
+     <option value="wn">white noise process (-wn)</option> 
+     <option value="ugam">uncorrelated gamma multipliers (-ugam)</option>
+  </param>
+  </conditional> 
+
+
+  ##(prior on divergence times) 
+  ##(-rp)
+  <param name="rpmean" type="float" value="" size="8" label="Gamma prior mean (-rp)" help="" optional="true"/>
+  <param name="rpstdev" type="float" value="" size="8" label="Gamma prior stdev (-rp)" help="" optional="true"/>
+
+  ## (-unitime)
+  <param name="unitime" type="boolean" checked="true" truevalue="true" falsevalue="false" display="checkboxes" label="Uniform prior on divergence times (-unitime)" help="Optional. Default: True"/>
+
+  ## (-bd)
+  <param name="birthdeath" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Birth death prior (-bd)" help="If no p1 and p2 are given, they are considered free params."/>
+  <param name="bdp1" type="float" value="" size="8" label="Birth death prior p1 (-bd)" help="" optional="true"/>
+  <param name="bdp2" type="float" value="" size="8" label="Birth death prior p2 (-bd)" help="" optional="true"/>
+ 
+  ## (-bdhyperprior)
+  <param name="bdhyper" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Birth death hyperprior (-bdhyperprior)" help="If no hyperparameters are given, they default to 0.001."/>
+  <param name="bdhypmean1" type="float" value="" size="8" label="Birth death hyperprior mean1 (-bdhyperprior)" help="" optional="true"/>
+  <param name="bdhypstdev1" type="float" value="" size="8" label="Birth death hyperprior stdev1 (-bdhyperprior)" help="" optional="true"/>
+  <param name="bdhypmean2" type="float" value="" size="8" label="Birth death hyperprior mean2 (-bdhyperprior)" help="" optional="true"/>
+  <param name="bdhypstdev2" type="float" value="" size="8" label="Birth death hyperprior stdev2 (-bdhyperprior)" help="" optional="true"/>
+
+  ## (-dir)
+  <param name="dir" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Dirichlet prior (-dir)" help=""/>
+  <param name="chi" type="float" value="" size="8" label="Dirichlet prior chi param (-dir)" help="" optional="true"/>
+
+
+  ## (-cal)
+  <param name="calfile" type="data" label="Calibration file (-cal)" help="" optional="true" format="txt" />
+
+  ##(-sb)
+  <param name="sb" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Cauchy soft bound (-sb)" help=""/>
+  <param name="sbcutoff" type="float" value="" size="8" label="Cauchy soft bound cutoff (-sb)" help="Default: 0.05" optional="true"/>
+
+  ##(-lb)
+  <param name="lb" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Cauchy lower bound (-lb)" help=""/>
+  <param name="lbp" type="float" value="" size="8" label="Cauchy lower bound p param (-lb)" help="Default: 1" optional="true"/>
+  <param name="lbc" type="float" value="" size="8" label="Cauchy lower bound c param (-lb)" help="Default: 0.1" optional="true"/>
+
+ 
+  ##(prior)
+  <param name="prior" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Deactivate all likelihood operations (-prior)" help="Optional."/>
+
+  ##(recording scheme)
+  <conditional name="rec_selector">  
+    <param name="rec" type="select" label="Recording scheme (-rec)" optional="true" >
+      <option value="default" select="true">Default</option>
+      <option value="dayhoff6">dayhoff6</option>
+      <option value="dayhoff4">dayhoff4</option>
+      <option value="hp">hp</option>
+      <option value="user">user defined</option>
+    </param>
+    <when value="user">
+       <param name="recfile" type="data" label="User defined recording scheme file (-rec)" help="" optional="true" format="txt" />
+    </when>
+  </conditional>
+
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="log" label="PhyloBayes on ${infile.name} - log" from_work_dir="phylobayeslog"/>
+    <data format="tar" name="allres" label="PhyloBayes on ${infile.name} - all results" from_work_dir="pb.tar"/>
+  </outputs>
+
+  <help>
+
+**About PhyloBayes**
+
+PhyloBayes (Lartillot et al, 2009) is a Bayesian Monte Carlo Markov Chain (MCMC) sampler for phylogenetic reconstruction. Compared to other phylogenetic MCMC samplers, the main distinguishing feature of PhyloBayes is the underlying probabilistic model, CAT (Lartillot and Philippe, 2004). CAT is an infinite mixture model accounting for site-specific amino-acid or nucleotide preferences. It is well suited to phylogenomic studies using large multigene alignments.
+
+**Home page** http://megasun.bch.umontreal.ca/People/lartillot/www/index.htm
+
+**Output**: Results "PhyloBayes all result" are returned in a form of a tar file.  Use "tar xvf file_name" to extract. On windows, 7-zip (www.7-zip.org) can be used.
+
+
+**Manual:** http://megasun.bch.umontreal.ca/People/lartillot/www/phylobayes3.3e.pdf
+
+**Citation:**
+
+Lartillot N, Lepage T, Blanquart S.,2009 PhyloBayes 3: a Bayesian software package for phylogenetic reconstruction and molecular dating, Bioinformatics 25(17):2286-8
+
+
+                                    
+  </help>
+</tool>

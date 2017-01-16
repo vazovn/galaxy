@@ -1,0 +1,48 @@
+<tool id="SNAPP" name="SNAPP (1.1.1)" version="1.1.1">
+  <description> SNP and AFLP Package for Phylogenetic analysis - package for inferring species trees and species demographics from independent (unlinked) biallelic markers such as well spaced SNPs.</description>
+  <parallelism method="basic"></parallelism>
+
+  <command>
+    ulimit -s 4000000;
+    module load snapp/1.1.1;
+    snapp -threads 3 -seed $seed $xmlfile>snappout
+    2>snapperr;
+    tar --exclude='*galaxy*' -cvf all_snapp_res.tar *
+
+  </command>
+
+  <requirements>
+    <requirement type="binary">snapp</requirement>
+  </requirements>
+
+  <inputs>
+    <param name="xmlfile" type="data" label="Input XML file" help="" optional="false" format="txt" />
+    <param name="seed" size="8" type="integer" value="12345" label="Random seed (-seed)"/>
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="stdout" label="SNAPP on ${xmlfile.name} - stdout" from_work_dir="snappout"/>
+    <data format="tar" name="results" label="SNAPP on ${xmlfile.name} - results" from_work_dir="all_snapp_res.tar"/>
+  </outputs>
+
+  <help>
+**Job parameters**
+
+SNAPP uses threading - use 4 for Number of CPUs per node
+
+
+**About SNAPP**
+
+Like BEAST, a SNAPP analysis is controlled using a specially formatted XML file. This file can be created from scratch, or by using the graphical user interface in BEAUTi. SNAPP can be run directly from inside BEAUTi, or you can take the xml file and use it to run SNAPP on any computer or server.
+
+Like BEAST and MrBayes, SNAPP does not output a single tree. Rather, it uses Markov chain Monte Carlo (MCMC) to generate multiple trees (and corresponding parameter values), each of which is a sample from the posterior distribution of species trees and parameters. The trees and parameter values are output as two files. As with all MCMC analyses, care must be taken when interpreting these outputs. For example, it is necessary to check convergence and be prepared to consider multiple plausible species trees, instead of just one. The file containing parameter values can be analysed using the Tracer software. As with all MCMC software, it is advisable to run multiple analyses, possibly tweaking proposal parameters, to validate an analysis. 
+ 
+**Home page**: http://www.beast2.org/wiki/index.php/SNAPP
+
+**Input**: XML file generated from Nexus file using BEAUTi (http://beast.bio.ed.ac.uk/BEAUti)
+
+**Output**: Results "SNAPP results" are returned in a form of a tar archive.  Use "tar xvf file_name" to extract. On windows, 7-zip (www.7-zip.org) can be used.
+
+
+  </help>
+</tool>

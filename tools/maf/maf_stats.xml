@@ -1,8 +1,5 @@
 <tool id="maf_stats1" name="MAF Coverage Stats" version="1.0.1">
   <description>Alignment coverage information</description>
-  <macros>
-      <import>macros.xml</import>
-  </macros>
   <command interpreter="python">
     maf_stats.py
     #if $maf_source_type.maf_source == "user":
@@ -56,6 +53,9 @@
       </change_format>
     </data>
   </outputs>
+  <requirements>
+    <requirement type="python-module">numpy</requirement>
+  </requirements>
   <tests>
     <test>
       <param name="input1" value="1.bed" dbkey="hg17" format="bed"/>
@@ -109,7 +109,12 @@ Alternatively, you can request only summary information for a set of intervals:
 
   where **coverage** is the number of nucleotides divided by the total length of the provided intervals.
 
-@HELP_CITATIONS@
-    </help>
-    <expand macro="citations" />
+------
+
+**Citation**
+
+If you use this tool, please cite `Blankenberg D, Taylor J, Nekrutenko A; The Galaxy Team. Making whole genome multiple alignments usable for biologists. Bioinformatics. 2011 Sep 1;27(17):2426-2428. &lt;http://www.ncbi.nlm.nih.gov/pubmed/21775304&gt;`_
+
+
+  </help>
 </tool>

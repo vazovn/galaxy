@@ -1,11 +1,12 @@
 <tool id="Filter1" name="Filter" version="1.1.0">
   <description>data on any column using simple expressions</description>
-  <edam_operations>
-    <edam_operation>operation_0335</edam_operation>
-  </edam_operations>
-  <command interpreter="python">
-    filtering.py $input $out_file1 "$cond" ${input.metadata.columns} "${input.metadata.column_types}" $header_lines
+
+  <command>
+   module load galaxy-scripts;
+   module load galaxy-python;
+   filtering.py $input $out_file1 "$cond" ${input.metadata.columns} "${input.metadata.column_types}" $header_lines
   </command>
+
   <inputs>
     <param format="tabular" name="input" type="data" label="Filter" help="Dataset missing? See TIP below."/>
     <param name="cond" size="40" type="text" value="c1=='chr22'" label="With following condition" help="Double equal signs, ==, must be used as shown above. To filter for an arbitrary string, use the Select tool.">

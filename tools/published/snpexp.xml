@@ -1,0 +1,200 @@
+<tool id="snpexp" name="SNPexp" version="1.2">
+  <description>tool for calculating and visualizing correlation between HapMap genotypes and gene expression levels.</description>
+  <parallelism method="basic"></parallelism>
+  <command>
+    module load galaxy-scripts;
+    module load plink/1.07;
+    #set $resultdir = "./"
+    #set $datadir = "/work/databases/bio/snpexp/"
+
+    #if str($gene) == "":
+       echo "You did not provide a valid gene name." > $log
+    #else
+      #if str($selsnp.snpinput) == "interval":
+        snp_exp-biotools.pl $gene $chr $selsnp.from $selsnp.to $population $resultdir $datadir $hapmapversion $correction $model > $log;
+        ##mirrorargs.pl $gene $chr $selsnp.from $selsnp.to $population $resultdir $datadir $hapmapversion $correction $model > $log;
+        tar --exclude='*galaxy*' -cvf snpexp_results.tar *
+      #else 
+        #if str($selsnp.rsids) == "":
+           echo "You did not provide a valid list of rsids." > $log
+        #else
+          snp_exp-biotools.pl $gene $chr $selsnp.rsids $population $resultdir $datadir $hapmapversion $correction $model > $log;
+          ##mirrorargs.pl $gene $chr $selsnp.rsids $population $resultdir $datadir $hapmapversion $correction $model > $log;
+          tar --exclude='*galaxy*' -cvf snpexp_results.tar *
+        #end if
+      #end if
+    #end if
+  </command>
+
+ 
+
+  <inputs>
+    <param name="gene" type="text" label="Gene (NCBI gene symbol)" size="30"/>
+    <param name="chr" type="select" label="SNPs on chromosome">
+                <option value="1" select="true">1</option> 
+                <option value="2">2</option> 
+                <option value="3">3</option>
+                <option value="4">4</option> 
+                <option value="5">5</option>
+                <option value="6">6</option> 
+                <option value="7">7</option>
+                <option value="8">8</option> 
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option> 
+                <option value="13">13</option>
+                <option value="14">14</option> 
+                <option value="15">15</option>
+                <option value="16">16</option> 
+                <option value="17">17</option>
+                <option value="18">18</option> 
+                <option value="19">19</option>
+                <option value="20">20</option> 
+                <option value="21">21</option>
+                <option value="22">22</option> 
+                <option value="23">X</option>
+                <option value="24">Y</option> 
+    </param>
+    <conditional name="selsnp"> 
+    <param name="snpinput" type="select" label="SNPs to analyse">
+      <option value="interval" selected="true">Nucleotide interval</option>
+      <option value="list">Reference SNP cluster id list</option>
+    </param>
+    <when value="interval">
+      <param name="from" type="integer" value="" size="24" label="From basepair" help="NCBI build 36." optional="false" />
+      <param name="to" type="integer" value="" size="24" label="To basepair" help="NCBI build 36." optional="false" />
+    </when>
+    <when value="list">
+      <param name="rsids" type="text" label="rsids" size="100" help="Comma separated and/or hyphenated range." optional="false" />
+    </when>
+    </conditional>
+    <param name="population" type="select" label="Population">
+                <option value="ALL" select="true">All populations</option> 
+                <option value="ALL_unrelated">All unrelated</option> 
+                <option value="CEU_parents">CEU parents</option>
+                <option value="CEU_children">CEU children</option> 
+                <option value="CHB">CHB</option> 
+                <option value="JPT">JPT</option> 
+                <option value="YRI_parents">YRI parents</option>
+                <option value="YRI_childre">YRI children</option> 
+     </param>
+     <param name="hapmapversion" type="select" label="Hapmap version for the genotypes">
+        <option value="2">HapMap2 r23 unfiltered 3.96 million SNPs</option>
+        <option value="3">HapMap3 r3 consensus 1.46 million SNPs</option>
+     </param>
+     <param name="correction" type="select" label="Adjustment for multiple testing">
+        <option value="0">No adjustment</option>
+        <option value="1">Bonferroni</option>
+        <option value="2">Holm</option>
+        <option value="3">Sidak singlestep</option>
+        <option value="4">Sidak stepdown</option>
+        <option value="5">Benjamini and Hochberg stepup FDR</option>
+        <option value="6">Benjamini and Yekutieli stepup FDR</option>
+     </param>
+     <param name="model" type="select" label="Genetic model">
+        <option value="1">Additive</option>
+        <option value="2">Dominant</option>
+        <option value="3">Recessive</option>
+        <option value="4">Genotypic 2df (unadjusted)</option>
+     </param>
+  </inputs>
+
+  <outputs>
+     <data format="txt" name="log" label="SNPexp on ${gene} - log"/>
+     <data format="tar" name="allres" from_work_dir="snpexp_results.tar" label="SNPexp on ${gene} - all results"/>
+  </outputs>
+
+  <help>
+**About SNPexp**
+
+SNPexp provides a convenient and platform-independent way to calculate and visualize the correlation between the HapMap genotypes in a genomic region of interest and gene expression levels. Gives a hint of which SNPs that are associated with a change in gene expression.
+
+Both the SNP gentypes and the gene expression levels for the same individuals are publicly available:
+
+The HapMap project:
+
+Genome-wide SNP genotyping in 270 individuals from 4 populations.
+
+GENEVAR - GENe Expression VARiation:
+
+Analysis of gene expression variation in the HapMap samples using genome-wide expression arrays (47294 transcripts) from EBV-transformed lymphoblastoid cell lines from the same 270 HapMap individuals.
+
+The tool SNPexp provides an easy way to combine the information in these two datasets. It uses the whole genome association analysis toolset PLINK to calculate correlation (p-values) between genotypes for a chosen range of SNPs and the expression value for a gene of interest. The result can be visualized as a custom track on the UCSC Genome Browser.
+
+It is recommended that users set the image width of the UCSC browser to at least 1024 pixels (configure button) and use the NCBI36/hg18 assembly (manage custom tracks). The browser might on some occasions display older plots along with the current. This can be avoided by manually deleting the older custom tracks (manage custom tracks). 
+
+
+**Application parameters**
+
+Gene name (NCBI gene symbol)
+
+Chromosome
+
+Genomic region within chromosome (range in basepairs)
+
+Alternatively: rs-ids of specific SNPs (comma separated and/or hyphenated range of SNPs)
+
+HapMap population ("All populations" and "All unrelated" are individuals normalized over all populations while the separate populations are normalized independently).
+
+HapMap version (HapMap2 r23 unfiltered 3.96 million SNPs or HapMap3 r3 consensus 1.46 million SNPs).
+
+Adjustment for multiple testing (Unadjusted, Bonferroni, Sidak, FDR (no adjustment if genotypic model is chosen)).
+
+Genetic model (Additive, Dominant, Recessive, Genotypic (no adjustment for the genotypic model)).
+
+
+
+**Output files**
+
+customtrack.txt - The plot file for use as a custom track on the UCSC genome browser (-log10(pvalues)).
+
+extracted_snps.bed - The .bed-file of the extracted SNPs within the region (from plink).
+
+extracted_snps.bim - The .bim-file of the extracted SNPs within the region (from plink).
+
+extracted_snps.fam - The .fam-file of the extracted SNPs within the region (from plink).
+
+GENE.expression_values.txt - The expression values (log2-scale) of each individual for each probe representing the gene.
+
+log.txt - The log file for everything that happened while running the script.
+
+pvalues.PROBE.qassoc.means - Output from plink with alelle frequencies and counts, mean expression values (log2-scale) and standard deviations per genotype.
+
+pvalues.PROBE.assoc.linear - Output from plink with (unadjusted) p-values for each SNP.
+
+pvalues.PROBE.assoc.linear.adjusted - Output from plink with different adjustments for multiple testing for each SNP (sorted by p-value).
+("PROBE" refers to the transcript targetID representing this gene on the Illumina chip. One gene may have several probes). 
+
+
+**Acknowledgements**
+
+Use of publicly available tools and datasets:
+
+Datasets:
+
+HapMap2 release #23 - the SNP genotypes in plink file format.
+
+(Entire HapMap r23 unfiltered (coded according to NCBI build 36 on the forward strand), 3.96 million SNPs).
+
+HapMap3 release #3 - the SNP genotypes in plink file format.
+
+(Hapmap3 r3 Consensus file (coded according to NCBI build 36 on the forward strand), 1.46 million SNPs).
+
+Genevar - the gene expression levels (normalized independently for each population or all together).
+
+Tools:
+
+PLINK - for extraction of SNP genotypes and correlation statistics (WALD-test).
+
+UCSC genome browser - for visualization of the result (p-values). 
+
+May 2010 kristiho@ifi.uio.no Norwegian PSC Research Center, Rikshospitalet - Oslo Norway 
+
+                                    
+**Offline mode**
+
+If you wish to setup and run this perl script in offline mode on a local computer, please download the source code (http://folk.uio.no/kristiho/snpexp_offlineversion.zip) and expression data (http://folk.uio.no/kristiho/snpexp_expressiondata.zip) and follow the instructions. (Open links in new tab for downloads.)
+
+  </help>
+</tool>

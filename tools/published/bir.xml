@@ -1,0 +1,842 @@
+<tool id="bir" name="BIR" version="1.0"> 
+
+<description>
+pipeline for preparation of phylogenomic data
+</description>
+
+<command>
+
+  module load blast/2.2.26;
+  module load emboss/6.5.7;
+  module load mafft/7.157;
+  module load raxml/8.0.26;
+  module load galaxy-scripts;
+  
+  cp $queryfile $queryfile.name;
+  cp $alignfile $alignfile.name;
+
+  ###print out arguments
+ mirrorargs.pl 
+ BIR.pl
+ -S $seqtype 
+
+ #if str( $blastopt.blast ) == 'y':
+   -B y  
+   -b $blastopt.selblastprog.blastprog
+   -l $blastopt.blastfilt 
+   #if str( $blastopt.selblastprog.blastprog ) == 'blastx':
+      -c $blastopt.selblastprog.codontable 
+   #end if
+   -e $blastopt.evalue 
+   -a $blastopt.aligndisc 
+   -t $blastopt.BitScore
+   -C $blastopt.QueryCov 
+   -s $blastopt.SubjectCov
+   -i $blastopt.SeqIdentity 
+    #if str( $blastopt.selblastprog.blastprog ) == 'blastx' or str($blastopt.selblastprog.blastprog ) == 'blastp':
+	   #if str( $blastopt.selblastprog.selgenome.genome ) == 'a': 
+	     -G a 
+	     -g $blastopt.selblastprog.selgenome.GnmSeqToAdd
+	   #else if str( $blastopt.selblastprog.selgenome.genome ) == 'n':
+	     -G n
+	   #else if str( $blastopt.selblastprog.selgenome.genome ) == 'some':
+	      #set $gg = ''
+	      #if str( $blastopt.selblastprog.selgenome.gen_Arabidopsis ) == 'y':
+	          #set $gg += 'A'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Bigelowiella ) == 'y':
+	          #set $gg += 'B'
+	      #end if 
+	      #if str( $blastopt.selblastprog.selgenome.gen_Dictyostelium) == 'y':
+	          #set $gg += 'D'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Guillardia ) == 'y':
+	          #set $gg += 'G'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Human ) == 'y':
+	          #set $gg += 'H'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Monosiga ) == 'y': 
+	          #set $gg += 'M' 
+	      #end if    
+	      #if str( $blastopt.selblastprog.selgenome.gen_Naegleria ) == 'y':
+	          #set $gg += 'N'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Paramecium ) == 'y':
+	          #set $gg += 'P'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Reticulomyxa ) == 'y':
+	          #set $gg += 'R'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Saccharomyces ) == 'y':
+	          #set $gg += 'S'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Thalassiosira ) == 'y':  
+	          #set $gg += 'T'
+	      #end if
+	      #if str( $gg ) == '':
+	        -G n
+	      #else
+	        -G $gg
+	        -g $blastopt.selblastprog.selgenome.GnmSeqToAdd
+	      #end if
+	   #end if
+   #end if
+   -v $blastopt.EvalueQuery 
+   -V $blastopt.EvalueGenome
+   -Z $blastopt.EvalueOption
+ #else
+  -B n
+ #end if
+ 
+ -M $mafftprog 
+ -D $MatrixAA 
+ -N $MatrixNUC 
+ -O $gapOP 
+ -E $gapEP 
+ 
+ 
+ 
+ 
+ #if str( $Trimopt.Trimprog ) == 'gblocks':
+   -A $Trimopt.Trimprog 
+   -p $Trimopt.gblocks_b1_Val
+   -q $Trimopt.gblocks_b2_Val
+   -r $Trimopt.gblocks_b3_Val 
+   -x $Trimopt.gblocks_b4_Val
+   -y $Trimopt.gblocks_b5_Val 
+ 
+   ## 
+   ## -A $Trimopt.Trimprog 
+   ## #if str( $Trimopt.selgblocks_b1.gblocks_b1_Opt ) == 'y':
+   ##  -P $Trimopt.selgblocks_b1.gblocks_b1_Opt
+   ##  -p $Trimopt.selgblocks_b1.gblocks_b1_Val
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b2.gblocks_b2_Opt ) == 'y':
+   ##  -Q $Trimopt.selgblocks_b2.gblocks_b2_Opt
+   ##  -q $Trimopt.selgblocks_b2.gblocks_b2_Val
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b3.gblocks_b3_Opt ) == 'y':
+   ##  -R $Trimopt.selgblocks_b3.gblocks_b3_Opt
+   ##  -r $Trimopt.selgblocks_b3.gblocks_b3_Val 
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b4.gblocks_b4_Opt ) == 'y':
+   ## -X $Trimopt.selgblocks_b4.gblocks_b4_Opt
+   ## -x $Trimopt.selgblocks_b4.gblocks_b4_Val
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b5.gblocks_b5_Opt ) == 'y':
+   ## -Y $Trimopt.selgblocks_b5.gblocks_b5_Opt 
+   ## -y $Trimopt.selgblocks_b5.gblocks_b5_Val 
+   ## #end if
+   ##
+   
+ #else if str( $Trimopt.Trimprog ) == 'trimal':
+   -A $Trimopt.Trimprog
+   -m $Trimopt.trimAlOpt 
+ #else
+    -A none
+ #end if
+ 
+ #if str( $treeopt.treeprog) == 'raxml':
+   -T $treeopt.treeprog
+   -K $treeopt.raxmlmodel 
+   -k $treeopt.bootstraps 
+ #else if str( $treeopt.treeprog) == 'fasttree':
+   -T $treeopt.treeprog
+ #else
+    -T none
+ #end if
+ 
+  #if str( $cocoOpt) == 'coco':
+   -o $cocoOpt 
+  #else
+    -o n
+  #end if  
+
+  $queryfile.name $alignfile.name > BIR.log;
+  
+  
+  
+  /usit/abel/u1/globus/BIR/VER1.1/BIR.pl
+  -S $seqtype 
+
+ #if str( $blastopt.blast ) == 'y':
+   -B y  
+   -b $blastopt.selblastprog.blastprog
+   -l $blastopt.blastfilt 
+   #if str( $blastopt.selblastprog.blastprog ) == 'blastx':
+      -c $blastopt.selblastprog.codontable 
+   #end if
+   -e $blastopt.evalue 
+   -a $blastopt.aligndisc
+   -t $blastopt.BitScore 
+   -C $blastopt.QueryCov 
+   -s $blastopt.SubjectCov
+   -i $blastopt.SeqIdentity 
+    #if str( $blastopt.selblastprog.blastprog ) == 'blastx' or str($blastopt.selblastprog.blastprog ) == 'blastp':
+	   #if str( $blastopt.selblastprog.selgenome.genome ) == 'a': 
+	     -G a 
+	     -g $blastopt.selblastprog.selgenome.GnmSeqToAdd
+	   #else if str( $blastopt.selblastprog.selgenome.genome ) == 'n':
+	     -G n
+	   #else if str( $blastopt.selblastprog.selgenome.genome ) == 'some':
+	      #set $gg = ''
+	      #if str( $blastopt.selblastprog.selgenome.gen_Arabidopsis ) == 'y':
+	          #set $gg += 'A'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Bigelowiella ) == 'y':
+	          #set $gg += 'B'
+	      #end if 
+	      #if str( $blastopt.selblastprog.selgenome.gen_Dictyostelium) == 'y':
+	          #set $gg += 'D'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Guillardia ) == 'y':
+	          #set $gg += 'G'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Human ) == 'y':
+	          #set $gg += 'H'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Monosiga ) == 'y': 
+	          #set $gg += 'M' 
+	      #end if    
+	      #if str( $blastopt.selblastprog.selgenome.gen_Naegleria ) == 'y':
+	          #set $gg += 'N'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Paramecium ) == 'y':
+	          #set $gg += 'P'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Reticulomyxa ) == 'y':
+	          #set $gg += 'R'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Saccharomyces ) == 'y':
+	          #set $gg += 'S'
+	      #end if
+	      #if str( $blastopt.selblastprog.selgenome.gen_Thalassiosira ) == 'y':  
+	          #set $gg += 'T'
+	      #end if
+	      #if str( $gg ) == '':
+	        -G n
+	      #else
+	        -G $gg
+	        -g $blastopt.selblastprog.selgenome.GnmSeqToAdd
+	      #end if
+	   #end if
+   #end if
+   -v $blastopt.EvalueQuery 
+   -V $blastopt.EvalueGenome
+   -Z $blastopt.EvalueOption
+ #else
+  -B n
+ #end if
+ 
+ -M $mafftprog 
+ -D $MatrixAA 
+ -N $MatrixNUC 
+ -O $gapOP 
+ -E $gapEP 
+ 
+ #if str( $Trimopt.Trimprog ) == 'gblocks':
+   -A $Trimopt.Trimprog 
+   -p $Trimopt.gblocks_b1_Val
+   -q $Trimopt.gblocks_b2_Val
+   -r $Trimopt.gblocks_b3_Val 
+   -x $Trimopt.gblocks_b4_Val
+   -y $Trimopt.gblocks_b5_Val 
+ 
+   ## 
+   ## -A $Trimopt.Trimprog 
+   ## #if str( $Trimopt.selgblocks_b1.gblocks_b1_Opt ) == 'y':
+   ##  -P $Trimopt.selgblocks_b1.gblocks_b1_Opt
+   ##  -p $Trimopt.selgblocks_b1.gblocks_b1_Val
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b2.gblocks_b2_Opt ) == 'y':
+   ##  -Q $Trimopt.selgblocks_b2.gblocks_b2_Opt
+   ##  -q $Trimopt.selgblocks_b2.gblocks_b2_Val
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b3.gblocks_b3_Opt ) == 'y':
+   ##  -R $Trimopt.selgblocks_b3.gblocks_b3_Opt
+   ##  -r $Trimopt.selgblocks_b3.gblocks_b3_Val 
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b4.gblocks_b4_Opt ) == 'y':
+   ## -X $Trimopt.selgblocks_b4.gblocks_b4_Opt
+   ## -x $Trimopt.selgblocks_b4.gblocks_b4_Val
+   ## #end if
+   ## #if str( $Trimopt.selgblocks_b5.gblocks_b5_Opt ) == 'y':
+   ## -Y $Trimopt.selgblocks_b5.gblocks_b5_Opt 
+   ## -y $Trimopt.selgblocks_b5.gblocks_b5_Val 
+   ## #end if
+   ##
+   
+ #else if str( $Trimopt.Trimprog ) == 'trimal':
+   -A $Trimopt.Trimprog
+   -m $Trimopt.trimAlOpt 
+ #else
+    -A none
+ #end if
+ 
+ #if str( $treeopt.treeprog) == 'raxml':
+   -T $treeopt.treeprog
+   -K $treeopt.raxmlmodel 
+   -k $treeopt.bootstraps 
+ #else if str( $treeopt.treeprog) == 'fasttree':
+   -T $treeopt.treeprog
+ #else
+    -T none
+ #end if  
+ 
+  #if str( $cocoOpt) == 'coco':
+   -o $cocoOpt 
+  #else
+    -o n
+  #end if  
+
+  $queryfile.name $alignfile.name 2>BIR.log;
+  ## $queryfile.name $alignfile.name 2>1|tee -a BIR.log;
+
+  cat galaxy_*.o BIR.log > BIR.txt
+
+
+</command>
+
+<inputs>
+    <param name="queryfile" type="data" label="Query sequence file" help="One or several sequence files in FASTA format and compressed in zip format. " optional="false" format="zip" />
+    <param name="alignfile" type="data" label="Alignment file" help="One or several sequence files in FASTA format and compressed in zip format. " optional="false" format="zip" />
+    <param name="seqtype" type="select" label="Sequence type (in alignment files provided above)" help="Default: Protein">
+       <option value="p" selected="true">Protein</option>
+       <option value="n">Nucleotide</option>
+    </param>
+    <conditional name="blastopt">
+      	<param name="blast" type="select" label="STEP 1: Include blast step---------------------------------------------------------------" help="">
+           <option value="y" selected="true" >yes</option>
+           <option value="n">no</option>
+      	</param>
+      	<when value="y">
+      	        <conditional name="selblastprog">
+        	<param name="blastprog" type="select" label="blast program" help="">
+            	  <option value="blastx">transeq+blastp</option>
+            	  <option value="blastn">blastn</option>
+            	  <option value="blastp" selected="true">blastp</option>
+        	</param>
+        	<when value="blastx">
+        	  <param name="codontable" type="select" label="codon table" help="Default: 0">
+		        <option value="0" selected="true">0:Standard</option>
+			<option value="1">1:Standard alternative</option>
+			<option value="2">2:Vertebrate Mito</option>
+			<option value="3">3:Yeast Mito</option>
+			<option value="4">4:Mold,Protozoan Mito</option>
+			<option value="5">5:Invertebrate Mito</option>
+			<option value="6">6:Ciliate Dasycladacean</option>
+			<option value="9">9:Echinoderm Mito</option>
+			<option value="10">10:Euplotid Nuclear</option>
+			<option value="11">11:Bacterial</option>
+			<option value="12">12:Alternative Yeast Nuclear</option>
+			<option value="13">13:Ascidian Mito</option>
+			<option value="14">14:Flatworm Mito</option>
+			<option value="15">15:Blepharisma Macronuclear</option>
+			<option value="16">16:Chlorophycean Mito</option>
+			<option value="21">21:Trematode Mito</option>
+			<option value="22">22:Scenedesmus obliquus</option>
+			<option value="23">23:Thraustochytrium Mito</option>
+    		  </param>
+    		  <conditional name="selgenome">
+        	    <param name="genome" type="select" label="Add similar sequences to alignment files from genomes (only protein sequences). Contact us for more genomes." help="Arabidopsis,Bigelowiella,Dictyostelium,Guillardia,Human,Monosiga,Naegleria,Paramecium,Reticulomyxa,Saccharomyces,Thalassiosira">
+            	      <option value="a">all</option>
+            	      <option value="n" selected="true">none</option>
+            	      <option value="some">select some</option>
+        	    </param>
+        	    <when value="a">
+        	        <param name="GnmSeqToAdd" type="integer" value="2" size="5" label="Number of similar sequences from genomes to add." help="Default: 2"/>
+        	    </when>   
+        	    <when value="some">	
+        	    <param name="gen_Arabidopsis" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Arabidopsis thaliana" help="Number of protein sequences is 35375."/>
+	        	<param name="gen_Bigelowiella" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Bigelowiella natans" help="Number of protein sequences is 136."/>
+	        	<param name="gen_Dictyostelium" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Dictyostelium discoideum" help="Number of protein sequences is 13315."/>
+	        	<param name="gen_Guillardia" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Guillardia theta" help="Number of protein sequences is 309."/>
+	        	<param name="gen_Human" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Homo sapiens" help="Number of protein sequences is 34931."/>
+	        	<param name="gen_Monosiga" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Monosiga brevicollis" help="Number of protein sequences is 9203."/>
+	        	<param name="gen_Naegleria" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Naegleria gruberi" help="Number of protein sequences is 15759."/>
+	        	<param name="gen_Paramecium" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Paramecium tetraurelia" help="Number of protein sequences is 40043."/>
+	        	<param name="gen_Reticulomyxa" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Reticulomyxa filosa" help="Number of protein sequences is 39963."/>
+	        	<param name="gen_Saccharomyces" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Saccharomyces cerevisiae" help="Number of protein sequences is 5909."/>
+	        	<param name="gen_Thalassiosira" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Thalassiosira pseudonana" help="Number of protein sequences is 11849."/> 
+	        	<param name="GnmSeqToAdd" type="integer" value="2" size="5" label="Number of similar sequences from genomes to add." help="Default: 2"/> 
+	        	</when>
+        	    </conditional>
+    		</when> 
+    		<when value="blastp">
+    		  <conditional name="selgenome">
+        	    <param name="genome" type="select" label="Add similar sequences to alignment files from genomes (only protein sequences)." help="Arabidopsis,Bigelowiella,Dictyostelium,Guillardia,Human,Monosiga,Naegleria,Paramecium,Reticulomyxa,Saccharomyces,Thalassiosira">
+            	      <option value="a">all</option>
+            	      <option value="n" selected="true">none</option>
+            	      <option value="some">select some</option>
+        	    </param>
+        	    <when value="a">
+        	        <param name="GnmSeqToAdd" type="integer" value="2" size="5" label="Number of similar sequences from genomes to add." help="Default: 2"/>
+        	    </when>
+        	    <when value="some">	
+	        	<param name="gen_Arabidopsis" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Arabidopsis thaliana" help="Number of protein sequences is 35375."/>
+	        	<param name="gen_Bigelowiella" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Bigelowiella natans" help="Number of protein sequences is 136."/>
+	        	<param name="gen_Dictyostelium" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Dictyostelium discoideum" help="Number of protein sequences is 13315."/>
+	        	<param name="gen_Guillardia" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Guillardia theta" help="Number of protein sequences is 309."/>
+	        	<param name="gen_Human" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Homo sapiens" help="Number of protein sequences is 34931."/>
+	        	<param name="gen_Monosiga" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Monosiga brevicollis" help="Number of protein sequences is 9203."/>
+	        	<param name="gen_Naegleria" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Naegleria gruberi" help="Number of protein sequences is 15759."/>
+	        	<param name="gen_Paramecium" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Paramecium tetraurelia" help="Number of protein sequences is 40043."/>
+	        	<param name="gen_Reticulomyxa" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Reticulomyxa filosa" help="Number of protein sequences is 39963."/>
+	        	<param name="gen_Saccharomyces" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Saccharomyces cerevisiae" help="Number of protein sequences is 5909."/>
+	        	<param name="gen_Thalassiosira" type="boolean"  checked="false" truevalue='y' falsevalue="n" display="checkboxes" label="Thalassiosira pseudonana" help="Number of protein sequences is 11849."/> 
+	        	<param name="GnmSeqToAdd" type="integer" value="2" size="5" label="Number of similar sequences from genomes to add." help="Default: 2"/> 
+        	    </when>
+        	    </conditional>
+    		</when> 
+    		</conditional>
+        	<param name="blastfilt" type="select" label="Filter query sequence (DUST/SEG)" help="Default: yes">
+        		<option value="T" selected="true">yes</option>
+        		<option value="F">no</option>
+        	</param>
+        	<param name="evalue" type="select" label="E-value" help="Default: 0.1">
+            		<option value="100">100</option>
+            		<option value="10">10</option>
+            		<option value="1">1</option>
+            		<option value="0.1">0.1</option>
+            		<option value="1.0E-05" selected="true">1.0E-05</option>
+            		<option value="1.0E-10">1.0E-10</option>
+            		<option value="1.0E-15">1.0E-15</option>
+            		<option value="1.0E-20">1.0E-20</option>
+            		<option value="1.0E-30">1.0E-30</option>
+            		<option value="1.0E-40">1.0E-40</option>
+            		<option value="1.0E-50">1.0E-50</option>
+            		<option value="1.0E-60">1.0E-60</option>
+            		<option value="1.0E-70">1.0E-70</option>
+            		<option value="1.0E-80">1.0E-80</option>
+            		<option value="1.0E-90">1.0E-90</option>
+            		<option value="1.0E-100">1.0E-100</option>
+            		<option value="1.0E-150">1.0E-150</option>
+            	</param>
+            	<param name="aligndisc" type="select" label="Number of alignment to report" help="Default: 25">
+            		<option value="0">0</option>
+            		<option value="10">10</option>
+            		<option value="25" selected="true">25</option>
+            		<option value="50">50</option>
+            		<option value="100">100</option>
+            		<option value="200">200</option>
+            		<option value="500">500</option>
+        	</param>
+        	<param name="BitScore" type="integer" value="300" size="3" label="BitScore more than" help="Add similar sequences to alignment files, if -t BitScore more than entered value. Default: 300"/>
+        	<param name="QueryCov" type="integer" value="50" size="3" label="Query coverage % more than" help="Add similar sequences to alignment files, if Query coverage % more than entered value. Default: 50"/>
+        	<param name="SubjectCov" type="integer" value="50" size="3" label="Subject coverage % more than" help="Add similar sequences to alignment files, if Subject coverage % more than entered value. Default: 50"/>
+        	<param name="SeqIdentity" type="integer" value="50" size="3" label="Sequence identity % more than" help="Add similar sequences to alignment files, if Sequence identity % more than entered value. Default: 50"/>
+        	<param name="EvalueQuery" type="select" label="E-value for adding sequences from query file" help="Default: 0.1">
+            		<option value="100">100</option>
+            		<option value="10">10</option>
+            		<option value="1">1</option>
+            		<option value="0.1">0.1</option>
+            		<option value="1.0E-05" selected="true">1.0E-05</option>
+            		<option value="1.0E-10">1.0E-10</option>
+            		<option value="1.0E-15">1.0E-15</option>
+            		<option value="1.0E-20">1.0E-20</option>
+            		<option value="1.0E-30">1.0E-30</option>
+            		<option value="1.0E-40">1.0E-40</option>
+            		<option value="1.0E-50">1.0E-50</option>
+            		<option value="1.0E-60">1.0E-60</option>
+            		<option value="1.0E-70">1.0E-70</option>
+            		<option value="1.0E-80">1.0E-80</option>
+            		<option value="1.0E-90">1.0E-90</option>
+            		<option value="1.0E-100">1.0E-100</option>
+            		<option value="1.0E-150">1.0E-150</option>
+            	</param>
+        	<param name="EvalueGenome" type="select" label="E-value for adding sequences from genome file " help="Default: 0.1">
+            		<option value="100">100</option>
+            		<option value="10">10</option>
+            		<option value="1">1</option>
+            		<option value="0.1">0.1</option>
+            		<option value="1.0E-05" selected="true">1.0E-05</option>
+            		<option value="1.0E-10">1.0E-10</option>
+            		<option value="1.0E-15">1.0E-15</option>
+            		<option value="1.0E-20">1.0E-20</option>
+            		<option value="1.0E-30">1.0E-30</option>
+            		<option value="1.0E-40">1.0E-40</option>
+            		<option value="1.0E-50">1.0E-50</option>
+            		<option value="1.0E-60">1.0E-60</option>
+            		<option value="1.0E-70">1.0E-70</option>
+            		<option value="1.0E-80">1.0E-80</option>
+            		<option value="1.0E-90">1.0E-90</option>
+            		<option value="1.0E-100">1.0E-100</option>
+            		<option value="1.0E-150">1.0E-150</option>
+            	</param>
+            	<param name="EvalueOption" type="select" label="Include E-value criteria only to add sequences " help="Default: yes">
+        			<option value="y" selected="true">yes</option>
+        			<option value="n">no</option>
+        	</param>
+        </when>
+    </conditional>
+    
+        <param name="mafftprog" type="select" label="STEP 2: MAFFT realignment strategy--------------------------------------------------------" help="Default: auto">
+           	<option value="y">Auto</option>
+            	<option value="f">FFT-NS</option>
+            	<option value="i">FFT-NS-i</option>
+            	<option value="e">E-INS-i</option>
+            	<option value="l">L-INS-i</option>
+            	<option value="g">G-INS-i</option>
+            	<option value="a" selected="true">Align to existing alignment</option>
+        </param>
+        <param name="MatrixAA" type="select" label="Scoring matrix (Amino-acid)" help="Advanced MAFFT alignment settings. Default: Blosum 62">
+		<option value="30">blosum 30</option>
+	        <option value="45">blosum 45</option>
+        	<option value="62" selected="true">blosum 62</option>
+        	<option value="45">blosum 80</option>
+        	<option value="45">blosum 100</option>
+        	<option value="45">blosum 200</option>
+        </param> 
+        <param name="MatrixNUC" type="select" label="Scoring matrix (Nucleotide)" help="Advanced MAFFT alignment settings. Default: PAM 200">
+		<option value="1">PAM 1</option>
+		<option value="100">PAM 100</option>
+        	<option value="200" selected="true">PAM 200</option>
+        </param>
+        <param name="gapOP" type="float" value="1.53" size="5" label="Gap opening penalty " help="Should be in the range (1.0 - 3.0). Default: 1.53"/>
+	<param name="gapEP" type="float" value="0.00" size="5" label="Offset value " help="Should be in the rane (0.0 - 1.0). Default: 0.0"/>
+  
+    <conditional name="Trimopt">	
+    	<param name="Trimprog" type="select" label="STEP 3: Remove ambiguously aligned characters-----------------------------------------" help="">
+            <option value="gblocks">gblocks</option>
+            <option value="trimal" selected="true">trimAl</option>
+            <option value="none">none</option>
+	</param>
+	
+	<when value="gblocks">
+	  <param name="gblocks_b1_Val" type="text" value="50%" label="Min. seq for conserved position" help="Default: 50%"/>
+	   <param name="gblocks_b2_Val" type="text" value="50%" label="Min. seq for flank position" help="Default: 50%"/>
+	   <param name="gblocks_b3_Val" type="integer" value="4" label="Max. seq for contiguous nonconserved positions" help="Default: 4"/>
+	   <param name="gblocks_b4_Val" type="integer"  value="5" label="Min. length of a block (X) " help="Default: 5"/>
+	   <param name="gblocks_b5_Val" type="select" label="Allow gap position" help="Default: h">
+		<option value="a">all gap positions</option>
+		<option value="h" selected="true">50%(half) gap position</option>
+		<option value="n">no gaps</option>
+           </param>
+	</when>
+	
+	<!--
+      	<when value="gblocks">
+      	  <conditional name="selgblocks_b1">
+      	   <param name="gblocks_b1_Opt" type="select" label="Min. seq for conserved position " help="Default: 50%+1. Select yes to override default.">
+		<option value="n" selected="true">no</option>
+        	<option value="y">yes</option>
+            </param>
+		<when value="y">
+		   <param name="gblocks_b1_Val" type="text" value="50%+1" label="Min. seq for conserved position (d:X%+1) " help="Default: 50%+1"/>
+		</when>
+	  </conditional>
+	  <conditional name="selgblocks_b2">
+	    <param name="gblocks_b2_Opt" type="select" label="Min. seq for flank position " help="Default: 85. Select yes to override default.">
+		<option value="n" selected="true">no</option>
+        	<option value="y">yes</option>
+	    </param>
+		<when value="y">
+		   <param name="gblocks_b2_Val" type="integer" value="85" label="Min. seq for flank position (d:X%+1) " help="Default: 85"/>
+		</when>
+	  </conditional>
+	  <conditional name="selgblocks_b3">
+	    <param name="gblocks_b3_Opt" type="select" label="Max. seq for contiguous nonconserved positions" help="Default: 8. Select yes to override default.">
+		<option value="n" selected="true">no</option>
+		<option value="y">yes</option>
+	    </param>
+		<when value="y">
+			<param name="gblocks_b3_Val" type="integer" value="8" label="Max. seq for contiguous nonconserved positions (X) " help="Default: 8"/>
+		</when>
+	  </conditional>
+	  <conditional name="selgblocks_b4">
+	    <param name="gblocks_b4_Opt" type="select" label="Min. length of a block " help="Default: 10. Select yes to override default.">
+		<option value="n" selected="true">no</option>
+		<option value="y">yes</option>
+	    </param>
+		<when value="y">
+		    <param name="gblocks_b4_Val" type="integer"  value="10" label="Min. length of a block (X) " help="Default: 10"/>
+		</when>
+	  </conditional>
+	  <conditional name="selgblocks_b5">
+	    <param name="gblocks_b5_Opt" type="select" label="Allow gap position " help="Default: h (half). Select yes to override default.">
+		<option value="n" selected="true">no</option>
+		<option value="y">yes</option>
+	    </param>
+		<when value="y">
+		<param name="gblocks_b5_Val" type="select" label="Allow gap position  " help="Default: h">
+			<option value="a" selected="true">all gap positions</option>
+			<option value="h">50%(half) gap position</option>
+			<option value="n">no gaps</option>
+		</param>
+		</when>
+	  </conditional>
+	</when>
+	-->
+	
+	<when value="trimal">
+	   <param name="trimAlOpt" type="select" label="trimAl trimming options " help="Default: automated1">
+		<option value="automated1" selected="true">automated1</option>
+		<option value="nogaps">nogaps</option>
+		<option value="noallgaps">noallgaps</option>
+		<option value="gappyout">gappyout</option>
+		<option value="strict">strict</option>
+		<option value="strictplus">strictplus</option>
+	    </param>
+	</when>
+    </conditional>
+    <conditional name="treeopt">	
+	 <param name="treeprog" type="select" label="STEP 4 : Infer phylogenetic trees-----------------------------------------------------------------" help="">
+           <option value="fasttree" selected="true" >Include FastTree</option>
+           <option value="raxml">Include RAxML</option>
+	   <option value="none">none</option>
+      	 </param>
+      	 <when value="raxml">
+	    <param name="raxmlmodel" type="select" label="RAxML model (GTR*-nucleotide, PROT*-protein)" help="">
+		<option value="None" selected="true">None</option>
+		<option value="PROTCATLG">PROTCATLG</option>
+		<option value="PROTCATLGF">PROTCATLGF</option>
+		<option value="PROTGAMMALG">PROTGAMMALG</option>
+		<option value="PROTGAMMALGF">PROTGAMMALGF</option>
+		<option value="PROTGAMMAILG">PROTGAMMAILG</option>
+		<option value="PROTGAMMAILGF">PROTGAMMAILGF</option>
+		<option value="PROTCATILG">PROTCATILG</option>
+		<option value="PROTCATILGF">PROTCATILGF</option>
+		<option value="GTRCAT">GTRCAT</option>
+		<option value="GTRCAT_GAMMA">GTRCAT_GAMMA</option>
+		<option value="GTRCATI">GTRCATI</option>
+		<option value="GTRGAMMA">GTRGAMMA</option>
+		<option value="GTRGAMMAI">GTRGAMMAI</option>
+		<option value="PROTCATDAYHOFF">PROTCATDAYHOFF</option>
+		<option value="PROTCATDCMUT">PROTCATDCMUT</option>
+		<option value="PROTCATJTT">PROTCATJTT</option>
+		<option value="PROTCATMTREV">PROTCATMTREV</option>
+		<option value="PROTCATWAG">PROTCATWAG</option>
+		<option value="PROTCATRTREV">PROTCATRTREV</option>
+		<option value="PROTCATCPREV">PROTCATCPREV</option>
+		<option value="PROTCATVT">PROTCATVT</option>
+		<option value="PROTCATBLOSUM62">PROTCATBLOSUM62</option>
+		<option value="PROTCATMTMAM">PROTCATMTMAM</option>
+		<option value="PROTCATGTR">PROTCATGTR</option>
+		<option value="PROTGAMMADAYHOFF">PROTGAMMADAYHOFF</option>
+		<option value="PROTGAMMADCMUT">PROTGAMMADCMUT</option>
+		<option value="PROTGAMMAJTT">PROTGAMMAJTT</option>
+		<option value="PROTGAMMAMTREV">PROTGAMMAMTREV</option>
+		<option value="PROTGAMMAWAG">PROTGAMMAWAG</option>
+		<option value="PROTGAMMARTREV">PROTGAMMARTREV</option>
+		<option value="PROTGAMMACPREV">PROTGAMMACPREV</option>
+		<option value="PROTGAMMAVT">PROTGAMMAVT</option>
+		<option value="PROTGAMMABLOSUM62">PROTGAMMABLOSUM62</option>
+		<option value="PROTGAMMAMTMAM">PROTGAMMAMTMAM</option>
+		<option value="PROTGAMMAGTR">PROTGAMMAGTR</option>
+		<option value="PROTGAMMAIDAYHOFF">PROTGAMMAIDAYHOFF</option>
+		<option value="PROTGAMMAIDCMUT">PROTGAMMAIDCMUT</option>
+		<option value="PROTGAMMAIJTT">PROTGAMMAIJTT</option>
+		<option value="PROTGAMMAIMTREV">PROTGAMMAIMTREV</option>
+		<option value="PROTGAMMAIWAG">PROTGAMMAIWAG</option>
+		<option value="PROTGAMMAIRTREV">PROTGAMMAIRTREV</option>
+		<option value="PROTGAMMAICPREV">PROTGAMMAICPREV</option>
+		<option value="PROTGAMMAIVT">PROTGAMMAIVT</option>
+		<option value="PROTGAMMAIBLOSUM62">PROTGAMMAIBLOSUM62</option>
+		<option value="PROTGAMMAIMTMAM">PROTGAMMAIMTMAM</option>
+		<option value="PROTGAMMAIGTR">PROTGAMMAIGTR</option>
+		<option value="PROTCATDAYHOFFF">PROTCATDAYHOFFF</option>
+		<option value="PROTCATDCMUTF">PROTCATDCMUTF</option>
+		<option value="PROTCATJTTF">PROTCATJTTF</option>
+		<option value="PROTCATMTREVF">PROTCATMTREVF</option>
+		<option value="PROTCATWAGF">PROTCATWAGF</option>
+		<option value="PROTCATRTREVF">PROTCATRTREVF</option>
+		<option value="PROTCATCPREVF">PROTCATCPREVF</option>
+		<option value="PROTCATVTF">PROTCATVTF</option>
+		<option value="PROTCATBLOSUM62F">PROTCATBLOSUM62F</option>
+		<option value="PROTCATMTMAMF">PROTCATMTMAMF</option>
+		<option value="PROTCATGTRF">PROTCATGTRF</option>
+		<option value="PROTGAMMADAYHOFFF">PROTGAMMADAYHOFFF</option>
+		<option value="PROTGAMMADCMUTF">PROTGAMMADCMUTF</option>
+		<option value="PROTGAMMAJTTF">PROTGAMMAJTTF</option>
+		<option value="PROTGAMMAMTREVF">PROTGAMMAMTREVF</option>
+		<option value="PROTGAMMAWAGF">PROTGAMMAWAGF</option>
+		<option value="PROTGAMMARTREVF">PROTGAMMARTREVF</option>
+		<option value="PROTGAMMACPREVF">PROTGAMMACPREVF</option>
+		<option value="PROTGAMMAVTF">PROTGAMMAVTF</option>
+		<option value="PROTGAMMABLOSUM62F">PROTGAMMABLOSUM62F</option>
+		<option value="PROTGAMMAMTMAMF">PROTGAMMAMTMAMF</option>
+		<option value="PROTGAMMAGTRF">PROTGAMMAGTRF</option>
+		<option value="PROTGAMMAIDAYHOFFF">PROTGAMMAIDAYHOFFF</option>
+		<option value="PROTGAMMAIDCMUTF">PROTGAMMAIDCMUTF</option>
+		<option value="PROTGAMMAIJTTF">PROTGAMMAIJTTF</option>
+		<option value="PROTGAMMAIMTREVF">PROTGAMMAIMTREVF</option>
+		<option value="PROTGAMMAIWAGF">PROTGAMMAIWAGF</option>
+		<option value="PROTGAMMAIRTREVF">PROTGAMMAIRTREVF</option>
+		<option value="PROTGAMMAICPREVF">PROTGAMMAICPREVF</option>
+		<option value="PROTGAMMAIVTF">PROTGAMMAIVTF</option>
+		<option value="PROTGAMMAIBLOSUM62F">PROTGAMMAIBLOSUM62F</option>
+		<option value="PROTGAMMAIMTMAMF">PROTGAMMAIMTMAMF</option>
+		<option value="PROTGAMMAIGTRF">PROTGAMMAIGTRF</option>
+		<option value="BINCAT">BINCAT</option>
+		<option value="BINCATI">BINCATI</option>
+		<option value="BINGAMMA">BINGAMMA</option>
+		<option value="BINGAMMAI">BINGAMMAI</option>
+		<option value="MULTICAT">MULTICAT</option>
+		<option value="MULTICATI">MULTICATI</option>
+		<option value="MULTIGAMMA">MULTIGAMMA</option>
+		<option value="MULTIGAMMAI">MULTIGAMMAI</option>
+	      </param>
+	      <param name="bootstraps" type="integer" value="10" label="Number of bootstraps" help="Default: 10"/>
+	   </when>
+	</conditional>
+	<param name="cocoOpt" type="select" label="STEP 5 : Include Ortholog prediction using COCO-CL--------------------------------------" help="">
+	   <option value="coco" selected="true">yes</option>
+           <option value="n">no</option>
+	</param>						
+</inputs>
+
+<outputs>
+  <data format="txt" name="mirror" label="BIR command" from_work_dir="mirrorargs.log"/>
+  <data format="txt" name="log" label="BIR log" from_work_dir="BIR.txt"/>
+  <data format="zip" name="results" label="BIR results" from_work_dir="results.zip"/>
+</outputs>
+
+<help>
+
+**About BIR**
+
+BIR - A pipeline for several initial tasks involved in phylogenetic reconstructions. In particular, it is useful for multi-gene phylogenies. It screens non-annotaed sequences aganist seed alignments and selected eukaryotic genomes (protein sequences) using BLAST. It constructs single gene alignments (MAFFT), trims alignments (Gblocks or trimal), performs phylogenetic analysis of each seed alignments (FastTree or RAxML) and predicts orthologs (coco-cl).
+
+**Manual**
+
+The manual_ and readme_.
+
+.. _manual: ${static_path}/BIR/manual/BIR_manual.pdf
+.. _readme: ${static_path}/BIR/manual/readme
+
+**Input**
+
+**Query** file in zip format - one or more FASTA sequence files compressed with zip
+
+**Alignment** file in zip format - one or more sequences or sequence alignments in FASTA compressed with zip
+
+**Test datasets**
+
+QueryTest_, AlignTestCase_
+
+.. _QueryTest: ${static_path}/BIR/dataset/QueryTest.zip
+.. _AlignTestCase: ${static_path}/BIR/dataset/AlignTestCase.zip   
+
+**Workflow**
+
+.. image:: ${static_path}/BIR/BIR_workflow.jpg
+     :height: 800 
+     :width: 600
+     
+**Output**
+
+After successful run, click the BIR results link to download the analysis results. Since, there are many output files produced in BIR analysis. The following section describes in brief about the individual steps and respective output folder and files.
+ 
+**Step 1: Sequence screening**
+
+All result files described below are written in a directory named Additional_files.
+
+ParamInfo.txt (sample1_): This file lists all the command line parameters and steps included and executed for analysis. Brief statistics of number of files and number of sequences in each files uploaded as query and seed alignments. It also list total number of sequences added (from query and genome) to any alignment files. Invalid parameter selection or value entered or error encountered leading to unsuccessful of pipeline are also listed here.
+
+.. _sample1: ${static_path}/BIR/sample/ParamInfo.txt
+
+RawBlastOutput.txt (sample2_): Raw BLAST output for query sequences in text format.
+
+.. _sample2: ${static_path}/BIR/sample/RawBlastOutput.txt
+
+BlastPars_Stats_Q.txt (sample3_): This file lists all sequences from query files passing the quality criteria (query coverage, sequence identity percentage, bit score and e-value criteria) along with their BLAST search result statistics (query length, alignment length, identity percentage, overlap percentage, bit score, e-value).
+
+.. _sample3: ${static_path}/BIR/sample/BlastPars_Stats_Q.txt
+
+RawBlastGenomeOutput.txt (sample4_): Raw BLAST output for genome sequences in text format.
+
+.. _sample4: ${static_path}/BIR/sample/RawBlastGenomeOutput.txt
+
+BlastPars_Stats_G.txt (sample5_): This file lists all sequences from genome files passing the quality criteria (query coverage, sequence identity percentage, bit score and e-value criteria) along with their BLAST search result statistics (query length, alignment length, identity percentage, overlap percentage, bit score, e-value).
+
+.. _sample5: ${static_path}/BIR/sample/BlastPars_Stats_G.txt
+
+
+Stats_table_Q.txt (sample6_): This tab delimited text file list summary of sequences from query file added to seed alignment files. The order of the column is 1)query sequence name, 2)query file name, 3)number of seed alignment files where is query sequences are added, 4)number of sequences above cut off set by the user / total number of sequeneces in seed alignment file, and seed alignment file name.
+
+.. _sample6: ${static_path}/BIR/sample/Stats_table_Q.txt
+
+Stats_table_G.txt (sample7_): This tab delimited text file list summary of sequences from selected genome added to seed alignment files. The order of the column is 1)seed alignment file name, 2)genome, 3)identity percentage of added sequences from genomes, 4)GI.
+
+.. _sample7: ${static_path}/BIR/sample/Stats_table_G.tx
+
+QuerySeqAdded.fasta (sample8_): Sequences from query files that are added to any seed alignment files are written in FASTA format for subsequent external analysis. If any sequences from query files are added in more than one seed alignment, it is listed only once.
+
+.. _sample8: ${static_path}/BIR/sample/QuerySeqAdded.fasta
+
+GenomeSeqAdded.fasta (sample9_): Sequences from genome files that are added to any seed alignment files are written in FASTA format for subsequent external analysis. 
+
+.. _sample9: ${static_path}/BIR/sample/GenomeSeqAdded.fasta
+
+
+**Step 2: Building alignment**
+
+The output files (alignments) produced by MAFFT in Step 2 are stored in directory named Aligned.
+
+SeedAlignment.fasta (sample10_): Aligned seed alignment files. Sequences added from query file and genomes are included.
+
+.. _sample10: ${static_path}/BIR/sample/SeedAlignment.fasta
+
+The description of different algorithms implemented in BIR - pipeline can be found at the MAFFT website.
+http://mafft.cbrc.jp/alignment/software/algorithms/algorithms.html 
+
+**Step 3: Trim alignment (Gblocks or trimal)**
+
+Gblocks output files are stored in a directory named Gblocks.
+
+trimAl output files are stored in a directory named trimAl.
+
+SeedAlignment.fasta-gb (sample11_) or SeedAlignment.fasta-Al (sample12_): After removing poorly aligned positions of an alignment file (Gblocks/trimAl output files in FASTA format).
+
+.. _sample11: ${static_path}/BIR/sample/SeedAlignment.fasta-gb
+.. _sample12: ${static_path}/BIR/sample/SeedAlignment.fasta-Al
+
+SeedAlignment.fasta-gb.html (sample13_) or SeedAlignment.fasta-Al.html (sample14_)  : A HTML file with figure of selected positions underlined with a heavy blue line and highlighted conserved positions.  The parameters and color coding details can be accessed at following web links for Gblocks and trimAl
+
+.. _sample13: ${static_path}/BIR/sample/SeedAlignment.fasta-gb.html
+.. _sample14: ${static_path}/BIR/sample/SeedAlignment.fasta-Al.html
+
+Gblocks - http://molevol.cmima.csic.es/castresana/Gblocks.html
+
+trimAl - http://trimal.cgenomics.org
+
+**Step 4: Phylogenetic inference (FastTree or RAxML)**
+
+FastTree output files are stored in a directory named FastTree.
+
+RAxML output files are stored in a directory named RAxML.
+
+SeedAlignment.fasta-gb-marked (sample15_): The -marked extension files includes information about the sequences added from query files and genome files along with paralogs annotation. The fasta headers are extended by _*Q (sequences added from query files ), _*G (sequences added from genome files), and _*C (sequences predicted to be paralogs using COCO-CL). 
+
+.. _sample15: ${static_path}/BIR/sample/SeedAlignment.fasta-gb-marked
+
+SeedAlignment.mtree (sample16_): Tree file for each seed alignment file in Newick format. Sequences from query and genome file added to seed alignment file are marked with _*Q and _*G respectively. The coco-cl predicted paralogs are marked _*C.
+
+.. _sample16: ${static_path}/BIR/sample/SeedAlignment.mtree
+
+There are many phylogenetic tree viewer tools that accepts Newick format to view tree files generated. Links for tree viewing tools are : FigTree (http://tree.bio.ed.ac.uk/software/figtree) , TreeView (http://taxonomy.zoology.gla.ac.uk/rod/treeview.html), MEGA (http://www.megasoftware.net/).
+
+FastTree - http://www.microbesonline.org/fasttree/
+
+RAxML - http://sco.h-its.org/exelixis/web/software/raxml/index.html
+
+**Step 5: Ortholog prediction (COCO-CL)**
+
+coco-cl output files are stored in a directory named coco-cl. 
+
+COCO-Paralogs_table.txt (sample17_): This tab delimited text file list summary of paralogues in each seed alignment files. The order of the column is 1)seed alignment file name, 2)number of paralogs found, 3)fasta header of potential paralogs predicted using coco-cl
+
+.. _sample17: ${static_path}/BIR/sample/COCO-Paralogs_table.txt
+
+SeedAlignment_fas-gb.cls (sample18_) : Raw output file of coco-cl. Cluster 1 list all the orthologs sequence header while Cluster 2 list all paralogs.
+
+.. _sample18: ${static_path}/BIR/sample/SeedAlignment_fas-gb.cls
+
+coco-cl - http://www.rajajothi.com/COCOCL/
+
+</help>
+
+</tool>
+
+

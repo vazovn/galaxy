@@ -1,0 +1,49 @@
+<tool id="mafft" name="Mafft (7.157)" version="7.157" force_history_refresh='True'>
+    <description> multiple sequence alignment </description>
+    <requirements>
+        <requirement type="package">mafft</requirement>
+    </requirements>
+    <command>
+        module load mafft/7.157;
+        module load galaxy-scripts;
+        mafft.pl $Strategy $input1
+    </command>
+    <inputs>
+        <param format="fasta" name="input1" type="data" label="Sequences in fasta format" help=""/>
+    <param name="Strategy" type="select" label="Alignment Strategy">
+      <option value="Auto">Auto</option>
+      <option value="FFT-NS-1">FFT-NS-1</option>
+      <option value="FFT-NS-2">FFT-NS-2</option>
+      <option value="FFT-NS-i">FFT-NS-i</option>
+      <option value="E-INS-i">E-INS-i</option>
+      <option value="L-INS-i">L-INS-i</option>
+      <option value="G-INS-i">G-INS-i</option>
+      <option value="Q-INS-i">Q-INS-i</option>
+    </param>
+    </inputs>
+    <outputs>
+	<data from_work_dir="seqs_aligned.fasta" format="fasta" name="seqs_aligned" label="${tool.name} on ${on_string}: Screen Output" />
+        <data from_work_dir="log.txt" format="txt" name="log" label="${tool.name} on ${on_string}: Log" />
+    </outputs>
+    <tests>
+    </tests>
+    <help>
+  Auto (FFT-NS-1, FFT-NS-2, FFT-NS-i or L-INS-i; depends on data size).
+
+  FFT-NS-1 (Very fast; recommended for more than 2,000 sequences; progressive method). 
+
+  FFT-NS-2 (Fast; progressive method). 
+
+  FFT-NS-i (Slow; iterative refinement method). 
+
+  E-INS-i (Very slow; recommended for less than 200 sequences with multiple conserved domains and long gaps).
+
+  L-INS-i (Very slow; recommended for less than 200 sequences with one conserved domain and long gaps).
+
+  G-INS-i (Very slow; recommended for less than 200 sequences with global homology).
+
+  Q-INS-i (Extremely slow; secondary structure of RNA is considered; recommended for a global alignment of highly diverged ncRNAs with less than 200 sequences × less than 1,000 nucleotides).
+
+	http://mafft.cbrc.jp/alignment/server/index.html
+    </help>
+</tool>

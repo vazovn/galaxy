@@ -1,0 +1,18 @@
+<tool id="tell_time" name="Tell current time">
+
+  <description>now</description>
+  <command interpreter="perl">telltime.pl $input $output</command>
+
+  <inputs>
+    <param format="txt" name="input" type="data" label="Source file"/>
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="output" />
+  </outputs>
+
+  <help>
+     This tool tells current time.
+  </help>
+
+</tool>

@@ -1,0 +1,79 @@
+<tool id="PAML" name="PAML (4.6)" version="4.6">
+
+  <description>phylogenetic analyses of DNA or protein sequences using maximum likelihood.</description>
+
+  <parallelism method="basic"></parallelism>
+
+  <command>
+    
+  cp $ctlfile $ctlfile.name;
+  cp $seqfile $seqfile.name;
+  #if str($treefile) != "None": 
+     cp $treefile $treefile.name;
+  #end if
+
+  module load paml/4.6;
+  $program_selector.program $ctlfile.name > pamllog;
+
+  tar --exclude='*galaxy*' -cvf all_paml_res.tar *;
+
+  #if str($outfile) != "":
+     if [ -e "$outfile" ]; then cp $outfile pamlout; fi;
+  #end if
+
+  sleep 1
+
+  </command>
+
+  
+
+  <inputs> 
+    
+    <conditional name="program_selector">  
+        <param name="program" type="select" label="PAML program">
+          <option value="baseml" select="true">baseml</option> 
+          <option value="basemlg">basemlg</option> 
+          <option value="chi2">chi2</option>
+          <option value="codeml">codeml</option>
+          <option value="evolver">evolver</option>
+          <option value="mcmctree">mcmctree</option>
+          <option value="pamp">pamp</option>
+          <option value="yn00">yn00</option>
+        </param>
+        <when value="evolver">
+          <param name="datfile" type="data" size="20" value="" label="dat file (only for evolver)" help="" optional="True" />
+        </when>
+      </conditional> 
+
+    <param name="ctlfile" type="data" size="20" value="" label="control file" help="" />
+    <param name="seqfile" type="data" size="20" value="" label="sequence file" help="" />
+    <param name="treefile" type="data" size="20" value="" label="tree file" help="" optional="True"/>
+      
+    <param name="outfile" type="text" size="20" value="" label="main output file" help="Register the output file name as specified in the control file." />
+
+  </inputs>
+
+  
+  <outputs>
+    <data format="txt" name="log" from_work_dir="pamllog" label="PAML on ${seqfile.name} - stdout" />
+    <data format="txt" name="pamlout" from_work_dir="pamlout" label="PAML on ${seqfile.name} - ${outfile}" />
+    <data format="tar" name="tarfile" from_work_dir="all_paml_res.tar" label="PAML on ${seqfile.name} -  all output" />
+  </outputs>
+
+  
+  <help>
+
+**About PAML**
+
+PAML is a package of programs for phylogenetic analyses of DNA or protein sequences using maximum likelihood. It is maintained and distributed for academic use free of charge by Ziheng Yang. ANSI C source codes are distributed for UNIX/Linux/Mac OSX, and executables are provided for MS Windows. PAML is not good for tree making. It may be used to estimate parameters and test hypotheses to study the evolutionary process, when you have reconstructed trees using other programs such as PAUP*, PHYLIP, MOLPHY, PhyML, RaxML, etc. 
+
+**Output**: Results "PAML all output" are returned in a form of a tar file.  Use "tar xvf file_name" to extract. On windows, 7-zip (www.7-zip.org) can be used.
+
+**Home page**: http://abacus.gene.ucl.ac.uk/software/paml.html
+
+**Manual**: http://abacus.gene.ucl.ac.uk/software/pamlDOC.pdf
+
+**Citation**: Yang Z.,2007, PAML 4: phylogenetic analysis by maximum likelihood., Mol Biol Evol.24:1586-91 
+
+  </help>
+</tool>

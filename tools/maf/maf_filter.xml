@@ -1,8 +1,5 @@
 <tool id="MAF_filter" name="Filter MAF" version="1.0.1">
   <description>by specified attributes</description>
-  <macros>
-      <import>macros.xml</import>
-  </macros>
   <command interpreter="python">maf_filter.py $maf_filter_file $input1 $out_file1 $out_file1.files_path $species $min_size $max_size $min_species_per_block $exclude_incomplete_blocks ${input1.metadata.species}</command>
   <inputs>
     <page>
@@ -164,6 +161,7 @@ ret_val = maf_block_pass_filter( maf_block )
       <param name="species1_is_isnot" value="in"/>
       <param name="species1_attribute" value="chr1"/>
       <param name="filter_condition"/> Test will ERROR when this is set or when it is not set.
+      
       <output name="out_file1" file="cf_maf_limit_to_species.dat"/>
     </test>
   </tests>
@@ -193,7 +191,12 @@ This tool allows the user to remove any undesired species from a MAF file. If no
 
 You can also provide a size range and limit your output to the MAF blocks which fall within the specified range.
 
-@HELP_CITATIONS@
-    </help>
-    <expand macro="citations" />
+------
+
+**Citation**
+
+If you use this tool, please cite `Blankenberg D, Taylor J, Nekrutenko A; The Galaxy Team. Making whole genome multiple alignments usable for biologists. Bioinformatics. 2011 Sep 1;27(17):2426-2428. &lt;http://www.ncbi.nlm.nih.gov/pubmed/21775304&gt;`_
+
+
+</help>
 </tool>

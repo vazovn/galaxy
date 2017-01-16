@@ -1,0 +1,761 @@
+<tool id="RAxML" name="RAxML (8.0.26)" version="8.0.26">
+  <description>(Randomized Axelerated Maximum Likelihood) sequential and parallel Maximum Likelihood-based inference of large phylogenetic trees.</description>
+  <parallelism method="basic"></parallelism>
+
+  <command>
+    module load raxml/8.0.26;
+
+    #if str( $selExtraOpts.extraOptions ) == 'full':
+      #if int($selExtraOpts.number_of_runs) > 1:
+         mpirun raxmlHPC-MPI-SSE3    
+      #else
+         raxmlHPC-SSE3
+      #end if
+    #else
+      raxmlHPC-SSE3
+    #end if
+   
+
+      ## (-s)
+      -s "$selExtraOpts.infile"
+
+      ## (-n) 
+      -n bioportal
+
+      ## (-m)
+      #if str( $selExtraOpts.search_model_selector.model_type ) == 'aminoacid':
+        #if str( $selExtraOpts.search_model_selector.aa_model_empirical_base_frequences) == 'true':
+          -m "$selExtraOpts.search_model_selector.base_model""$search_model_selector.aa_search_matrix"[F]
+        #else 
+          -m "$selExtraOpts.search_model_selector.base_model""$selExtraOpts.search_model_selector.aa_search_matrix"
+        #end if
+      #else
+         -m "$selExtraOpts.search_model_selector.base_model"
+      #end if
+
+      ## (-p)
+      #if str($selExtraOpts.random_seed) != '':
+        -p "$selExtraOpts.random_seed"
+      #else
+        -p 1234567890
+      #end if
+
+      ## Extra options
+      #if str( $selExtraOpts.extraOptions ) == 'full':
+
+        ## (-N/#)
+        #if str($selExtraOpts.number_of_runs) != '':
+          -# $selExtraOpts.number_of_runs
+        #end if
+        #if str($selExtraOpts.number_of_runs_bootstop) != 'Selection is Optional':
+          -# $selExtraOpts.number_of_runs_bootstop
+        #end if
+
+        ## (-b)
+        #if str($selExtraOpts.bootseed) != '':
+          -b $selExtraOpts.bootseed
+        #end if
+
+        ## (-x)
+        #if str($selExtraOpts.rapid_bootstrap_random_seed) != '':
+          -x $selExtraOpts.rapid_bootstrap_random_seed
+        #end if
+
+        ##(-a)
+        #if str($selExtraOpts.weightfile) != 'None':
+          -a $selExtraOpts.weightfile
+        #end if
+
+        ## (-A)
+        #if str($selExtraOpts.secondary_structure_model) != "Selection is Optional":
+          -A $selExtraOpts.secondary_structure_model
+        #end if
+
+        ## (-B)
+        #if str($selExtraOpts.cutoff_threshold) != '':
+          -B $selExtraOpts.cutoff_threshold
+        #end if
+
+        ## (-c)
+        #if str($selExtraOpts.numofcats) != '':
+          -c $selExtraOpts.numofcats
+        #end if
+
+        ## (-d)
+        #if str($selExtraOpts.search_complete_random_tree) == "true":
+          -d
+        #end if
+
+        ## (-D)
+        #if str($selExtraOpts.ml_search_convergence) == "true":
+          -D
+        #end if
+
+        ## (-e)
+        #if str($selExtraOpts.model_opt_precision) != '':
+          -e $selExtraOpts.model_opt_precision
+        #end if
+
+        ## (-E)
+        #if str($selExtraOpts.excludefile) != 'None':
+          -E $selExtraOpts.excludefile
+        #end if
+
+        ## (-f)
+        #if str($selExtraOpts.search_algorithm) != 'd':
+          -f $selExtraOpts.search_algorithm
+        #end if
+
+        ## (-F)
+        #if str($selExtraOpts.save_memory_cat_model) == "true":
+          -F
+        #end if
+
+        ## (-g)
+        #if str($selExtraOpts.groupingfile) != 'None':
+          -g $selExtraOpts.groupingfile
+        #end if
+
+        ## (-G)
+        #if str($selExtraOpts.enable_evol_heuristics) != '':
+          -G $selExtraOpts.enable_evol_heuristics
+        #end if
+
+        ## (-i)
+        #if str($selExtraOpts.initial_rearrangement_setting) != '':
+          -i $selExtraOpts.initial_rearrangement_setting
+        #end if
+
+        ## (-I)
+        #if str($selExtraOpts.posterior_bootstopping_analysis) != "Selection is Optional":
+          -I $selExtraOpts.posterior_bootstopping_analysis
+        #end if
+
+        ## (-J)
+        #if str($selExtraOpts.majority_rule_consensus) != "Selection is Optional":
+          -J $selExtraOpts.majority_rule_consensus
+        #end if
+
+        ## (-k)
+        #if str($selExtraOpts.print_branch_lengths) == "true":
+          -k
+        #end if
+
+        ## (-K)
+        #if str($selExtraOpts.multistate_sub_model) != "Selection is Optional":
+          -K $selExtraOpts.multistate_sub_model
+        #end if
+
+        ## (-M)
+        #if str($selExtraOpts.estimate_individual_branch_lengths) == "true":
+          -M
+        #end if
+
+        ## (-o)
+        #if str($selExtraOpts.outgroup_name) != '':
+          -o $selExtraOpts.outgroup_name
+        #end if
+
+        ## (-O)
+        #if str($selExtraOpts.disable_undetermined_seq_check) == "true":
+          -O
+        #end if
+
+        ## (-P)
+        #if str($selExtraOpts.external_protein_model_file) != 'None':
+          -P $selExtraOpts.external_protein_model_file
+        #end if
+
+        ## (-q)
+        #if str($selExtraOpts.multiple_model_file) != 'None':
+          -q $selExtraOpts.multiple_model_file
+        #end if
+
+        ## (-r)
+        #if str($selExtraOpts.constraint_file) != 'None':
+         -r $selExtraOpts.constraint_file
+        #end if
+
+        ## (-R)
+        #if str($selExtraOpts.bin_model_parameter_file) != 'None':
+          -R $selExtraOpts.bin_model_parameter_file
+        #end if
+
+        ## (-S)
+        #if str($selExtraOpts.secondary_structure_file) != 'None':
+          -S $selExtraOpts.secondary_structure_file
+        #end if
+
+        ## (-t)
+        #if str($selExtraOpts.start_tree_file) != 'None':
+          -t $selExtraOpts.start_tree_file
+        #end if
+
+        ## (-T) only for threading
+
+        ## (-u)
+        #if str($selExtraOpts.use_median_approximation) == "true":
+          -u
+        #end if
+
+        ## (-U)
+        #if str($selExtraOpts.save_memory_gappy_alignments) == "true":
+          -U
+        #end if
+
+        ## (-V)
+        #if str($selExtraOpts.disable_rate_heterogeneity) == "true":
+          -V
+        #end if
+
+        ## (-W)
+        #if str($selExtraOpts.sliding_window_size) != '':
+         -W $selExtraOpts.sliding_window_size
+        #end if
+
+        ## (-y)
+        #if str($selExtraOpts.parsimony_starting_tree_only) == "true":
+          -y
+        #end if
+
+        ## (-Y)
+        #if str($selExtraOpts.quartet_grouping_file) != 'None':
+          -Y $selExtraOpts.quartet_grouping_file
+        #end if
+
+        ## (-z)
+        #if str($selExtraOpts.multiple_trees_file) != 'None':
+          -z $selExtraOpts.multiple_trees_file
+        #end if
+
+      #end if ## Extra options
+
+      > raxmlstdout;
+      
+      #if str( $selExtraOpts.extraOptions ) == 'full':
+         #if int($selExtraOpts.number_of_runs) > 1:
+            tar -cvf raxml_results.tar RAxML_*;
+         #end if         
+      #end if
+      sleep 1
+  </command>
+
+
+
+  <requirements>
+    <requirement type="binary">raxmlHPC-SSE3</requirement>
+  </requirements>
+
+
+
+  <inputs>
+    <conditional name="selExtraOpts">
+      <param name="extraOptions" type="select" label="RAxML options list" help="">
+            <option value="required">Required options only</option>
+            <option value="full">Full option list</option>
+      </param>
+
+    ## Required options
+      <when value="required">
+
+        ## (-s)
+        <param name="infile" type="data" label="Input PHYLIP file (-s)" help="" optional="false" format="txt" />
+
+        ## (-m)
+        <conditional name="search_model_selector">
+          <param name="model_type" type="select" label="Model Type">
+            <option value="nucleotide" selected="true">Nucleotide</option>
+            <option value="aminoacid">Amino Acid</option>
+            <option value="binary">Binary</option>
+            <option value="multistate">Multi-State</option>
+          </param>
+
+          <when value="nucleotide">
+          ## Nucleotide substitution models
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="GTRCAT">GTRCAT</option> 
+                <option value="GTRCATI">GTRCATI</option> 
+                <option value="GTRGAMMA" select="true">GTRGAMMA</option>
+                <option value="GTRGAMMAI">GTRGAMMAI</option>
+            </param>
+          </when>
+          ## Aminoacid substitution models
+          <when value="aminoacid">
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="PROTCAT" select="true">PROTCAT</option>
+                <option value="PROTCATI">PROTCATI</option>
+                <option value="PROTGAMMA">PROTGAMMA</option>
+                <option value="PROTGAMMAI">PROTGAMMAI</option>
+            </param>
+            <param name="aa_search_matrix" type="select" label="Matrix">
+                <option value="DAYHOFF" select="true">DAYHOFF</option>
+                <option value="DCMUT">DCMUT</option>
+                <option value="JTT">JTT</option>
+                <option value="MTREV">MTREV</option>
+                <option value="WAG">WAG</option>
+                <option value="RTREV">RTREV</option>
+                <option value="CPREV">CPREV</option>
+                <option value="VT">VT</option>
+                <option value="BLOSUM62">BLOSUM62</option>
+                <option value="MTMAM">MTMAM</option>
+                <option value="LG">LG</option>
+                <option value="MTART">MTART</option>
+                <option value="MTZOA">MTZOA</option>
+                <option value="PMB">PMB</option>
+                <option value="HIVB">HIVB</option>
+                <option value="HIVW">HIVW</option>
+                <option value="JTTDCMUT">JTTDCMUT</option>
+                <option value="FLU">FLU</option>
+                <option value="DUMMY">DUMMY</option>
+                <option value="DUMMY2">DUMMY2</option>
+                <option value="GTR_UNLINKED">GTR_UNLINKED</option>
+                <option value="GTR">GTR</option>
+            </param>
+            <param name="aa_model_empirical_base_frequences"
+                type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Use empirical base frequencies in AA models" />
+          </when>
+          ## Binary substitution models
+          <when value="binary">
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="BINCAT">BINCAT</option> 
+                <option value="BINCATI">BINCATI</option> 
+                <option value="BINGAMMA">BINGAMMA</option> 
+                <option value="BINGAMMAI">BINGAMMAI</option> 
+            </param>
+          </when>
+          ## Multi-state substitution models
+          <when value="multistate">
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="MULTICAT">MULTICAT</option> 
+                <option value="MULTICATI">MULTICATI</option> 
+                <option value="MULTIGAMMA">MULTIGAMMA</option> 
+                <option value="MULTIGAMMAI">MULTIGAMMAI</option> 
+            </param>
+          </when>
+        </conditional>
+
+        ## (-p)
+        <param name="random_seed" type="integer" value="" size="12" label="Random seed used for the parsimony inferences (-p)" help="This allows you to reproduce your results and helps debug the program." optional="True"/>
+
+      </when>
+
+
+    ## Full options
+      <when value="full">
+
+        ## (-s)
+        <param name="infile" type="data" label="Input PHYLIP file (-s)" help="" optional="false" format="txt" />
+
+        ## (-m)
+        <conditional name="search_model_selector">
+          <param name="model_type" type="select" label="Model Type">
+            <option value="nucleotide" selected="true">Nucleotide</option>
+            <option value="aminoacid">Amino Acid</option>
+            <option value="binary">Binary</option>
+            <option value="multistate">Multi-State</option>
+          </param>
+
+          <when value="nucleotide">
+          ## Nucleotide substitution models
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="GTRCAT">GTRCAT</option> 
+                <option value="GTRCATI">GTRCATI</option> 
+                <option value="GTRGAMMA" select="true">GTRGAMMA</option>
+                <option value="GTRGAMMAI">GTRGAMMAI</option>
+            </param>
+          </when>
+          ## Aminoacid substitution models
+          <when value="aminoacid">
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="PROTCAT" select="true">PROTCAT</option>
+                <option value="PROTCATI">PROTCATI</option>
+                <option value="PROTGAMMA">PROTGAMMA</option>
+                <option value="PROTGAMMAI">PROTGAMMAI</option>
+            </param>
+            <param name="aa_search_matrix" type="select" label="Matrix">
+                <option value="DAYHOFF" select="true">DAYHOFF</option>
+                <option value="DCMUT">DCMUT</option>
+                <option value="JTT">JTT</option>
+                <option value="MTREV">MTREV</option>
+                <option value="WAG">WAG</option>
+                <option value="RTREV">RTREV</option>
+                <option value="CPREV">CPREV</option>
+                <option value="VT">VT</option>
+                <option value="BLOSUM62">BLOSUM62</option>
+                <option value="MTMAM">MTMAM</option>
+                <option value="LG">LG</option>
+                <option value="MTART">MTART</option>
+                <option value="MTZOA">MTZOA</option>
+                <option value="PMB">PMB</option>
+                <option value="HIVB">HIVB</option>
+                <option value="HIVW">HIVW</option>
+                <option value="JTTDCMUT">JTTDCMUT</option>
+                <option value="FLU">FLU</option>
+                <option value="DUMMY">DUMMY</option>
+                <option value="DUMMY2">DUMMY2</option>
+                <option value="GTR_UNLINKED">GTR_UNLINKED</option>
+                <option value="GTR">GTR</option>
+            </param>
+            <param name="aa_model_empirical_base_frequences"
+                type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Use empirical base frequencies in AA models" />
+          </when>
+          ## Binary substitution models
+          <when value="binary">
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="BINCAT">BINCAT</option> 
+                <option value="BINCATI">BINCATI</option> 
+                <option value="BINGAMMA">BINGAMMA</option> 
+                <option value="BINGAMMAI">BINGAMMAI</option> 
+            </param>
+          </when>
+          ## Multi-state substitution models
+          <when value="multistate">
+            <param name="base_model" type="select" label="Substitution Model (-m)">
+                <option value="MULTICAT">MULTICAT</option> 
+                <option value="MULTICATI">MULTICATI</option> 
+                <option value="MULTIGAMMA">MULTIGAMMA</option> 
+                <option value="MULTIGAMMAI">MULTIGAMMAI</option> 
+            </param>
+          </when>
+        </conditional>
+
+    
+        ## (-p)
+        <param name="random_seed" type="integer" value="" size="12" label="Random seed used for the parsimony inferences (-p)" help="This allows you to reproduce your results and helps debug the program." optional="True" />
+
+        ## (-N/#)
+        <param name="number_of_runs" type="integer" size="8" value="" label="Number of runs (-N|#)" help="Specify the number of    alternative runs on distinct starting trees. In combination with the '-b' option will invoke a multiple boostrap analysis. Default: 1. Alternatively, you can add the bootstopping criteria below (and skip this option)." optional="True" />
+        <param name="number_of_runs_bootstop" type="select" label="Use bootstopping criteria for number of runs (-N/#)" help="Bootstopping will only work in combination with '-x' or '-b' options." optional="True">
+           <option value="Selection is Optional" selected="yes"></option>
+           <option value="autoMR">autoMR</option>
+           <option value="autoMRE">autoMRE</option>
+           <option value="autoMRE_IGN">autoMRE_IGN</option>
+           <option value="autoFC">autoFC</option>
+        </param>
+        ## (-b)
+        <param name="bootseed" type="integer" size="8" value="" label="Random seed for non-parametric bootstrapping (-b)" refresh_on_change='true'  optional="True" />
+        ## (-x)
+        <param name="rapid_bootstrap_random_seed" type="integer" value='' size="7" label="Random seed for rapid bootstrapping  (-x)" optional="True" help="Conducts rapid BS replicates under the model of rate heterogeneity you specify via '-m'." />
+        
+
+
+        ## Alphabetical listing of remaining options
+        ## (-a)
+        <param format="txt" name="weightfile" type="data" label="Column weight file (-a)" help="Weights are listed as integers separated by white spaces." optional="True" />
+
+        ## (-A)
+        <param name="secondary_structure_model" type="select" label="Secondary structure substitution model (-A)" help="The PHASE manual nomenclature.  Default: S16." optional="True">
+                <option value="Selection is Optional" selected="yes"></option>
+                <option value="S6A">S6A</option>
+                <option value="S6B">S6B</option>
+                <option value="S6C">S6C</option>
+                <option value="S6D">S6D</option>
+                <option value="S6E">S6E</option>
+                <option value="S7A">S7A</option>
+                <option value="S7B">S7B</option>
+                <option value="S7C">S7C</option>
+                <option value="S7D">S7D</option>
+                <option value="S7E">S7E</option>
+                <option value="S7F">S7F</option>
+                <option value="S16">S16</option>
+                <option value="S16A">S16A</option>
+                <option value="S16B">S16B</option>
+            </param>
+
+            ## (-B)
+            <param name="cutoff_threshold" type="float" size="8" label="MR Cutoff threshold (-B)" value="" help="Cutoff threshold for the MR-based bootstopping criterie. Default: 0.03" optional="True" />
+
+            ## (-c)
+            <param name="numofcats" type="integer" size="8" label="Number of Rate Categories for GTRCAT/GTRMIX (-c)" help="Default: 25" value="" optional="True"/>
+
+            ##(-d)
+            <param name="search_complete_random_tree" type="boolean" checked="False" truevalue="true" falsevalue="false" display="checkboxes" label="Start ML optimization from random starting tree (-d)" help="Default: OFF"/>
+
+            ## (-D)
+            <param name="ml_search_convergence" type="boolean" checked="False" truevalue="true" falsevalue="false" label="ML search convergence criterion (-D)" help="Recommended for very large datasets in terms of taxa. Default: OFF"/>
+
+            ## (-e)
+            <param name="model_opt_precision" type="float" size="8" label="Model optimization precision (-e)" value="" help="Set in log likelihood units for MIX/MIXI or GAMMA/GAMMAI models. Default: 0.1 for models not using proportion of invariant sites estimate, 0.001 for models using proportion of invariant sites estimate" optional="True" />
+
+            ## (-E)
+            <param format="txt" name="excludefile" type="data" label="Exclude file (-E)" help="Format similar to Nexus, specifies alignment points that you wish to exclude." optional="True" />
+
+            ## (-f)
+            <param name="search_algorithm" type="select" label="Algorithm (-f)" help="Default: (d) new rapid hill climbing" optional="True">
+              <option value="a">(a) Rapid Bootstrap analysis and search for best-scoring ML tree in one program run</option>
+              <option value="A">(A) Compute marginal ancestral states on a ROOTED reference tree provided with 't'</option>
+              <option value="b">(b) Draw bipartition information on a tree provided with '-t' based on multiple trees in a file specifed by '-z'</option>
+              <option value="B">(B) Optimize br-len scaler and other model parameters (GTR, alpha, etc.) on a tree provided with '-t'</option>
+              <option value="c">(c) Check if the alignment can be properly read by RAxML</option>
+              <option value="d" selected="true">(d) New rapid hill-climbing</option>
+              <option value="e">(e) Optimize model+branch lengths for given input tree under GAMMA/GAMMAI only</option>
+              <option value="E">(E) Very fast experimental tree search, at present only for testing</option>
+              <option value="F">(F) Fast experimental tree search, at present only for testing</option>
+              <option value="g">(g) Compute per site log Likelihoods for one ore more trees passed via '-z' and write them to a file</option>
+              <option value="h">(h) Compute log likelihood test (SH-test) between best tree passed via '-t' and '-z'</option>
+              <option value="j">(j) Generate a bunch of bootstrapped alignment files from an original alignment file</option>
+              <option value="J">(J) Compute SH-like support values on a given tree passed via '-t'</option>
+              <option value="m">(m) Compare bipartitions between two bunches of trees passed via '-t' and '-z'</option>
+              <option value="n">(n) Compute the log likelihood score of all trees contained in a tree file provided by '-z' under GAMMA or GAMMA+P-Invar</option>
+              <option value="o">(o) Old and slower rapid hill-climbing without heuristic cutoff</option>
+              <option value="p">(p) Perform pure stepwise MP addition of new sequences to an incomplete starting tree and exit</option>
+              <option value="q">(q) Fast quartet calculator</option>
+              <option value="r">(r) Compute pairwise Robinson-Foulds (RF) distances between all pairs of trees in a tree file passed via '-z'</option>
+              <option value="s">(s) Split up a multi-gene partitioned alignment into the respective subalignments</option>
+              <option value="S">(S) Compute site-specific placement bias using a leave one out test inspired by the evolutionary placement algorithm</option>
+              <option value="t">(t) Do randomized tree searches on one fixed starting tree</option>
+              <option value="T">(T) Do final thorough optimization of ML tree from rapid bootstrap search in stand-alone mode</option>
+              <option value="u">(u) Execute morphological weight calibration using maximum likelihood, this will return a weight vector</option>
+              <option value="v">(v) Classify a bunch of environmental sequences into a reference tree using thorough read insertions</option>
+              <option value="w">(w) Compute ELW test on a bunch of trees passed via '-z'</option>
+              <option value="x">(x) Compute pair-wise ML distances</option>
+              <option value="y">(y) Classify a bunch of environmental sequences into a reference tree using parsimony</option>
+            </param>
+
+
+            ## (-F)
+            <param name="save_memory_cat_model" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="ML tree searches under CAT model (-F)" optional="True" help="ML tree searches under CAT model for very large trees without switching to GAMMA in the end (saves memory) and no thorough optimization under GAMMA. Default: OFF" />
+
+            ## (-g)
+            <param name="groupingfile" format="txt" type="data" label="Multifurcating constraint tree (-g)" optional="True" />
+
+            ## (-G)
+            <param name="enable_evol_heuristics" type="float" size="8" label="Enable the ML-based evolutionary placement algorithm heuristics (-G)" help="Specify a threshold value (fraction of insertion branches to be evaluated using slow insertions under ML). Value in range 0.0 and 1.0." value ="" optional="True" >
+                <validator type="in_range" message="0.0 &lt;= fraction &lt;= 1.0" min="0.0" max="1.0"/>
+            </param>
+
+
+            ## (-i)
+            <param name="initial_rearrangement_setting" type="integer" size="5" value="" label="Initial rearrangement setting (-i)" optional="True" />
+            
+            ## (-I)
+            <param name="posterior_bootstopping_analysis" type="select" label="Posterior bootstopping analysis (-I)" help="This option needs a tree file containg several bootstrap replicates via '-z' " optional="True">
+                <option value="Selection is Optional" selected="True"></option>
+                <option value="autoFC">Frequency-based criterion (autoFC)</option>
+                <option value="autoMR">Majority-rule consensus tree criterion (autoMR)</option>
+                <option value="autoMRE">Extended majority-rule consensus tree criterion (autoMRE)</option>
+                <option value="autoMRE_IGN">Extended MR consensus tree criterion with bipartitions (autoMRE_IGN)</option>
+            </param>
+
+            ## (-j) - ????
+
+            ## (-J)
+            <param name="majority_rule_consensus" type="select" label="Compute consensus tree (-J)" help="Options '-J STRICT_DROP' and '-J MR_DROP' will execute an algorithm that identifies dropsets which contain rogue taxa as proposed by Pattengale et al. in the paper 'Uncovering hidden phylogenetic consensus'.This option needs a tree file containing several UNROOTED trees via '-z'" optional="True">
+                <option value="Selection is Optional" selected="True"></option>
+                <option value="MR">Majority-rule consensus tree (MR)</option>
+                <option value="MRE">Extended majority-rule consensus tree (MRE)</option>
+                <option value="STRICT">Strict consensus tree (STRICT)</option>
+                <option value="STRICT_DROP">Identify strict dropsets (STRICT_DROP)</option>
+                <option value="MR_DROP">Identify majority-rule dropsets (MR_DROP)</option>
+            </param>
+
+            ## (-k)
+            <param name="print_branch_lengths" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Print bootstrapped trees with branch lengths (-k)" help="Model parameters will be optimized at the end of each run under GAMMA or GAMMA+P-Invar. Default: OFF" optional="True" />
+
+            ## (-K)
+            <param name="multistate_sub_model" type="select" label="Specify a multi-state substitution model (-K)" help="Maximum 32 states. Default: GTR model" optional="True">
+                <option value="Selection is Optional" selected="true"></option>
+                <option value="GTR">GTR</option>
+                <option value="ORDERED">ORDERED</option>
+                <option value="MK">MK</option>
+            </param>
+
+            ## (-M)
+            <param name="estimate_individual_branch_lengths" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Estimate individual per-partition branch lengths (-M)" help="Use in combination with option (-q). Default: OFF" optional="True" />
+
+            ## (-o)
+            <param name="outgroup_name" type="text" size="40" value="" label="Outgroup name (-o)" help="Comma-separated list of outgroups. No spaces between taxon names." optional="True" />
+
+            ## (-O)
+            <param name="disable_undetermined_seq_check" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Disable check for completely undetermined sequence in alignment (-O)" optional="True" help="The program will not exit with an error message when '-O' is specified. Default: enabled" />
+
+            ## (-P)
+            <param name="external_protein_model_file" format="txt" type="data" label="User-defined amino acid substitution model (-P)" help="The model file must contain 420 entries, the first 400 being the AA substitution rates (this must be a symmetric matrix) and the last 20 are the empirical base frequencies." optional="True" />
+
+            ## (-q)
+            <param name="multiple_model_file" format="txt" type="data" label="Multiple model assignment to alignment partitions file (-q)" optional="True" help="Assignment of models to alignment partitions for multiple models of substitution." />
+
+            ## (-r)
+            <param name="constraint_file" format="txt" type="data" label="Binary constraint tree file (-r)" optional="True" help="This tree does not need to be comprehensive, i.e. must not contain all taxa." />
+
+            ## (-R)
+            <param name="bin_model_parameter_file" format="txt" type="data" label="Binary model parameter file (-R)" optional="True" help="Binary model parameter file that has previously been generated with RAxML using the '-f e' tree evaluation option." />
+           
+            ## (-S)
+            <param name="secondary_structure_file" format="txt" type="data" label="Secondary structure file (-S)" optional="True" help="The file can contain '.' for alignment columns that do not form part of a stem and characters '()&lt;&gt;[]{}' to define stem regions and pseudoknots."/>
+
+            ## (-t)
+            <param name="start_tree_file" format="txt" type="data" label="Starting tree file (-t)" optional="True" help="Tree file in Newick format." />
+            
+            ## (-T) only for threading
+            
+
+            ## (-u) 
+            <param name="use_median_approximation" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Use the median for the discrete approximation (-u)" help="Use the median for the discrete approximation of the GAMMA model of rate heterogeneity. Default: OFF" optional="True" />
+
+            ## (-U) only for SSE3 or AVX-vectorised version of the code
+            <param name="save_memory_gappy_alignments" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Save memory on large gappy alignments (-U)" help="Try to save memory by using SEV-based implementation for gap columns on large gappy alignments." optional="True" />
+
+            ## (-V)
+            <param name="disable_rate_heterogeneity" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Disable rate heterogeneity (-V)" help="Disable rate heterogeneity among sites model and use one without rate heterogeneity instead. Only works if you specify the CAT model of rate heterogeneity." optional="True" />
+
+            ## (-W)
+            <param name="sliding_window_size" type="integer" size="5" value="" label="Sliding window size (-W)" optional="True" help="Sliding window size for leave-one-out site-specific placement bias algorithm. Only effective when used in combination with '-f S'. Default: 100 sites" />
+
+            ## (-x) - see it by the (-b)
+
+            ## (-y)
+            <param name="parsimony_starting_tree_only" type="boolean" checked="no" truevalue="true" falsevalue="false" display="checkboxes" label="Compute a randomized parsimony starting tree only (-y)" optional="True" help="The program will exit after computation of the starting tree." />
+
+            ## (-Y)
+            <param name="quartet_grouping_file" format="txt" type="data" label="Quartet grouping file (-Y)" optional="True" help="Quartet grouping file name defining four groups from which to draw quartets. The file input format must contain 4 groups in the following form:(Chicken, Human, Loach), (Cow, Carp), (Mouse, Rat, Seal), (Whale, Frog). Only works in combination with '-f q' !." />
+           
+            ## (-z)
+            <param name="multiple_trees_file" format="txt" type="data" label="Multiple trees file (-z)" help="File containing multiple trees e.g. from a bootstrap that shall be used to draw bipartition values onto a tree provided with '-t', It can also be used to compute per site log likelihoods in combination with '-f g' and to read a bunch of trees for '-f h', '-f m' and '-f n'." optional="True" />
+
+
+
+      </when> ## Full option list
+    </conditional> ## end Extra opts.
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="stdout" from_work_dir="raxmlstdout" label="RAxML on ${selExtraOpts.infile.name} - stdout" /> 
+    <data format="txt" name="info" from_work_dir="RAxML_info.bioportal" label="RAxML on ${selExtraOpts.infile.name} - info" />
+      ## REQUIRED
+        <data format="txt" name="logReq" from_work_dir="RAxML_log.bioportal" label="RAxML on ${selExtraOpts.infile.name} - log">
+            <filter>(selExtraOpts['extraOptions'] == 'required')</filter>
+            <filter>selExtraOpts['search_algorithm'] != 'a'</filter>
+        </data>
+        <data format="txt" name="bestTreeReq" from_work_dir="RAxML_bestTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - best-scoring ML Tree">
+            <filter>(selExtraOpts['extraOptions'] == 'required')</filter>
+        </data>
+        <data format="txt" name="parsimonyTreeReq" from_work_dir="RAxML_parsimonyTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - parsimony Tree">
+            <filter>(selExtraOpts['extraOptions'] == 'required')</filter>
+            <filter>selExtraOpts['search_algorithm'] != 'a'</filter>
+        </data>
+        <data format="txt" name="resultReq" from_work_dir="RAxML_result.bioportal" label="RAxML on ${selExtraOpts.infile.name} - result">
+            <filter>(selExtraOpts['extraOptions'] == 'required')</filter>
+            <filter>selExtraOpts['search_algorithm'] != 'a'</filter>
+        </data>
+         <data format="tar" name="mpi_results" from_work_dir="raxml_results.tar" label="RAxML on ${selExtraOpts.infile.name} - results">
+            <filter>(selExtraOpts['extraOptions'] == 'full')</filter>
+            <filter>selExtraOpts['number_of_runs'] != '' and selExtraOpts['number_of_runs'] != '1'</filter>
+        </data>
+
+      ## ADVANCED
+        <data format="txt" name="randomTree" from_work_dir="RAxML_randomTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - random tree">
+            <filter>selExtraOpts['search_complete_random_tree'] is True</filter>
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+        </data>
+        <data format="txt" name="bestTree" from_work_dir="RAxML_bestTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - best-scoring ML tree">
+            <filter>(selExtraOpts['extraOptions'] == 'full')</filter>
+            <filter>(selExtraOpts['rapid_bootstrap_random_seed'] == '' or selExtraOpts['bootseed'] == '') and (selExtraOpts['search_algorithm'] == 'a')</filter>
+            <filter>(selExtraOpts['search_algorithm'] != 'b')</filter>
+            <filter>(selExtraOpts['majority_rule_consensus'] == '')</filter>
+        </data>
+        <data format="txt" name="bestTreeMultipleModel" from_work_dir="RAxML_bestTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - best-scoring ML tree">
+            <filter>(selExtraOpts['extraOptions'] == "full")</filter>
+            <filter>(selExtraOpts['multiple_model_file'] != '')</filter>
+        </data>
+        <data format="txt" name="bestTreeMultipleModelPartitions" from_work_dir="RAxML_bestTreePartitions.bioportal" label="RAxML on ${selExtraOpts.infile.name} - best-scoring ML tree partitions">
+            <filter>(selExtraOpts['extraOptions'] == "full")</filter>
+            <filter>selExtraOpts['multiple_model_file'] is not None </filter>
+        </data>
+        <data format="txt" name="log" from_work_dir="RAxML_log.bioportal" label="RAxML on ${selExtraOpts.infile.name} - log">
+            <filter>(selExtraOpts['extraOptions'] == "full")</filter>
+            <filter>(selExtraOpts['rapid_bootstrap_random_seed'] == '')</filter>
+            <filter>(selExtraOpts['bootseed'] == '')</filter> 
+            <filter>(selExtraOpts['search_algorithm'] != 'a')</filter>
+            <filter>(selExtraOpts['search_algorithm'] != 'b')</filter>
+            <filter>(selExtraOpts['majority_rule_consensus'] == '') </filter>
+        </data>
+        <data format="txt" name="result" from_work_dir="RAxML_result.bioportal" label="RAxML on ${selExtraOpts.infile.name} - Result">
+            <filter>(selExtraOpts['extraOptions'] == "full")</filter>
+            <filter>(selExtraOpts['rapid_bootstrap_random_seed'] == '')</filter>
+            <filter>selExtraOpts['bootseed'] == ''</filter> 
+            <filter>selExtraOpts['search_algorithm'] != 'a'</filter>
+            <filter>selExtraOpts['search_algorithm'] != 'b'</filter>
+            <filter>(selExtraOpts['majority_rule_consensus'] == '') </filter>
+        </data>
+        <data format="txt" name="resultMultipleModelPartitions" from_work_dir="RAxML_resultPartitions.bioportal" label="RAxML on ${selExtraOpts.infile.name} - result partitions">
+            <filter>(selExtraOpts['extraOptions'] == "full")</filter>
+            <filter>(selExtraOpts['multiple_model_file'] is not None)</filter>
+        </data>
+        <data format="txt" name="parsimonyTree" from_work_dir="RAxML_parsimonyTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - parsimony tree">
+            <filter>(selExtraOpts['extraOptions'] == "full")</filter>
+            <filter>(selExtraOpts['rapid_bootstrap_random_seed'] == '')</filter>
+            <filter>(selExtraOpts['bootseed'] == '')</filter> 
+            <filter>(selExtraOpts['search_algorithm'] != 'a')</filter>
+            <filter>(selExtraOpts['constraint_file'] is None)</filter>
+            <filter>(selExtraOpts['groupingfile'] is None)</filter>
+            <filter>(selExtraOpts['search_complete_random_tree'] is False)</filter>
+            <filter>(selExtraOpts['start_tree_file'] is None)</filter>
+            <filter>(selExtraOpts['majority_rule_consensus'] == '') </filter>
+        </data>
+        <data format="txt" name="bootstrap" from_work_dir="RAxML_bootstrap.bioportal" label="RAxML on ${selExtraOpts.infile.name} - final bootstrap trees">
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+            <filter>selExtraOpts['number_of_runs'] != '' or selExtraOpts['number_of_runs_bootstop'] != ''</filter>
+            <filter>selExtraOpts['rapid_bootstrap_random_seed'] != '' or selExtraOpts['bootseed'] != ''</filter>
+        </data>
+        <data format="txt" name="bipartitions" from_work_dir="RAxML_bipartitions.bioportal" label="RAxML on ${selExtraOpts.infile.name} - bipartitions">
+            <filter>(selExtraOpts['search_algorithm'] == 'b') or ((selExtraOpts['search_algorithm'] == 'a') and (selExtraOpts['rapid_bootstrap_random_seed'] != '')) </filter>
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+        </data>
+        <data format="txt" name="bipartitionsBranchLabels" from_work_dir="RAxML_bipartitionsBranchLabels.bioportal" label="RAxML on ${selExtraOpts.infile.name} - bipartitions branch labels">
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+            <filter>(selExtraOpts['search_algorithm'] == 'b') or ((selExtraOpts['search_algorithm'] == 'a') and (selExtraOpts['rapid_bootstrap_random_seed'] != '')) </filter>
+        </data>
+        <data format="txt" name="strictConsensusTree" from_work_dir="RAxML_StrictConsensusTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - strict consensus tree">
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+            <filter>(selExtraOpts['majority_rule_consensus'] == 'STRICT') </filter>
+        </data>
+        <data format="txt" name="majorityRuleConsensusTree" from_work_dir="RAxML_MajorityRuleConsensusTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - majority rule consensus tree">
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+            <filter>(selExtraOpts['majority_rule_consensus'] == 'MR')</filter>
+        </data>
+        <data format="txt" name="majorityRuleExtendedConsensusTree" from_work_dir="RAxML_MajorityRuleExtendedConsensusTree.bioportal" label="RAxML on ${selExtraOpts.infile.name} - majority rule extended consensus tree">
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+            <filter>(selExtraOpts['majority_rule_consensus'] == 'MRE')</filter>
+        </data>
+        <data format="txt" name="bipartitionFreq" from_work_dir="RAxML_bipartitionFrequences.bioportal" label="RAxML on ${selExtraOpts.infile.name} - pair-wise bipartition frequences.">
+            <filter>selExtraOpts['search_algorithm'] == 'm' </filter>
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+        </data>
+        <data format="txt" name="perSiteLLs" from_work_dir="RAxML_perSiteLLs.bioportal" label="RAxML on ${selExtraOpts.infile.name} - per-site likelihood scores">
+            <filter>selExtraOpts['search_algorithm'] == 'g' </filter>
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+        </data>
+        <data format="txt" name="distances" from_work_dir="RAxML_distances.bioportal" label="RAxML on ${selExtraOpts.infile.name} - pair-wise distances">
+            <filter>selExtraOpts['search_algorithm'] == 'x' </filter>
+            <filter>selExtraOpts['extraOptions'] == "full"</filter>
+        </data>
+  </outputs>
+
+  <help>
+
+**Job parameters**:
+If "Number of runs" is set to > 1, RaxML runs as an MPI applications -  the "Number of CPUs" should equal the "Number of runs".
+
+**About RAxML**
+
+RAxML has originally been derived from fastDNAml. The current version of RAxML is a highly optimized program, which handles DNA, amino acid and mixed alignments under various models of substitution and two distinct methods of rate heterogeneity. In addition, it implements the novel, fast rapid hill-climbing algorithm, which yields significant performance improvements on huge alignments compared to the previous search algorithms. 
+
+**Input**: The main input is a relaxed interleaved or sequential PHYLIP alignment
+
+**Output**: Results "RAxML results"  are returned in a form of a tar file.  Use "tar xvf file_name" to extract. On windows, 7-zip (www.7-zip.org) can be used.
+
+**Home page**: http://www.exelixis-lab.org/
+
+**Help**: http://groups.google.com/group/raxml
+
+**Citing**:
+Alexandros Stamatakis : “RAxML-VI-HPC: Maximum Likelihood-based Phylogenetic
+Analyses with Thousands of Taxa and Mixed Models”, Bioinformatics
+22(21):2688–2690, 2006.
+
+**Note**:
+If Number of runs (-N|#) > 1 and random seed for bootstrapping (-b) is set, the multiple bootstp analysis is activated. Application runs in parallel and returns an archive "RAxML results" including all return files.  Please select the "Job parameter" option "Number of CPUs" equal to "Number of runs" to allow for parallel execution.
+                                    
+  </help>
+</tool>
