@@ -1,0 +1,4 @@
+[Parameters]
+API_URL=https://nels.bioinfo.no/storage2
+CLIENT_KEY=galaxy_lifeportal
+CLIENT_SECRET=zL8fmYE5SKwPA2LyL20BBK5PAfKaiGeSWMVsZ1sVasLrrn0BGTS9wroPl6Gw

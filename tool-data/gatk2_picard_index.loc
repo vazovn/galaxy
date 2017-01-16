@@ -5,13 +5,25 @@
 #the directories in which those files are stored. The picard_index.loc 
 #file has this format (longer white space is the TAB character):
 #
-#<unique_build_id>		<dbkey>		<display_name>		<fasta_file_path>
+#<unique_build_id>	<dbkey>		<display_name>		<fasta_file_path>
 #
 #So, for example, if you had hg18 indexed and stored in 
-#/depot/data2/galaxy/srma/hg18/, 
+#/depot/data2/galaxy/srma/hg18/,
 #then the srma_index.loc entry would look like this:
 #
 #hg18	hg18	hg18 Pretty		/depot/data2/galaxy/picard/hg18/hg18.fa
+
+
+hg18	hg18	Human hg18	/work/databases/bio/gatk/hg18/Homo_sapiens_assembly18.fasta
+hg19	hg19	Human hg19	/work/databases/bio/gatk/hg19/ucsc.hg19.fasta
+#hg18	hg18	Human hg18	/work/databases/bio/samtools/hg18/hg18.fa
+#hg19	hg19	Human hg19	/work/databases/bio/samtools/hg19/hg19.fa
+mm9	mm9	Mouse mm9	/work/databases/bio/samtools/mm9/mm9.fa
+mm10	mm10	Mouse mm10	/work/databases/bio/samtools/mm10/mm10.fa
+rn4	rn4	Rat rn4		/work/databases/bio/samtools/rn4/rn4.fa
+phiX	phiX	test phiX	/work/databases/bio/gatk/phiX/phiX.fasta
+
+
 #
 #and your /depot/data2/galaxy/srma/hg18/ directory
 #would contain the following three files:

@@ -29,6 +29,29 @@
 #wgs_30_Nov_2009	wgs 30 Nov 2009	/depot/data2/galaxy/blastdb/wgs/wgs.chunk
 #test_20_Sep_2008	test 20 Sep 2008	/depot/data2/galaxy/blastdb/test/test
 #...etc...
+
+alu	Alu repeat elements	/work/databases/bio/ncbi-pre/alu.n
+drosophila	Drosophila genomic	/work/databases/bio/ncbi-pre/drosoph.nt
+env_nt	Environmental sequences	/work/databases/bio/ncbi-pre/env_nt
+est_human	Human EST	/work/databases/bio/ncbi-pre/est_human
+est_mouse	Mouse EST	/work/databases/bio/ncbi-pre/est_mouse
+est_others	EST (non-human/mouse)	/work/databases/bio/ncbi-pre/est_others
+gss	Genomic survey sequences	/work/databases/bio/ncbi-pre/gss
+htgs	High throughput genomic sequences	/work/databases/bio/ncbi-pre/htgs
+igSeqNt	Human and mouse immunoglobulin variable region	/work/databases/bio/ncbi-pre/igSeqNt
+mito	Mitochondrial genomes	/work/databases/bio/ncbi-pre/mito.nt
+nt	Nucleotide collection	/work/databases/bio/ncbi-pre/nt
+#refseq_genomic	Genomic reference sequences	/work/databases/bio/ncbi-pre/refseq_genomic
+other_genomic	Non-human genomic reference sequences	/work/databases/bio/ncbi-pre/other_genomic
+patnt	Patent database	/work/databases/bio/ncbi-pre/patnt
+pdbnt	PDB nucleic acid structures	/work/databases/bio/ncbi-pre/pdbnt
+refseq_rna	Transcript reference sequences	/work/databases/bio/ncbi-pre/refseq_rna
+sts	Sequence tagged sites	/work/databases/bio/ncbi-pre/sts
+vector	Vector sequences	/work/databases/bio/ncbi-pre/vector
+yeast	Yeast genomic	/work/databases/bio/ncbi-pre/yeast.nt
+MMETSP	Marine Transcriptomes	/work/databases/bio/mmetsp/allMMETSP.nt.fa
+
+
 #
 #See also blastdb_p.loc which is for any protein BLAST database.
 #

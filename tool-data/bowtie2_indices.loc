@@ -1,0 +1,54 @@
+#This is a sample file distributed with Galaxy that enables tools
+#to use a directory of Bowtie2 indexed sequences data files. You will
+#need to create these data files and then create a bowtie_indices.loc
+#file similar to this one (store it in this directory) that points to
+#the directories in which those files are stored. The bowtie2_indices.loc
+#file has this format (longer white space characters are TAB characters):
+#
+#<unique_build_id>   <dbkey>   <display_name>   <file_base_path>
+#
+#So, for example, if you had hg18 indexed stored in
+#/depot/data2/galaxy/bowtie2/hg18/,
+#then the bowtie2_indices.loc entry would look like this:
+#
+#hg18	hg18	hg18	/depot/data2/galaxy/bowtie2/hg18/hg18
+#
+#and your /depot/data2/galaxy/bowtie2/hg18/ directory
+#would contain hg18.*.ebwt files:
+#
+#-rw-r--r--  1 james    universe 830134 2005-09-13 10:12 hg18.1.bt2
+#-rw-r--r--  1 james    universe 527388 2005-09-13 10:12 hg18.2.bt2
+#-rw-r--r--  1 james    universe 269808 2005-09-13 10:12 hg18.3.bt2
+#...etc...
+#
+#Your bowtie2_indices.loc file should include an entry per line for each
+#index set you have stored. The "file" in the path does not actually
+#exist, but it is the prefix for the actual index files. For example:
+#
+hg18	hg18	Human hg18	/work/databases/bio/bowtie2/hg18/hg18
+hg19	hg19	Human hg19	/work/databases/bio/bowtie2/hg19/hg19
+mm9	mm9	Mouse mm9	/work/databases/bio/bowtie2/mm9/mm9
+mm9_chr7	mm9_chr7	Mouse mm9 (chr7 only)	/work/databases/bio/bowtie2/mm9_chr7/mm9_chr7
+mm10	mm10	Mouse mm10	/work/databases/bio/bowtie2/mm10/mm10
+rn4	rn4	Rat rn4		/work/databases/bio/bowtie2/rn4/rn4
+danRer7	danRer7	Zebrafish danRer7	/work/databases/bio/bowtie2/danRer7/danRer7
+salmo_salar	salmo_salar	 Atlantic_salmon salmo_salar	/work/databases/bio/bowtie2/salmo_salar/GCF_000233375.1_ICSASG_v2_genomic
+
+
+
+#dm5.22	dm5.22	Fruit fly dm5.22	/work/databases/bio/bowtie/dm5.22/d_melanogaster_fb5_22.1
+#ceWS2000	ceWS2000  	Worm ce_WS2000	/work/databases/bio/bowtie/ceWS2000/c_elegans_ws200
+#ec536	ec536	E.coli ec_NCIB_536	/work/databases/bio/bowtie/ec536/e_coli
+#scCYGD	scCYGD	Yeast sc_CYGD	/work/databases/bio/bowtie/scCYGD/s_cerevisiae
+
+
+#hg18canon			hg18	hg18 Canonical	/depot/data2/galaxy/bowtie2/hg18/hg18canon
+#hg18full			hg18	hg18 Full		/depot/data2/galaxy/bowtie2/hg18/hg18full
+#/orig/path/hg19	hg19	hg19			/depot/data2/galaxy/bowtie2/hg19/hg19
+#...etc...
+#
+#Note that for backwards compatibility with workflows, the unique ID of
+#an entry must be the path that was in the original loc file, because that
+#is the value stored in the workflow for that parameter. That is why the
+#hg19 entry above looks odd. New genomes can be better-looking.
+#

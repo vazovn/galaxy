@@ -25,3 +25,16 @@
 #
 #See also blastdb.loc which is for any nucleotide BLAST database.
 #
+
+custom	custom database	/work/databases/bio/custom/alu.a
+alu	Alu repeat elements	/work/databases/bio/ncbi-pre/alu.a
+drosophila	Drosophila CDS	/work/databases/bio/ncbi-pre/drosoph.aa
+env_nr	Environmental sequences	/work/databases/bio/ncbi-pre/env_nr
+igSeqProt	Human and mouse immunoglobulin variable region	/work/databases/bio/ncbi-pre/igSeqProt
+mito	Mitochondrial CDS	/work/databases/bio/ncbi-pre/mito.aa
+nr	Non-redundant proteins	/work/databases/bio/ncbi-pre/nr
+pataa	Patent database	/work/databases/bio/ncbi-pre/pataa
+pdbaa	PDB protein structures	/work/databases/bio/ncbi-pre/pdbaa
+refseq_protein	Reference proteins	/work/databases/bio/ncbi-pre/refseq_protein
+swissprot	Swissprot database	/work/databases/bio/ncbi-pre/swissprot
+yeast	Yeast CDS	/work/databases/bio/ncbi-pre/yeast.aa

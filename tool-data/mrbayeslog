@@ -1,0 +1,273 @@
+                            MrBayes v3.2.2 x64
+
+                      (Bayesian Analysis of Phylogeny)
+
+                             (Parallel version)
+                         (4 processors available)
+
+              Distributed under the GNU General Public License
+
+
+               Type "help" or "help <command>" for information
+                     on the commands that are available.
+
+                   Type "about" for authorship and general
+                       information about the program.
+
+
+
+   Executing file "testbayes.nxs"
+   UNIX line termination
+   Longest line length = 674
+   Parsing file
+   Expecting NEXUS formatted file
+   Reading data block
+      Allocated taxon set
+      Allocated matrix
+      Defining new matrix with 129 taxa and 636 characters
+      Data is Dna
+      Missing data coded as ?
+      Gaps coded as -
+      Taxon   1 -> Caloriaindica
+      Taxon   2 -> Tambjaceutae
+      Taxon   3 -> Phestlugubris
+      Taxon   4 -> Flabellinaverrucosa
+      Taxon   5 -> Janoluscristatus
+      Taxon   6 -> Cratenaperegrina
+      Taxon   7 -> Halgerdawilleyi
+      Taxon   8 -> Hypseledorisorsinii
+      Taxon   9 -> Acali
+      Taxon  10 -> Aplysiaextraordinaria
+      Taxon  11 -> Dmont
+      Taxon  12 -> Tethysfimbria
+      Taxon  13 -> Dalbo
+      Taxon  14 -> Dotokoenneckeri
+      Taxon  15 -> Acanthodorispilosa
+      Taxon  16 -> Dendronotusdalli
+      Taxon  17 -> Roboastraluteolineata
+      Taxon  18 -> Aeolidiapapillosa
+      Taxon  19 -> Eubranchussp
+      Taxon  20 -> Jfus
+      Taxon  21 -> Halgerdatessellata
+      Taxon  22 -> Tambjasp1
+      Taxon  23 -> Discodorisatromaculata
+      Taxon  24 -> Facelinapunctata
+      Taxon  25 -> Dendrodorisfumata
+      Taxon  26 -> Dendrodorisnigra
+      Taxon  27 -> Anculagibbosa
+      Taxon  28 -> Flabellinaaffinis
+      Taxon  29 -> Flabellinaischitana
+      Taxon  30 -> Halgerdagunnessi
+      Taxon  31 -> Triophamaculata
+      Taxon  32 -> Chromodoriskuiteri
+      Taxon  33 -> Berthellinacitrina
+      Taxon  34 -> Halgerdasp
+      Taxon  35 -> Chromodoriskrohni
+      Taxon  36 -> Chromodorisluteorosa
+      Taxon  37 -> Polyceraaurantiomarginata
+      Taxon  38 -> Tcata
+      Taxon  39 -> Goniodorisnodosa
+      Taxon  40 -> Dotofloridicola
+      Taxon  41 -> Smaragdinellasp
+      Taxon  42 -> Cuthonacaerulea
+      Taxon  43 -> Tylodinaperversa
+      Taxon  44 -> Jorunnaomentosa
+      Taxon  45 -> Eubranchussp2
+      Taxon  46 -> Asteronotuscespitosus
+      Taxon  47 -> Tambjamorosa
+      Taxon  48 -> Dodhn
+      Taxon  49 -> Mleo
+      Taxon  50 -> Glossodorisatromarginata
+      Taxon  51 -> Notodoriscitrina
+      Taxon  52 -> Nembrothacristata
+      Taxon  53 -> Favorinusbrachialis
+      Taxon  54 -> Halgerdacfwilleyi
+      Taxon  55 -> Thuridillahopei
+      Taxon  56 -> Paliodubia
+      Taxon  57 -> Hypseledorisvillafranca
+      Taxon  58 -> Discodorisconcinna
+      Taxon  59 -> Hypselodoriselegans
+      Taxon  60 -> Onchidorismuricata
+      Taxon  61 -> Godivabanyulensis
+      Taxon  62 -> Limaciajansi
+      Taxon  63 -> Tdio
+      Taxon  64 -> Doriopsillaareolata
+      Taxon  65 -> Tambjafusca
+      Taxon  66 -> Archidorispseudoargus
+      Taxon  67 -> Diaphorodorispapillata
+      Taxon  68 -> Discodorisconfusa
+      Taxon  69 -> Dsandi
+      Taxon  70 -> Eubranchusexiguus
+      Taxon  71 -> Elysiatimida
+      Taxon  72 -> Halgerdaokinawa
+      Taxon  73 -> Tambjasp2
+      Taxon  74 -> Diaphorodorisluteocincta
+      Taxon  75 -> Tergipestergipes
+      Taxon  76 -> Triophacatalinae
+      Taxon  77 -> Polyceraquadrilineata
+      Taxon  78 -> Okeniaaspersa
+      Taxon  79 -> Halgerdamalesso
+      Taxon  80 -> Tambjaabdere
+      Taxon  81 -> Thecacerapennigera
+      Taxon  82 -> Dendronotusfrondosus
+      Taxon  83 -> Halgerdaaurantiomaculata
+      Taxon  84 -> Nembrothalineolata
+      Taxon  85 -> Halgerdaalbocristata
+      Taxon  86 -> Limaciaclavigera
+      Taxon  87 -> Facelinabostoniensis
+      Taxon  88 -> Durvilledorispusilla
+      Taxon  89 -> Phyllidiaelegans
+      Taxon  90 -> Chromodorispurpurea
+      Taxon  91 -> Bathydorisclavigera
+      Taxon  92 -> Phestmelanobrachia
+      Taxon  93 -> Aldisabanyulensis
+      Taxon  94 -> Phestsp2
+      Taxon  95 -> Dotopinnatifida
+      Taxon  96 -> Nembrothachamberlaini
+      Taxon  97 -> Cadlinalaevis2
+      Taxon  98 -> Polycerellaemertoni
+      Taxon  99 -> Aplysiaparvula
+      Taxon 100 -> Marioniablainvillea
+      Taxon 101 -> Arminalovenii
+      Taxon 102 -> Austrodoriskerguelenensis
+      Taxon 103 -> AplysiaROOT
+      Taxon 104 -> Nembrothacfrutilans
+      Taxon 105 -> Platydorisargo
+      Taxon 106 -> Phestsp1
+      Taxon 107 -> Goniodoriscastanea
+      Taxon 108 -> Halgerdabatangas
+      Taxon 109 -> Flabellinapedata
+      Taxon 110 -> Chromodorisquadricolor
+      Taxon 111 -> Peltodorisatromaculata
+      Taxon 112 -> Halgerdacarlsoni
+      Taxon 113 -> Doriopsisgranulosa
+      Taxon 114 -> Crimorapapillata
+      Taxon 115 -> Halgerdadiaphana
+      Taxon 116 -> Cadlinaluteomarginata
+      Taxon 117 -> Aplysiadepilans
+      Taxon 118 -> Cuthonaocellata
+      Taxon 119 -> Roboastratigris
+      Taxon 120 -> Halgerdatheobroma
+      Taxon 121 -> Rostangapulchra
+      Taxon 122 -> Nembrothakubaryana
+      Taxon 123 -> Phestminor
+      Taxon 124 -> Dotocoronata
+      Taxon 125 -> Nembrothamullineri
+      Taxon 126 -> Tambjaeliora
+      Taxon 127 -> Dironapicta
+      Taxon 128 -> Phestsibogae
+      Taxon 129 -> Hancockiauncinata
+      Successfully read matrix
+      Setting default partition (does not divide up characters)
+      Setting model defaults
+      Seed (for generating default start values) = 1418218632
+      Setting output file names to "testbayes.nxs.run<i>.<p|t>"
+   Exiting data block
+   Skipping "CODONS" block
+   Skipping "ASSUMPTIONS" block
+   Skipping "assumptions" block
+   Skipping "paup" block
+   Reading mrbayes block
+      Setting Nst to 6
+      Setting Rates to Invgamma
+      Successfully set likelihood model parameters
+      Setting Revmatpr to Dirichlet(1.00,1.00,1.00,1.00,1.00,1.00)
+      Setting Statefreqpr to Dirichlet(1.00,1.00,1.00,1.00)
+      Setting Shapepr to Uniform(0.10,50.00)
+      Setting Pinvarpr to Uniform(0.00,1.00)
+      Successfully set prior model parameters
+      Setting outgroup to taxon "AplysiaROOT"
+      Setting autoclose to yes
+      Setting number of generations to 10000
+      Setting print frequency to 1000
+      Setting sample frequency to 100
+      Setting number of chains to 4
+      Setting chain output file names to "testbayes.run<i>.<p/t>"
+      Successfully set chain parameters
+      Running Markov chain
+      MCMC stamp = 5936662042
+      Seed = 1353820489
+      Swapseed = 1418218632
+      Model settings:
+
+         Data not partitioned --
+            Datatype  = DNA
+            Nucmodel  = 4by4
+            Nst       = 6
+                        Substitution rates, expressed as proportions
+                        of the rate sum, have a Dirichlet prior
+                        (1.00,1.00,1.00,1.00,1.00,1.00)
+            Covarion  = No
+            # States  = 4
+                        State frequencies have a Dirichlet prior
+                        (1.00,1.00,1.00,1.00)
+            Rates     = Invgamma
+                        Gamma shape parameter is uniformly dist-
+                        ributed on the interval (0.10,50.00).
+                        Proportion of invariable sites is uniformly dist-
+                        ributed on the interval (0.00,1.00).
+                        Gamma distribution is approximated using 4 categories.
+                        Likelihood summarized over all rate categories in each generation.
+
+      Active parameters: 
+
+         Parameters
+         ------------------
+         Revmat           1
+         Statefreq        2
+         Shape            3
+         Pinvar           4
+         Ratemultiplier   5
+         Topology         6
+         Brlens           7
+         ------------------
+
+         1 --  Parameter  = Revmat
+               Type       = Rates of reversible rate matrix
+               Prior      = Dirichlet(1.00,1.00,1.00,1.00,1.00,1.00)
+
+         2 --  Parameter  = Pi
+               Type       = Stationary state frequencies
+               Prior      = Dirichlet
+
+         3 --  Parameter  = Alpha
+               Type       = Shape of scaled gamma distribution of site rates
+               Prior      = Uniform(0.10,50.00)
+
+         4 --  Parameter  = Pinvar
+               Type       = Proportion of invariable sites
+               Prior      = Uniform(0.00,1.00)
+
+         5 --  Parameter  = Ratemultiplier
+               Type       = Partition-specific rate multiplier
+               Prior      = Fixed(1.0)
+
+         6 --  Parameter  = Tau
+               Type       = Topology
+               Prior      = All topologies equally probable a priori
+               Subparam.  = V
+
+         7 --  Parameter  = V
+               Type       = Branch lengths
+               Prior      = Unconstrained:Exponential(10.0)
+
+
+      Number of chains per MPI processor = 2
+
+      The MCMC sampler will use the following moves:
+         With prob.  Chain will use move
+            1.09 %   Dirichlet(Revmat)
+            1.09 %   Slider(Revmat)
+            1.09 %   Dirichlet(Pi)
+            1.09 %   Slider(Pi)
+            2.17 %   Multiplier(Alpha)
+            2.17 %   Slider(Pinvar)
+           10.87 %   ExtSPR(Tau,V)
+           10.87 %   ExtTBR(Tau,V)
+           10.87 %   NNI(Tau,V)
+           10.87 %   ParsSPR(Tau,V)
+           32.61 %   Multiplier(V)
+           10.87 %   Nodeslider(V)
+            4.35 %   TLMultiplier(V)
+
+      

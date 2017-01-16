@@ -11,6 +11,15 @@
 #apiMel3	apiMel3	Honeybee (Apis mellifera): apiMel3		/path/to/genome/apiMel3/apiMel3.fa
 #hg19canon	hg19		Human (Homo sapiens): hg19 Canonical		/path/to/genome/hg19/hg19canon.fa
 #hg19full	hg19		Human (Homo sapiens): hg19 Full			/path/to/genome/hg19/hg19full.fa
+
+hg18	hg18	Human hg18	/work/databases/bio/gatk/hg18/Homo_sapiens_assembly18.fasta
+hg19	hg19	Human hg19	/work/databases/bio/gatk/hg19/ucsc.hg19.fasta
+mm9	mm9	Mouse mm9	/work/databases/bio/samtools/mm9/mm9.fa
+mm10	mm10	Mouse mm10	/work/databases/bio/samtools/mm10/mm10.fa
+rn4	rn4	Rat rn4		/work/databases/bio/samtools/rn4/rn4.fa
+
+
+
 #
 #Your all_fasta.loc file should contain an entry for each individual
 #fasta file. So there will be multiple fasta files for each build,
