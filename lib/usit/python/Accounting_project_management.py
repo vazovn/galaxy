@@ -1532,9 +1532,6 @@ def project_dropdown_update ( email, static_options ) :
     if len(updated_static_options) > 0 :
         static_options = updated_static_options 
     
-    
-    print "STATIC OPTIOPNS ", static_options
-    
     return static_options
          
          
