@@ -7,7 +7,7 @@ import re
 from pprint import *
 import smtplib
 from smtplib import SMTPException
-import Project_managers
+import Project_managers, Accounting_project_management
 
 ## needed to sort complex data structures
 from operator import itemgetter, attrgetter
@@ -25,28 +25,6 @@ else:
 
 application_db_engine = create_engine(GOLDDB, encoding='utf-8')
 metadata = MetaData(application_db_engine)
-
-def get_member_of_GOLD_projects ( username )  :
-    """
-    Selects the GOLD projects the user is member of  
-    """
-    
-    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject  --raw --show Name,Users | grep %s " % username
-    p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out = p.communicate()[0]
-    output = out.split("\n")
-    
-    projects = []
-    for line in output:
-        project_line = line.split('|')
-        if project_line[0] == 'MAS' :
-           continue
-        elif project_line[0] :
-           projects.append(project_line[0])
-
-    print "Accounting : I am member of the following GOLD projects ", projects
-    return projects
-
                     
 def _slurmtimesecs (elapsed_time) :
     """

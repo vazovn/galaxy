@@ -1501,7 +1501,7 @@ def project_dropdown_update ( email, static_options ) :
     Called from /lib/galaxy/tools/parameters/basic.py
     """
 
-    my_gold_projects = get_owned_GOLD_projects ( email )
+    my_gold_projects = get_member_of_GOLD_projects ( email )
     projects_in_static_options = []
     updated_static_options = []
     
@@ -1513,6 +1513,9 @@ def project_dropdown_update ( email, static_options ) :
         flag_is_project_static_option = False
         
         if re.match('^lp\d+', static_option[0]) :
+            projects_in_static_options.append(static_option[0])
+            flag_is_project_static_option = True
+        if re.match('gx_default', static_option[0]) :
             projects_in_static_options.append(static_option[0])
             flag_is_project_static_option = True
         
@@ -1529,8 +1532,33 @@ def project_dropdown_update ( email, static_options ) :
     if len(updated_static_options) > 0 :
         static_options = updated_static_options 
     
+    
+    print "STATIC OPTIOPNS ", static_options
+    
     return static_options
          
+         
+def get_member_of_GOLD_projects ( username )  :
+    """
+    Selects the GOLD projects the user is member of  
+    """
+    
+    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject  --raw --show Name,Users | grep %s " % username
+    p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out = p.communicate()[0]
+    output = out.split("\n")
+    
+    projects = []
+    for line in output:
+        project_line = line.split('|')
+        if project_line[0] == 'MAS' :
+           continue
+        elif project_line[0] :
+           projects.append(project_line[0])
+
+    print "Accounting : I am member of the following GOLD projects ", projects
+    return projects
+
     
 def check_if_user_is_feide ( username ):
     connection = application_db_engine.connect()

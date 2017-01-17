@@ -21,7 +21,7 @@ from galaxy.jobs.runners import AsynchronousJobState, AsynchronousJobRunner
 ## Nikolay USIT start
 import Dumper
 import re
-import Accounting_jobs
+import Accounting_project_management, Accounting_jobs
 
 ## Errors in the check parameters block
 CPU_MEMORY_ERROR_MESSAGE = "error:The total memory per node (processes * memory per CPU) value can not exceed 900 GB!"
@@ -59,6 +59,8 @@ def create_job(jt,job_wrapper,job_destination,log):
     ## ==== Nikolay USIT DRMAA IMPORTANT BLOCK NATIVE SPECS OVERRIDE START  ====
 
     print '-'*120
+
+    galaxy_job_id =  job_wrapper.get_id_tag()
 
     orig = job_destination.params.get('nativeSpecification', None)
     print 'Original Native Specifications: '+orig
@@ -133,11 +135,11 @@ def create_job(jt,job_wrapper,job_destination,log):
     ## TOTAL MEMORY AND NTASKS CHECK
     
     if (int(mem_per_cpu_value) * int(ntasks_per_node_value)) > 900*1024:
-        log.error( "(%s) The total memory per node (processes * memory per CPU) value can not exceed 900 GB " % galaxy_id_tag )
+        log.error( "(%s) The total memory per node (processes * memory per CPU) value can not exceed 900 GB " % galaxy_job_id )
         return CPU_MEMORY_ERROR_MESSAGE
         
     if (int(ntasks_per_node_value) > 5 and partition == ' --partition=hugemem'):
-        log.error( "(%s) The limit of jobs running on a hugemem (a node with more than 64 GB of memory) is set to 5! " % galaxy_id_tag )
+        log.error( "(%s) The limit of jobs running on a hugemem (a node with more than 64 GB of memory) is set to 5! " % galaxy_job_id )
         return TOO_MANY_HUGEMEM_JOBS_ERROR_MESSAGE
 
     ## GOLD RELATED CHECKS
@@ -153,8 +155,11 @@ def create_job(jt,job_wrapper,job_destination,log):
 def verify_gold_access(job_wrapper,time_value,nodes_value,ntasks_per_node_value,project_value, log):
 
     print "=== Running Gold Verification ==="
+    
+    galaxy_job_id =  job_wrapper.get_id_tag()
+    
     print "The user requested to run using the project: "+project_value
-    LP_user_projects = Accounting_jobs.get_member_of_GOLD_projects ( job_wrapper.user )
+    LP_user_projects = Accounting_project_management.get_member_of_GOLD_projects ( job_wrapper.user )
     if project_value not in (LP_user_projects)  :
         log.error( "(%s) You are not member of the selected project! " % project_value )
         return WRONG_PROJECT_ERROR_MESSAGE % project_value
@@ -167,19 +172,18 @@ def verify_gold_access(job_wrapper,time_value,nodes_value,ntasks_per_node_value,
     (result, available) = Accounting_jobs.job_check_project_balance( project_value, job_wrapper.user,  total_walltime)
     if result == 'low_balance':
         available = float(available)/3600
-        log.error( "(%s) You have requested %s hours but the remaining CPU hours in your project are " % ( galaxy_id_tag,  time_value) + "%.2f" % round(available,2))
+        log.error( "(%s) You have requested %s hours but the remaining CPU hours in your project are " % ( galaxy_job_id,  time_value) + "%.2f" % round(available,2))
         return LOW_BALANCE_ERROR % ( available, time_value )
     elif result == 'reservation_over_balance_limit':
         available = float(available)/3600
-        log.error( "(%s) You are trying to reserve %s hours. The remaining CPU hours in your project are" % ( galaxy_id_tag, time_value ) + "%.2f" % round( available, 2))
+        log.error( "(%s) You are trying to reserve %s hours. The remaining CPU hours in your project are" % ( galaxy_job_id, time_value ) + "%.2f" % round( available, 2))
         return DENIED_RESERVATION_ERROR % ( available, time_value)
     elif result != 'ok' :
-        log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_id_tag )
+        log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_job_id )
         return RESERVATION_FAILED_ERROR
         
-    jobname = job_wrapper.get_id_tag()
     pe = int(nodes_value) * int(ntasks_per_node_value)
-    message = Accounting_jobs.job_reserve( jobname, project_value, job_wrapper.user, str(timestring_secs), pe)
+    message = Accounting_jobs.job_reserve( galaxy_job_id, project_value, job_wrapper.user, str(timestring_secs), pe)
     action = "go"
     if message is not None and re.search("Successfully reserved 0 credits",message) :
         print "Job reservation failed : ", message
@@ -196,7 +200,7 @@ def verify_gold_access(job_wrapper,time_value,nodes_value,ntasks_per_node_value,
         action ="stop"
                  
     if action == "stop" :
-        log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_id_tag )
+        log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_job_id )
         return RESERVATION_FAILED_ERROR;
 
     return "ok"
@@ -204,11 +208,11 @@ def verify_gold_access(job_wrapper,time_value,nodes_value,ntasks_per_node_value,
 def charge_job(ajs,log) :
     if "GOLDDB" in os.environ.keys() :
         external_job_id = ajs.job_id
-        galaxy_id_tag = ajs.job_wrapper.get_id_tag()
+        galaxy_job_id = ajs.job_wrapper.get_id_tag()
         print "============ CHARGE JOB HERE ============"
         #print "SLURM JOB ID ", external_job_id
-        #print "GALAXY JOB ID ",  galaxy_id_tag
+        #print "GALAXY JOB ID ",  galaxy_job_id
         #print ""
-        message = Accounting_jobs.job_charge(external_job_id ,galaxy_id_tag)
+        message = Accounting_jobs.job_charge(external_job_id ,galaxy_job_id)
         log.debug(message)
         print "========================================="
