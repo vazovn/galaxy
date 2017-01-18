@@ -16,13 +16,9 @@ var _super = DATASET_LI.DatasetListItemView;
 var DatasetListItemEdit = _super.extend(
 /** @lends DatasetListItemEdit.prototype */{
 
-    /** logger used to record this.log messages, commonly set to console */
-    //logger              : console,
-
     /** set up: options */
     initialize  : function( attributes ){
         _super.prototype.initialize.call( this, attributes );
-//TODO: shouldn't this err if false?
         this.hasUser = attributes.hasUser;
 
         /** allow user purge of dataset files? */
@@ -49,7 +45,7 @@ var DatasetListItemEdit = _super.extend(
         ]);
     },
 
-//TODO: move titleButtons into state renderers, remove state checks in the buttons
+    //TODO: move titleButtons into state renderers, remove state checks in the buttons
 
     /** Render icon-button to edit the attributes (format, permissions, etc.) this dataset. */
     _renderEditButton : function(){
@@ -122,10 +118,55 @@ var DatasetListItemEdit = _super.extend(
             this._makeDbkeyEditLink( $details );
         }
 
-//TODO: TRIPLE tap, ugh.
         this._setUpBehaviors( $details );
         return $details;
     },
+
+    /************************************************************************** 
+     * Render help button to show tool help text without rerunning the tool.
+     * Issue #2100
+     */
+    _renderToolHelpButton : function() {
+        var datasetID = this.model.attributes.dataset_id;
+        var jobID = this.model.attributes.creating_job;
+
+        var parseToolBuild = function(data) {
+            var toolName = data.name;
+            var toolHelp = (data.help) ? data.help : "No help is available for the tool.";
+            var helpString = '<div id="thdiv-' + datasetID + '" style="background:#eee; padding: 5px;"><hr><strong>Tool Help for ' + toolName + '</strong><br/><hr>';
+            helpString += toolHelp;
+            helpString += '</div>';
+            $('#dataset-' + datasetID).append($.parseHTML(helpString));
+        };
+        var parseToolID = function(data) {
+            $.ajax({
+                url: '/api/tools/' + data.tool_id + '/build'
+            }).done(function(data){
+                parseToolBuild(data);
+            }).fail(function(){console.log("Failed in api tools build call")});
+        };
+        
+        return faIconButton({
+            title: 'Tool Help',
+            classes: 'icon-btn',
+            href: '#',
+            faIcon: 'fa-question',
+            onclick: function() {
+                var divString = 'thdiv-' + datasetID;
+                if ($("#" + divString).length > 0)
+                {
+                    $("#" + divString).toggle();     
+                } else {
+                    $.ajax({
+                    url: '/api/jobs/' + jobID
+                }).done(function(data){
+                    parseToolID(data);
+                }).fail(function(){console.log('Failed on recovering /api/jobs/' + jobID + ' call.')});
+                }
+            }
+        });
+    },
+    //*************************************************************************
 
     /** Add less commonly used actions in the details section based on state */
     _renderSecondaryActions : function(){
@@ -137,12 +178,12 @@ var DatasetListItemEdit = _super.extend(
             case STATES.ERROR:
                 // error button comes first
                 actions.unshift( this._renderErrButton() );
-                return actions.concat([ this._renderRerunButton() ]);
+                return actions.concat([ this._renderRerunButton(), this._renderToolHelpButton() ]);
             case STATES.OK:
             case STATES.FAILED_METADATA:
-                return actions.concat([ this._renderRerunButton(), this._renderVisualizationsButton() ]);
+                return actions.concat([ this._renderRerunButton(), this._renderVisualizationsButton(), this._renderToolHelpButton() ]);
         }
-        return actions.concat([ this._renderRerunButton() ]);
+        return actions.concat([ this._renderRerunButton(), this._renderToolHelpButton() ]);
     },
 
     /** Render icon-button to report an error on this dataset to the galaxy admin. */
@@ -219,7 +260,7 @@ var DatasetListItemEdit = _super.extend(
         });
     },
 
-//TODO: if possible move these to readonly view - but display the owner's tags/annotation (no edit)
+    //TODO: if possible move these to readonly view - but display the owner's tags/annotation (no edit)
     /** Render the tags list/control */
     _renderTags : function( $where ){
         if( !this.hasUser ){ return; }
@@ -286,7 +327,6 @@ var DatasetListItemEdit = _super.extend(
         'click .dbkey a'        : function( ev ){ this.trigger( 'edit', this, ev ); }
     }),
 
-
     /** listener for item undelete (in the messages section) */
     _clickUndeleteLink : function( ev ){
         this.model.undelete();
@@ -295,8 +335,9 @@ var DatasetListItemEdit = _super.extend(
 
     /** listener for item purge (in the messages section) */
     _clickPurgeLink : function( ev ){
-//TODO: confirm dialog
-        this.model.purge();
+        if( confirm( _l( 'This will permanently remove the data in your dataset. Are you sure?' ) ) ){
+            this.model.purge();
+        }
         return false;
     },
 
@@ -312,7 +353,6 @@ var DatasetListItemEdit = _super.extend(
 // ............................................................................ TEMPLATES
 /** underscore templates */
 DatasetListItemEdit.prototype.templates = (function(){
-//TODO: move to require text! plugin
 
     var warnings = _.extend( {}, _super.prototype.templates.warnings, {
         failed_metadata : BASE_MVC.wrapTemplate([
