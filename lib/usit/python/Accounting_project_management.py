@@ -1493,7 +1493,54 @@ def get_all_users():
        
     print "Accounting_project_management all gold users ",all_gold_users
     return all_gold_users
+  
+  
+def get_project_balance( email, projects ):  
+    """
+    Function which returns the balance for a specific list of projects + default project
+    """
+
+    connection = application_db_engine.connect()  
+    project_balance = {}
     
+    ## Remove gx_default
+    projects.pop(0)
+    
+    quoted_projects = []
+    for p in projects:
+       p = "'"+p+"'"
+       quoted_projects.append(p)
+             
+    string_project_list = ','.join(quoted_projects)
+    
+    result  = connection.execute("select\
+                                      g_account_project.g_name,\
+                                      g_allocation.g_id,\
+                                      g_allocation.g_amount\
+                                  from\
+                                      g_account_project,\
+                                      g_allocation\
+                                  where\
+                                      g_account_project.g_name in ( %s ) \
+                                  and\
+                                      g_account_project.g_account = g_allocation.g_account\
+                                  order by\
+                                      g_allocation.g_id " % string_project_list )
+    
+    for row in result :
+         project_balance[row[0]]="{0:.2f}".format(row[2]/3600)
+    
+    ## Get the amount for the default project
+    get_users_command = "sudo -u gold /opt/gold/bin/glsaccount --show Name,Amount | grep %s_gx_default" % email
+    p = subprocess.Popen(get_users_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    p.wait()
+    
+    for line in p.stdout.readlines():
+        default_project_info = line.split()
+        project_balance['gx_default'] = "{0:.2f}".format(int(default_project_info[1])/3600)
+    
+    return project_balance
+         
     
 def project_dropdown_update ( email, static_options ) :
     """
@@ -1502,36 +1549,21 @@ def project_dropdown_update ( email, static_options ) :
     """
 
     my_gold_projects = get_member_of_GOLD_projects ( email )
-    projects_in_static_options = []
+    
+    ## Get the balance for every project
+    project_balance = get_project_balance(email, my_gold_projects)
+            
+    #projects_in_static_options = []
     updated_static_options = []
     
-    # collect all static options
-    for static_option in static_options :
-        
-        ## The "Default Lifeportal project" is by default in the xml config file anyway
-        
-        flag_is_project_static_option = False
-        
-        if re.match('^lp\d+', static_option[0]) :
-            projects_in_static_options.append(static_option[0])
-            flag_is_project_static_option = True
-        if re.match('gx_default', static_option[0]) :
-            projects_in_static_options.append(static_option[0])
-            flag_is_project_static_option = True
-        
-        ## Only update project option
-        if flag_is_project_static_option :
-            updated_static_options = static_options
-    
-    for gold_project in my_gold_projects:
-        if gold_project in projects_in_static_options :
-            continue
-        else :
-            updated_static_options.append(( gold_project, gold_project, False)) 
+    gold_project_title = ""
+    for key,value in sorted(project_balance.iteritems()) :
+       gold_project_title = " ".join([key,"(",value,")"])
+       updated_static_options.append(( gold_project_title if gold_project_title else key, key, False)) 
     
     if len(updated_static_options) > 0 :
         static_options = updated_static_options 
-    
+        
     return static_options
          
          
