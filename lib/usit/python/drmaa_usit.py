@@ -52,7 +52,10 @@ def create_job_safe(jt,job_wrapper,job_destination,log,ds):
 
 def fail_job_procedure(job_wrapper,ds,jt,message) :
     job_wrapper.fail( message )
-    ds.deleteJobTemplate( jt )
+    
+    ## Removed since implemented in new drmaa version from python (JobTemplate is automatically deleted)
+    ## .venv/lib64/python27/.../pulsar.managers.util.drmaa
+    #ds.deleteJobTemplate( jt )
 
 def create_job(jt,job_wrapper,job_destination,log):
 
