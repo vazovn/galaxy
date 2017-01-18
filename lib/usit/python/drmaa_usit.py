@@ -27,7 +27,7 @@ import Accounting_project_management, Accounting_jobs
 CPU_MEMORY_ERROR_MESSAGE = "error:The total memory per node (processes * memory per CPU) value can not exceed 900 GB!"
 TOO_MANY_HUGEMEM_JOBS_ERROR_MESSAGE = "error:The limit of jobs running on a hugemem (a node with more than 64 GB of memory) is set to 5!"
 WRONG_PROJECT_ERROR_MESSAGE = "error:You are not member of the selected project (%s)!"
-LOW_BALANCE_ERROR = "error:The remaining CPU hours in your project (%s) are insufficient to execute the job! You requested %s hours. ATTENTION! This may also mean that your project is no longer active since inactive projects are not allocated any resources. Please check the validity in the ProjectAdmin > Manage Projects."
+LOW_BALANCE_ERROR = "error:The remaining CPU hours in your project (%s) are insufficient to execute the job! You requested %s hours.\nNB! Is you project still active?.\nPlease check the end_time in the ProjectAdmin > Manage Projects."
 DENIED_RESERVATION_ERROR = "error:You have too many reserved jobs and the remaining resources  (%s hrs)  are insufficient to run the job requiring %s hrs!"
 RESERVATION_FAILED_ERROR = "error:Ressources are available, but the reservation failed! Please, contact the portal admins."
 
