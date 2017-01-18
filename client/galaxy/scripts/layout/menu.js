@@ -158,7 +158,7 @@ var Collection = Backbone.Collection.extend({
         //
         Galaxy.user.get( 'is_project_admin' ) && this.add({
             id              : 'project_admin',
-            title           : 'ProjecjAdmin',
+            title           : 'ProjectAdmin',
             url             : 'project_admin',
             tooltip         : 'Project Administration Section'
         });
