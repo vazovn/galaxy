@@ -1495,51 +1495,20 @@ def get_all_users():
     return all_gold_users
   
   
-def get_project_balance( email, projects ):  
+def get_default_project_balance( email ):  
     """
     Function which returns the balance for a specific list of projects + default project
     """
-
-    connection = application_db_engine.connect()  
-    project_balance = {}
-    
-    ## Remove gx_default
-    projects.pop(0)
-    
-    quoted_projects = []
-    for p in projects:
-       p = "'"+p+"'"
-       quoted_projects.append(p)
-             
-    string_project_list = ','.join(quoted_projects)
-    
-    result  = connection.execute("select\
-                                      g_account_project.g_name,\
-                                      g_allocation.g_id,\
-                                      g_allocation.g_amount\
-                                  from\
-                                      g_account_project,\
-                                      g_allocation\
-                                  where\
-                                      g_account_project.g_name in ( %s ) \
-                                  and\
-                                      g_account_project.g_account = g_allocation.g_account\
-                                  order by\
-                                      g_allocation.g_id " % string_project_list )
-    
-    for row in result :
-         project_balance[row[0]]="{0:.2f}".format(row[2]/3600)
-    
-    ## Get the amount for the default project
-    get_users_command = "sudo -u gold /opt/gold/bin/glsaccount --show Name,Amount | grep %s_gx_default" % email
-    p = subprocess.Popen(get_users_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+   
+    balance_default_command = "sudo -u gold /opt/gold/bin/gbalance -p gx_default -u %s --show Available" % email
+    p = subprocess.Popen(balance_default_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     p.wait()
     
     for line in p.stdout.readlines():
         default_project_info = line.split()
-        project_balance['gx_default'] = "{0:.2f}".format(int(default_project_info[1])/3600)
+    default_project_balance = "{0:.2f}".format(int(default_project_info[0])/3600)
     
-    return project_balance
+    return default_project_balance
          
     
 def project_dropdown_update ( email, static_options ) :
@@ -1550,16 +1519,22 @@ def project_dropdown_update ( email, static_options ) :
 
     my_gold_projects = get_member_of_GOLD_projects ( email )
     
-    ## Get the balance for every project
-    project_balance = get_project_balance(email, my_gold_projects)
+    ## Get the balance for default project
+    default_project_balance = None
+    if "gx_default" in my_gold_projects :
+        default_project_balance = get_default_project_balance(email)
             
     #projects_in_static_options = []
     updated_static_options = []
-    
-    gold_project_title = ""
-    for key,value in sorted(project_balance.iteritems()) :
-       gold_project_title = " ".join([key,"(",value,")"])
-       updated_static_options.append(( gold_project_title if gold_project_title else key, key, False)) 
+ 
+    project_title = ''
+    for project in sorted(my_gold_projects) :
+       if project == 'gx_default' and default_project_balance != None:
+          project_title = " ".join([project,"(",default_project_balance,")"])
+          updated_static_options.append(( project_title, project, False)) 
+       else :
+          updated_static_options.append(( project, project, False)) 
+ 
     
     if len(updated_static_options) > 0 :
         static_options = updated_static_options 
