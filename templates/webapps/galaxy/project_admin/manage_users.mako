@@ -9,12 +9,12 @@
    import Accounting_project_management
    
    ## Get all the projects owned by the project administrator
-   gold_project_list = Accounting_project_management.get_owned_GOLD_projects( trans.user.email )
+   gold_project_list = Accounting_project_management.list_owned_GOLD_projects_names_only ( trans.user.email )
 
    # Add projects like CLOTU and BIT
    other_managed_projects = [] 
    if trans.user and app.config.is_project_admin_user( trans.user ) :
-         other_managed_projects = Accounting_project_management.get_other_managed_GOLD_projects ( trans.user.email ) 
+         other_managed_projects = Accounting_project_management.list_owned_GOLD_projects_names_only ( trans.user.email ) 
          print "PROJECT BASE PANELS MAKO OTHER MANAGED PROJECTS ", other_managed_projects
 
          for other_project in other_managed_projects :
