@@ -312,7 +312,7 @@ def _get_MAS_projects ( email ):
    
    username_open = '<'+username_mas+'>'
    username_close = '</'+username_mas+'>'
-   f=open('/cluster/var/user-info', 'r')
+   f=open('/work/var/user-info', 'r')
    takeline = False
    projectline = ''
    projects = []
@@ -349,7 +349,7 @@ def _get_MAS_username (email ) :
    email = ''
     
    ## Get the correct username
-   f=open('/cluster/var/user-info', 'r')
+   f=open('/work/var/user-info', 'r')
    for line in f :
        if re.search( "uname", line) :
            uname = line.split()[1]
@@ -409,7 +409,7 @@ def _generate_project_name() :
 
 def get_gx_default_project_balance( username ) :
    """
-   Displays the output of gusage command
+   Displays the balance of gx_default
    """
 
    gx_project_balance = '' 
