@@ -80,7 +80,7 @@ def list_owned_GOLD_projects_names_only ( username ) :
     """
     Selects the GOLD projects owned/created by the user calling the function  
     """
-    get_projects_command = "sudo -u gold  /opt/gold/bin/glsproject --show Name,Organization | grep %s " % username
+    get_projects_command = "sudo -u gold  /opt/gold/bin/glsproject --show Name,Organization | grep -i %s " % username
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     p.wait()
     projects = []
@@ -111,7 +111,7 @@ def list_owned_GOLD_projects ( username ) :
     """
     Lists the GOLD projects, users, descriptions of owned/created by the user calling the function  
     """
-    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject --show Organization,Name,Users,Active,Description | grep %s " % username      
+    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject --show Organization,Name,Users,Active,Description | grep -i %s " % username      
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     p.wait()
     projects = []
@@ -127,7 +127,7 @@ def list_owned_GOLD_projects ( username ) :
            
            ## Get the project account info
            project_name = project_line[0]
-           get_account_info_command = "sudo -u gold /opt/gold/bin/glsaccount -h --show Amount,Projects | grep -w %s | uniq " % project_name
+           get_account_info_command = "sudo -u gold /opt/gold/bin/glsaccount -h --show Amount,Projects | grep -i -w %s | uniq " % project_name
            p = subprocess.Popen(get_account_info_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
            p.wait()
            amount = ''
@@ -414,7 +414,7 @@ def get_gx_default_project_balance( username ) :
 
    gx_project_balance = '' 
    connection = application_db_engine.connect()
-   result  = connection.execute("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_id = g_account.g_id and g_account.g_name = '%s_gx_default'" % username );
+   result  = connection.execute("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_id = g_account.g_id and LOWER(g_account.g_name) = LOWER('%s_gx_default')" % username );
 
    if result.rowcount > 0 :
         for row in result :
@@ -1102,7 +1102,7 @@ def collect_project_info_for_report ( project_code ) :
               cpu_hours = project_data[6] 
               project_data[6] = float(cpu_hours)
 
-              get_account_info_command = "sudo -u gold /opt/gold/bin/gbalance -h --show Name,Available | grep -w %s | uniq " % project_code
+              get_account_info_command = "sudo -u gold /opt/gold/bin/gbalance -h --show Name,Available | grep -i -w %s | uniq " % project_code
               p = subprocess.Popen(get_account_info_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
               p.wait()
        
@@ -1239,7 +1239,7 @@ def get_member_of_GOLD_projects ( username )  :
     Selects the GOLD projects the user is member of  
     """
     
-    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject  --raw --show Name,Users | grep %s " % username
+    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject  --raw --show Name,Users | grep -i %s " % username
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = p.communicate()[0]
     output = out.split("\n")
