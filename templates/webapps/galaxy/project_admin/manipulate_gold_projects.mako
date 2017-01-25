@@ -38,12 +38,11 @@
     <form action="${form_action}" method="post">
         %if project_admin == 'True':
                       <div class="form-row">
-                               <!-- <input type="submit" name="create_project" value="Create new project"/> -->
                                <input type="submit" name="modify_project" value="Modify project"/>
                                <input type="submit" name="pre_project_usage" value="Display project usage"/>
                                <input type="submit" name="activate_project" value="Activate project"/>
                                <input type="submit" name="deactivate_project" value="Deactivate project"/>
-                               <!-- <input type="submit" name="generate_report_page" value="Generate report page"/> -->
+                               <input type="submit" name="generate_report_page" value="Generate report page"/>
                       </div>
                       <table id="create_gold_project" class="grid">
                                 <tr><h2 colspan=8 align="center">Full Lifeportal local projects list</h2></tr>
@@ -77,12 +76,11 @@
                                    %endfor
                       </table>
                       <div class="form-row">
-                               <!-- <input type="submit" name="create_project" value="Create new project"/> -->
                                <input type="submit" name="modify_project" value="Modify project"/>
                                <input type="submit" name="pre_project_usage" value="Display project usage"/>
                                <input type="submit" name="activate_project" value="Activate project"/>
                                <input type="submit" name="deactivate_project" value="Deactivate project"/>
-                               <!-- <input type="submit" name="generate_report_page" value="Generate report page"/> -->
+                               <input type="submit" name="generate_report_page" value="Generate report page"/>
                       </div>
         %else :
                       <table id="create_gold_project" class="grid">
@@ -113,7 +111,7 @@
                         </table>
                         <div class="form-row">
                                         <input type="submit" name="pre_project_usage" value="Display project usage"/>
-                                        <!-- <input type="submit" name="generate_report_page" value="Generate report page"/> -->
+                                        <input type="submit" name="generate_report_page" value="Generate report page"/>
                        </div>
         %endif
     </form>

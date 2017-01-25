@@ -95,29 +95,29 @@ ${render_msg( message, status)}
         <tr>
              <td>Project responsible:</td>
              <td>&nbsp;</td>
-             <td><input type='text' name='name' maxlength="20" readonly />${project_data['name']}</td>
+             <td>${project_data['name']}</td>
         </tr>
         <tr>
              <td>Job title/position :</td>
              <td>&nbsp;</td>
-             <td><input type='text'  name='job_title' maxlength="20" readonly />${project_data['job_title']}</td>
+             <td>${project_data['job_title']}</td>
         </tr>
         <tr>
              <td>E-mail address:</td>
              <td>&nbsp;</td>
-             <td><input type='text' name='email'  readonly />${project_data['email']}</td>
+             <td>${project_data['email']}</td>
         </tr>
       
         <tr>
              <td>Institution (Faculty, Department) :</td>
              <td>&nbsp;</td>
-             <td><input type='text'   name='institution' maxlength="50"  readonly />${project_data['institution']}</td>
+             <td>${project_data['institution']}</td>
         </tr>
         
         <tr>
               <td>Country :</td>
               <td>&nbsp;</td>
-              <td><input type='text'  name='country' maxlength="20" readonly />${project_data['country']}</td>
+              <td>${project_data['country']}</td>
         </tr>
  
         <tr>
@@ -138,38 +138,38 @@ ${render_msg( message, status)}
         <tr>
               <td>Project name  :</td>
               <td>&nbsp;</td>
-              <td><input type='text'  name='project_name' maxlength="30"  readonly />${project_data['project_name']}</td>
+              <td>${project_data['project_name']}</td>
         </tr>
 
         <tr>
               <td>CPU hours required:</td>
               <td>&nbsp;</td>
-              <td><input type='text'  maxlength="9" name='cpu_hours_required'  readonly />${project_data['cpu_hours_required']}</td>
+              <td>${project_data['cpu_hours_required']}</td>
         </tr>
 
      <tr>
               <td>CPU hours used:</td>
               <td>&nbsp;</td>
-              <td><input type='text'  maxlength="9" name='cpu_hours_used' readonly />${project_data['cpu_hours_used']}</td>
+              <td>${project_data['cpu_hours_used']}</td>
         </tr>
 
      <tr>
               <td>CPU hours remaining:</td>
               <td>&nbsp;</td>
-              <td><input type='text'  maxlength="9" name='cpu_hours_remaining'  readonly />${project_data['cpu_hours_remaining']}</td>
+              <td>${project_data['cpu_hours_remaining']}</td>
         </tr>
 
 
          <tr>
               <td>Start date :</td>
               <td>&nbsp;</td>
-              <td><input type='text' name='start_date' readonly />${project_data['start_date']}</td>
+              <td>${project_data['start_date']}</td>
         </tr>
 
         <tr>
               <td>End date :</td>
               <td>&nbsp;</td>
-              <td><input type='text'  name='end_date' readonly />${project_data['end_date']}</td>
+              <td>${project_data['end_date']}</td>
         </tr>
         
         <tr>
@@ -179,13 +179,13 @@ ${render_msg( message, status)}
         <tr>
               <td>Extension is applied for the project until (optional):</td>
               <td>&nbsp;</td>
-              <td><input type='text' name='extension_date' value='' />${project_data['extension_date']}</td>
+              <td>${project_data['extension_date']}</td>
         </tr>
         
         <tr>
               <td>Additional CPU hours needed (optional) :</td>
               <td>&nbsp;</td>
-              <td><input type='text' name='additional_cpu_hours' maxlength="5" maxsize="5"  value='' />${project_data['additional_cpu_hours']}</td>
+              <td>${project_data['additional_cpu_hours']}</td>
         </tr>
         
         <tr>
@@ -195,7 +195,7 @@ ${render_msg( message, status)}
         <tr>
               <td>Project report :</td>
               <td>&nbsp;</td>
-              <td><textarea rows="4" cols="50" name='project_report' value=''>${project_data['project_report']}</textarea> 
+              <td>${project_data['project_report']}</textarea> 
               </td>
         </tr>
         

@@ -163,7 +163,9 @@ def verify_gold_access(job_wrapper,time_value,nodes_value,ntasks_per_node_value,
     
     print "The user requested to run using the project: "+project_value
     LP_user_projects = Accounting_project_management.get_member_of_GOLD_projects ( job_wrapper.user )
-    if project_value not in (LP_user_projects)  :
+    MAS_user_projects = Accounting_project_management._get_MAS_projects( job_wrapper.user )
+    all_user_projects = LP_user_projects + MAS_user_projects
+    if project_value not in (all_user_projects)  :
         log.error( "(%s) You are not member of the selected project! " % project_value )
         return WRONG_PROJECT_ERROR_MESSAGE % project_value
             

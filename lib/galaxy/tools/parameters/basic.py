@@ -770,6 +770,7 @@ class SelectToolParameter( ToolParameter ):
         return call_other_values
 
     def get_options( self, trans, other_values ):
+
         if self.options:
             return self.options.get_options( trans, other_values )
         elif self.dynamic_options:
@@ -784,13 +785,10 @@ class SelectToolParameter( ToolParameter ):
         ## Dynamically update the projects in the project job parameter dropdown
         elif self.__dict__['name'] == 'project':
            import Accounting_project_management
-           self.static_options = Accounting_project_management.project_dropdown_update ( trans.user.email, self.static_options )
-           for (title, value, selected) in self.static_options:
+           user_static_options = Accounting_project_management.project_dropdown_update ( trans.user.email, self.static_options )
+           for (title, value, selected) in user_static_options:
                 self.legal_values.add( value )
-           return self.static_options
-        
-        
-        
+           return user_static_options
         else:
             return self.static_options
 
