@@ -76,330 +76,7 @@ def associate_users_to_projects ( emails, project) :
                 
     return (message,status)
 
-
-def add_remote_user_to_GOLD( email, feide_username, idp ) :
-    """
-    This is a new function for using Apache REMOTE_USER variable (SimpleSamplPhp or Dataporten)
-    It is called by ../lib/galaxy/web/framework/webapp.py and requires that "use_remote_user" is set to True in galaxy.ini
-    At registration all users are added to GOLD: User is inserted to 
-    GOLD user DB and to gx_default (Galaxy default) project in GOLD. 
-    """
-
-    message = ""
-    username = email
-    user_info = []
-    description = 'Unspecified IdP'
-    print "==========  Accounting.py  IDP =========", idp
-    
-    ## Add the user to GOLD DB
-    if re.search("test-fe.cbu.uib.no", idp ):
-        description = 'NELS IdP user'
-    elif  re.search("feide.no", idp ):
-        description = 'FEIDE IdP user'
-    
-    useradd_command = "sudo -u gold /opt/gold/bin/gmkuser %s -d \"%s\"" % (username,description)
-    p = subprocess.Popen(useradd_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-
-    ## Do not proceed if the user exists!!
-    for line in p.stdout.readlines():
-       if re.search("User already exists",line) :
-            message = "User %s already exists in the GOLD DB!" % username
-            return message
-
-    ## Check if user has been added to GOLD DB
-    user_check_command = "sudo -u gold /opt/gold/bin/glsuser -u %s " % username
-    p = subprocess.Popen(user_check_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-
-    for line in p.stdout.readlines():
-        if re.search(username,line) :
-            user_info = line.split()
-
-    ## Nikolay USIT - LAP customization
-    ## Check if the user is associated with a MAS project    
-    ## projects = _get_MAS_projects( feide_username)
-    projects = []
-
-    ## If the user is sucessfully created
-    if user_info[0] == username and user_info[1] == 'True' :
-
-        ## If the user is member of MAS projects and no 200 CPU hrs quota is allowed
-        if len(projects) > 0 :
-            proj_names = " ".join(projects)
-            message = "A remote user %s has been added to the portal.</br>The user is a member of the project(s) %s and can only run jobs in these projects.\n" % (username,proj_names)
-            #print "Feide user %s added successfully! User associated to Notur projects." % username
-            return message
-        
-        else :  
-            ## Add user to default galaxy project gx_default, create account and credit the account with default CPU hours
-            add_to_gx_default_command = "sudo -u gold /opt/gold/bin/gchproject --addUsers %s gx_default " % username 
-            p = subprocess.Popen(add_to_gx_default_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-        
-            for line in p.stdout.readlines():
-                if re.search("Successfully",line) :
-                    message = "Remote user %s added successfully to GOLD DB and the default portal project (gx_galaxy) only.\n" % username
-                    #print "Feide user %s added successfully to GOLD DB and the default portal project (gx_galaxy) only." % username
-
-            ## Add user to account 'username_gx_default' in project gx_default
-            create_account_command = "sudo -u gold /opt/gold/bin/gmkaccount -p gx_default -u %s -n \"%s_gx_default\"" % (username,username) 
-            p = subprocess.Popen(create_account_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-        
-            for line in p.stdout.readlines():
-                if re.search("Successfully created",line) :
-                    message = message +  "Created account in default portal project (gx_galaxy) for remote user %s. \n" % username
-                    #print "Created account in gx_default for remote user %s." % username
-                #print line
-
-
-            ## Credit the account - 200 CPU hours
-            
-            ## Get the account id
-            get_account_id_command = "sudo -u gold /opt/gold/bin/glsaccount --show Id -n %s_gx_default" % username
-            p = subprocess.Popen(get_account_id_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-            account_id = ''
-            account_info = []
-            for line in p.stdout.readlines():
-                  account_info = line.split()
-            account_id = account_info[0]
-
-            ## Credit the account (in hours)
-            credit_account_command = "sudo -u gold /opt/gold/bin/gdeposit -h -a %s -z 200" % account_id
-            p = subprocess.Popen(credit_account_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-
-            for line in p.stdout.readlines():
-                if re.search("Successfully deposited",line) :
-                    message = message +  "Credited account %s_gx_default for remote user %s in default portal project (gx_galaxy).\n" % (username,username)
-                    message = message + line
-                    #print "Credited account in gx_default for remote user %s." % username
-
-            return message
-          
-    else :
-        print "Failed to create a user in GOLD"
-
-
-
-def add_feide_user_to_GOLD( email, feide_username ) :
-    """
-    This function is called by user.py & requires that "use_remote_user" is set to False in galaxy.ini
-    At registration all feide users are added to GOLD: User is inserted to 
-    GOLD user DB and to gx_default (Galaxy default) project in GOLD. This function
-    presumes that a check has been already performed and the user is _NOT_ in the galaxy
-    user DB
-    """
-
-    username = email
-    user_info = []
-    
-    ## Add the user to GOLD DB
-    useradd_command = "sudo -u gold /opt/gold/bin/gmkuser %s -d \"Default External academic -Galaxy user\"" % username
-    p = subprocess.Popen(useradd_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-
-    ## Check if user has been added to GOLD DB
-    user_check_command = "sudo -u gold /opt/gold/bin/glsuser -u %s " % username
-    p = subprocess.Popen(user_check_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-
-    for line in p.stdout.readlines():
-        if re.search(username,line) :
-            user_info = line.split()
-
-    ## Check if the user is associated with a MAS project    
-    projects = _get_MAS_projects( feide_username)
-
-    ## If the user is sucessfully created
-    if user_info[0] == username and user_info[1] == 'True' :
-
-        ## If the user is member of MAS projects and no 200 CPU hrs quota is allowed
-        if len(projects) > 0 :
-            proj_names = " ".join(projects)
-            message = "</br>External academic  user %s has been added to the Lifeportal.</br>The user is a member of the project(s) %s and can only run jobs in these projects.</br>" % (username,proj_names)
-            print "External academic  user %s added successfully! User associated to Notur projects." % username
-            return message
-        
-        else :  
-            ## Add user to default galaxy project gx_default, create account and credit the account with default CPU hours
-            add_to_gx_default_command = "sudo -u gold /opt/gold/bin/gchproject --addUsers %s gx_default " % username 
-            p = subprocess.Popen(add_to_gx_default_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-        
-            for line in p.stdout.readlines():
-                if re.search("Successfully",line) :
-                    message = "</br>External academic  user %s added successfully to GOLD DB and the default lifeportal project (gx_galaxy) only.</br> " % username
-                    print "External academic  user %s added successfully to GOLD DB and the default lifeportal project (gx_galaxy) only." % username
-
-            ## Add user to account 'username_gx_default' in project gx_default
-            create_account_command = "sudo -u gold /opt/gold/bin/gmkaccount -p gx_default -u %s -n \"%s_gx_default\"" % (username,username) 
-            p = subprocess.Popen(create_account_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-        
-            for line in p.stdout.readlines():
-                if re.search("Successfully created",line) :
-                    message = message +  "Created account in default lifeportal project (gx_galaxy) for External academic  user %s. </br>" % username
-                    print "Created account in gx_default for External academic  user %s." % username
-                print line
-
-
-            ## Credit the account - 200 CPU hours
-            
-            ## Get the account id
-            get_account_id_command = "sudo -u gold /opt/gold/bin/glsaccount --show Id -n %s_gx_default" % username
-            p = subprocess.Popen(get_account_id_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-            account_id = ''
-            account_info = []
-            for line in p.stdout.readlines():
-                  account_info = line.split()
-            account_id = account_info[0]
-
-            ## Credit the account (in hours)
-            credit_account_command = "sudo -u gold /opt/gold/bin/gdeposit -h -a %s -z 200" % account_id
-            p = subprocess.Popen(credit_account_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-
-            for line in p.stdout.readlines():
-                if re.search("Successfully deposited",line) :
-                    message = message +  "Credited account %s_gx_default for External academic  user %s in default lifeportal project (gx_galaxy).</br> " % (username,username)
-                    message = message + line
-                    print "Credited account in gx_default for External academic  user %s." % username
-
-            return message
-          
-    else :
-        print "Failed to create a user in GOLD"
-
-
-def add_notur_non_feide_user_to_GOLD (email) :
-    """
-    This function is not implemented
-    Automatically adds non-feide Notur users to GOLD. No PI action required. Called when "User > Register" tab has been used.
-    """
-    
-    ## Check and reformat email / username if necessary
-    message = ''
-    description = ''
-    username = email
-    mas_username = _get_MAS_username ( email )
-    email_username = email.split('@')[0]
-    
-    ## This is just a warning!!
-    if mas_username != email_username :
-        description = "Notur non-feide user with username and email prefix mismatch - username %s " % (mas_username)
-        print "username and email prefix don't match!"
-    else :
-        description = "Notur non-feide user"
-    
-    ## Add the user to GOLD DB
-    useradd_command = "sudo -u gold /opt/gold/bin/gmkuser %s -d \"%s\"" % (username,description)
-    p = subprocess.Popen(useradd_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-
-    ## Check if user has been added to GOLD DB
-    user_check_command = "sudo -u gold /opt/gold/bin/glsuser -u %s " % username
-    p = subprocess.Popen(user_check_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    for line in p.stdout.readlines():
-        if re.search(username,line) :
-            user_info = line.split()
-
-    ## If the user is sucessfully created
-    if user_info[0] == username and user_info[1] == 'True' :
-
-        # Add to MAS default Galaxy project
-        add_to_project_command = "sudo -u gold /opt/gold/bin/gchproject --addUser %s MAS" % (username)
-        p = subprocess.Popen(add_to_project_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        p.wait()
-        
-        for line in p.stdout.readlines():
-            if re.search("Successfully",line) :
-                message = "</br>Notur non-feide user %s added successfully to GOLD DB and the default Notur project <strong>MAS</strong>.</br>" % (username)
-                print "Notur non-feide user %s added successfully to GOLD DB and the default Notur project " % username
-
-        return message
-
-
-
-def add_non_feide_user_to_GOLD (email, project, creator = None) :
-    """
-    Adds non-feide users to GOLD. Called by the PI (project administrator). The user receives an email notification to register in Galaxy
-    """
-    username = email
-    message = ''
-    
-    ## Add the user to GOLD DB
-    useradd_command = "sudo -u gold /opt/gold/bin/gmkuser %s -d \"non-feide user added by %s\"" % (username, creator)
-    p = subprocess.Popen(useradd_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-
-    ## Check if user has been added to GOLD DB
-    user_check_command = "sudo -u gold /opt/gold/bin/glsuser -u %s " % username
-    p = subprocess.Popen(user_check_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    for line in p.stdout.readlines():
-        if re.search(username,line) :
-            user_info = line.split()
-
-    ## If the user is sucessfully created
-    if user_info[0] == username and user_info[1] == 'True' :
-
-        # Add to local Galaxy project owned by PI
-        if project :
-             ## Add user to the selected galaxy project and create account
-            add_to_project_command = "sudo -u gold /opt/gold/bin/gchproject --addUsers %s %s " % (username, project)
-            p = subprocess.Popen(add_to_project_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-        
-            for line in p.stdout.readlines():
-                if re.search("Successfully",line) :
-                    message = "</br>Non-feide user %s added successfully to GOLD DB and the project <strong>%s</strong>.</br>" % (username,project)
-                    print "Non-feide user %s added successfully to GOLD DB and the selected galaxy project" % username
-
-            ##  Add user to the account of the project.  ##
-            
-            ## Get the account id
-            get_account_id_command = "sudo -u gold /opt/gold/bin/glsaccount --show Id -n %s " % (project)
-            p = subprocess.Popen(get_account_id_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-            account_id = ''
-            account_info = []
-            for line in p.stdout.readlines():
-                  account_info = line.split()
-            account_id = account_info[0]
-
-             ## Add user to account. This account is shared account by all project members
-            add_to_account_command = "sudo -u gold /opt/gold/bin/gchaccount --addUser %s %s" % (username,account_id ) 
-            p = subprocess.Popen(add_to_account_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
-        
-            for line in p.stdout.readlines():
-                if re.search("Successfully created",line) :
-                    message = message +  "Non-feide user %s added to account %s in project %s.</br>" % (username,project,project)
-                    print "Added to account in %s  for Non-feide user %s." % (project,username)
-
-                    # Send notification email Galaxy project
-                    sender = 'noreply@usit.uio.no'
-                    receiver = username
-                    replyto = creator
-                    header = 'To:' + receiver + '\nFrom: ' + sender + '\nReply-to: ' + creator + '\nSubject:You have been added to a Lifeportal project'
-                    email_msg = header + '\nYou have been added to the Lifeportal project : ' + project +'. Please log in to https://lifeportal.uio.no and register into Lifeportal. You shall chose for username exactly the same email address (' + receiver + ') as the one used in this message!!!\nBest regards,\n' + creator
-                    print "=== EMAIL notification message ===\n",email_msg
-
-                    try:
-                      smtpObj = smtplib.SMTP('localhost')
-                      smtpObj.sendmail(sender, receiver, email_msg)
-                      print "Successfully sent email"
-                    except SMTPException:
-                      print "Error: unable to send email"
-
-            return message
-
-def get_owned_GOLD_projects ( username ) :
+def list_owned_GOLD_projects_names_only ( username ) :
     """
     Selects the GOLD projects owned/created by the user calling the function  
     """
@@ -466,6 +143,7 @@ def list_owned_GOLD_projects ( username ) :
     print "Admin is True : Accounting : I own the following GOLD projects ", projects_sorted
     return projects_sorted
 
+
 def list_all_GOLD_projects (filter_by_project_name = None) :
     """
     Lists all GOLD projects or one defined in filter_by_project_name
@@ -492,9 +170,7 @@ def list_all_GOLD_projects (filter_by_project_name = None) :
                                                                    g_active,\
                                                                    g_description\
                                                            from\
-                                                                   g_project\
-                                                           where\
-                                                                   g_active = 'True' ")
+                                                                   g_project ")
 
     project_data = []
     project_data_users = []
@@ -586,35 +262,44 @@ def list_all_GOLD_projects (filter_by_project_name = None) :
     return final_list
 
 
-def user_is_in_GOLD_DB ( email ) :
+def list_all_GOLD_projects_balance (project_list):
     """
-    Checks if the user in in the GOLD DB
+    Lists the balance for all GOLD projects
     """
-    username = email
-    user_info =  []
-    user_check_command = "sudo -u gold /opt/gold/bin/glsuser -u %s " % username
-    p = subprocess.Popen(user_check_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-    for line in p.stdout.readlines():
-        if re.search(username,line) :
-            user_info = line.split()
-
-    if user_info and user_info[0] == username and user_info[1] == 'True' :
-        return True
-    else :
-        return False
-
-def user_is_in_MAS_DB ( email ) :
-    """
-    Checks if the user in in the MAS DB, username is an email
-    """
-    username = email
-    projects = _get_MAS_projects (username)
+    project_balance = {} 
+    quoted_project_list = []
     
-    if len(projects) > 0 :
-        return True
+    for p in project_list :
+         p_quoted =  "'"+p+"'"
+         quoted_project_list.append(p_quoted)
+         
+    string_project_list = ",".join(quoted_project_list)
+    
+    connection = application_db_engine.connect()    
+    result  = connection.execute("select\
+                                      g_account_project.g_name,\
+                                      g_allocation.g_amount\
+                                  from\
+                                      g_account_project,\
+                                      g_allocation\
+                                  where\
+                                      g_account_project.g_name in ( %s ) \
+                                  and\
+                                      g_account_project.g_account = g_allocation.g_account\
+                                  order by\
+                                      g_allocation.g_id " % string_project_list )
+    
+    
+    if result.rowcount > 0 :
+        for row in result :
+            project_balance[row[0]] = "{0:.2f}".format(row[1]/3600)
     else :
-        return False
+        print "Thus user does not have any GOLD projects!"
+        
+    #print "RETURN PROJECT BALANCE",   project_balance  
+
+    return project_balance
+
 
 def _get_MAS_projects ( email ):
    """
@@ -627,7 +312,7 @@ def _get_MAS_projects ( email ):
    
    username_open = '<'+username_mas+'>'
    username_close = '</'+username_mas+'>'
-   f=open('/cluster/var/user-info', 'r')
+   f=open('/work/var/user-info', 'r')
    takeline = False
    projectline = ''
    projects = []
@@ -664,7 +349,7 @@ def _get_MAS_username (email ) :
    email = ''
     
    ## Get the correct username
-   f=open('/cluster/var/user-info', 'r')
+   f=open('/work/var/user-info', 'r')
    for line in f :
        if re.search( "uname", line) :
            uname = line.split()[1]
@@ -722,62 +407,20 @@ def _generate_project_name() :
     return generated_project_name
     
 
-def get_GOLD_project_info( project_name ) :
+def get_gx_default_project_balance( username ) :
    """
-   Displays the output of glsproject command
+   Displays the balance of gx_default
    """
-   
-   project_info = []
-   
-   project_info_display_command = "sudo -u gold /opt/gold/bin/glsproject --show Name,Users,Description %s " % project_name
-   p = subprocess.Popen(project_info_display_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-   p.wait()
-   for line in p.stdout.readlines():
-          info_line = line
-   
-   project_info = info_line.split()
-    
-   ## Replace the comma with newline in users list
-   project_info[1] = project_info[1].replace(",","</br>")
-   ## Join the description in one cell
-   project_info[2:] = [" ".join(project_info[2:])] 
-   
-   if project_info :
-       return project_info
 
+   gx_project_balance = '' 
+   connection = application_db_engine.connect()
+   result  = connection.execute("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_id = g_account.g_id and g_account.g_name = '%s_gx_default'" % username );
 
-def get_GOLD_project_usage( project_name,start_date,end_date ) :
-   """
-   Displays the output of gusage command
-   """
-   project_usage = ''
-   project_usage_command = "sudo -u gold /opt/gold/bin/gusage  -p %s -s %s -e %s" % (project_name,start_date,end_date)
-   p = subprocess.Popen(project_usage_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-   p.wait()
-   for line in p.stdout.readlines():
-       line = line.replace("#","")
-       project_usage += line + "</br>"
-   
-   if project_usage :
-       return project_usage
-
-
-def get_gx_default_project_usage( username ) :
-   """
-   Displays the output of gusage command
-   """
-   gx_project_usage = ''
-   #gx_project_usage_command = "sudo -u gold /opt/gold/bin/gbalance --show Available -h -p gx_default -u %s" % ( username )
-   gx_project_usage_command = "sudo -u gold /opt/gold/bin/gbalance --show Available,Name -h | grep %s_gx_default | awk '{print $1;}'" % ( username )
-   p = subprocess.Popen(gx_project_usage_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-   p.wait()
-   for line in p.stdout.readlines():
-       gx_project_usage = line
-   
-   if gx_project_usage :
-       return gx_project_usage
-
-
+   if result.rowcount > 0 :
+        for row in result :
+            gx_project_balance = "{0:.2f}".format(row[0]/3600)
+            
+   return gx_project_balance
 
 def add_project_to_GOLD( email, project_name, cpu_amount, gold_project_description, start_date, end_date) :
    """
@@ -840,7 +483,8 @@ def add_project_to_GOLD( email, project_name, cpu_amount, gold_project_descripti
 
 def deactivate_project( project_name ) :
    """
-   Deactivates the project/account definitively from GOLD DB. Can be activated
+   Deactivates the project/account definitively from GOLD DB. Can be activated with
+   "sudo -u gold /opt/gold/bin/gchproject -A -p %s" % project_name
    """
    deactivate_project_command = "sudo -u gold /opt/gold/bin/gchproject -I -p %s" % project_name
    p = subprocess.Popen(deactivate_project_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -860,7 +504,7 @@ def deactivate_project( project_name ) :
 
 def activate_project( project_name ) :
    """
-   Deactivates the project/account definitively from GOLD DB. Can be activated
+   Activates the project/account in GOLD DB. Can be deactivated
    """
    activate_project_command = "sudo -u gold /opt/gold/bin/gchproject -A -p %s" % project_name
    p = subprocess.Popen(activate_project_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -1493,54 +1137,58 @@ def get_all_users():
        
     print "Accounting_project_management all gold users ",all_gold_users
     return all_gold_users
-  
-  
-def get_project_balance( email, projects ):  
-    """
-    Function which returns the balance for a specific list of projects + default project
-    """
 
-    connection = application_db_engine.connect()  
-    project_balance = {}
-    
-    ## Remove gx_default
-    projects.pop(0)
-    
-    quoted_projects = []
-    for p in projects:
-       p = "'"+p+"'"
-       quoted_projects.append(p)
-             
-    string_project_list = ','.join(quoted_projects)
-    
-    result  = connection.execute("select\
-                                      g_account_project.g_name,\
-                                      g_allocation.g_id,\
-                                      g_allocation.g_amount\
-                                  from\
-                                      g_account_project,\
-                                      g_allocation\
-                                  where\
-                                      g_account_project.g_name in ( %s ) \
-                                  and\
-                                      g_account_project.g_account = g_allocation.g_account\
-                                  order by\
-                                      g_allocation.g_id " % string_project_list )
-    
-    for row in result :
-         project_balance[row[0]]="{0:.2f}".format(row[2]/3600)
-    
-    ## Get the amount for the default project
-    get_users_command = "sudo -u gold /opt/gold/bin/glsaccount --show Name,Amount | grep %s_gx_default" % email
-    p = subprocess.Popen(get_users_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-    
-    for line in p.stdout.readlines():
-        default_project_info = line.split()
-        project_balance['gx_default'] = "{0:.2f}".format(int(default_project_info[1])/3600)
-    
-    return project_balance
-         
+
+def get_GOLD_project_usage( project_name,start_date,end_date ) :
+   """
+   Displays the output of gusage command
+   """
+   project_usage = ''
+   project_usage_command = "sudo -u gold /opt/gold/bin/gusage  -p %s -s %s -e %s" % (project_name,start_date,end_date)
+   p = subprocess.Popen(project_usage_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+   p.wait()
+   
+   table = []
+   for line in p.stdout.readlines():
+       line = line.replace("#","")       
+       
+       if re.search("@", line) :
+           content = line.split()
+           table.append(content)
+       elif re.search("User", line) :
+           content = line.split()
+           table.append(content)
+       elif re.search("---", line) :
+		   continue
+       else :
+           project_usage += line + "</br>"
+   
+   project_usage += "<table col=3>" 
+   color = "ffd6dc"
+   total = 0
+   for el in table :
+       project_usage += "<tr bgcolor=#" + color  + "><td>"
+       project_usage += "<b><i>"+ el[0] + "</i></b>" if re.search("User",el[0]) else el[0]
+       project_usage += "</td><td width=\"25%\">&nbsp;&nbsp;&nbsp;&nbsp;</td><td>"
+       project_usage += "<b><i>"+ el[1]+ " (hrs)" + "</i></b>" if re.search("Amount",el[1]) else "<font color=\"red\">" + str(int(el[1])/3600) +"</font>"
+       project_usage += "</td></tr>"
+
+       if el[1] != "Amount" :
+           total += int(el[1])/3600
+
+       if color == "ffd6dc" :
+           color = "58d68d"
+       else:
+           color = "ffd6dc"
+   project_usage += "<tr><td></td><td width=\"25%\">&nbsp;&nbsp;&nbsp;&nbsp;</td><td></td></tr>"
+   project_usage += "<tr><td>TOTAL</td><td width=\"25%\">&nbsp;&nbsp;&nbsp;&nbsp;</td><td>"+  str(total) + "</td></tr>"
+   project_usage +=  "</table>"
+   
+   
+   
+   if project_usage :
+       return project_usage
+
     
 def project_dropdown_update ( email, static_options ) :
     """
@@ -1548,18 +1196,37 @@ def project_dropdown_update ( email, static_options ) :
     Called from /lib/galaxy/tools/parameters/basic.py
     """
 
+    project_and_balance = {}
+
     my_gold_projects = get_member_of_GOLD_projects ( email )
     
-    ## Get the balance for every project
-    project_balance = get_project_balance(email, my_gold_projects)
-            
-    #projects_in_static_options = []
+    ## Get the balance for default project
+    default_project_balance = None
+    if "gx_default" in my_gold_projects :
+        default_project_balance = get_gx_default_project_balance(email)
+        project_and_balance['gx_default'] = default_project_balance
+        # Drop the gx_default project
+        my_gold_projects.pop(0)
+    else :    
+        print "User %s is not a member of the default gx_galaxy project. This shall not happen! " % email
+        
+    ## If there are other projects than gx_default in my_gold_projects
+    if len(my_gold_projects) > 0 :  
+        all_other_projets = list_all_GOLD_projects_balance (my_gold_projects)
+        project_and_balance.update(all_other_projets)
+           
     updated_static_options = []
-    
-    gold_project_title = ""
-    for key,value in sorted(project_balance.iteritems()) :
-       gold_project_title = " ".join([key,"(",value,")"])
-       updated_static_options.append(( gold_project_title if gold_project_title else key, key, False)) 
+ 
+    project_title = ''
+    for key,value in sorted(project_and_balance.iteritems()) :
+		
+       if key == 'gx_default' and default_project_balance != None:
+          project_title = " ".join([key,"(",default_project_balance,")"])
+          updated_static_options.append(( project_title, key, False)) 
+       else :
+          project_title = " ".join([key,"(",value,")"])
+          updated_static_options.append((project_title , key, False)) 
+ 
     
     if len(updated_static_options) > 0 :
         static_options = updated_static_options 
@@ -1585,7 +1252,7 @@ def get_member_of_GOLD_projects ( username )  :
         elif project_line[0] :
            projects.append(project_line[0])
 
-    print "Accounting : I am member of the following GOLD projects ", projects
+    print "Accounting : I (", username, ") am member of the following GOLD projects ", sorted(projects)
     return projects
 
     

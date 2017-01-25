@@ -1,21 +1,4 @@
 <?xml version="1.0"?>
-<!-- A sample job config that explicitly configures job running the way it is configured by default (if there is no explicit config). -->
-<!-- NIKOLAY USIT 
-
-1. Set the project (account) as params for nativeSpecification below
-
-2. Edit the tools section and add your tools. The tools given here are just an example
-
-3. Edit the resources section and select what params will be available for every tool. The set of all available parameters for this instance is in job_resource_params_conf.xml . The params given here are just an example
-
-4. Set a proper handle : if you have a big load, set multiple handlers as shown below, otherwise set handler to main (see commented below). Be careful !! to define the handlers properly, they must correspond to the server: value in galaxy.ini
-
-[server:web0]
-shall correspond to 
-<handler id="web0" tags="handlers"/>
-etc.
-
--->
  <job_conf>
      <plugins workers="8">
 	 <!-- "workers" is the number of threads for the runner's work queue.
@@ -36,13 +19,19 @@ etc.
 	  -->
 	 <destination id="local" runner="local"/>
 	 <destination id="drmaa" runner="drmaa">
-	     <!-- TODO: The real user options should maybe not be considered runner params. -->
 	     <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
 	     <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
 	     <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
-
 	     <param id="nativeSpecification">--account=nn9108k --time=05:00 --mem-per-cpu=2 --nodes=1 --ntasks-per-node=1</param>	 
 	</destination>
+	 <destination id="drmaa_strict" runner="dynamic">
+  	     <param id="function">is_user_in_role</param>
+	     <param id="galaxy_external_runjob_script">scripts/drmaa_external_runner.py</param>
+	     <param id="galaxy_external_killjob_script">scripts/drmaa_external_killer.py</param>
+	     <param id="galaxy_external_chown_script">scripts/external_chown_script.py</param>
+	     <param id="nativeSpecification">--account=nn9108k --time=05:00 --mem-per-cpu=2 --nodes=1 --ntasks-per-node=1</param>	 
+	</destination>
+
      </destinations>
      <tools>
 	 <!-- Tools can be configured to use specific destinations or handlers,
@@ -54,7 +43,14 @@ etc.
 	 <tool id="hello_abel" destination="drmaa" resources="default"/>
 
 	 <tool id="upload1" destination="local"/>
-	 
+	
+<!-- R
+        <tool id="R" destination="drmaa" required_role="uio_users" />
+	 <tool id="hello_abel" destination="drmaa_strict" resources="default" required_role="uio_user" final_destination="drmaa"/>
+ -->
+         <tool id="R" destination="drmaa_strict" resources="default" required_role="R_script_restricted_group" final_destination="drmaa"/>
+
+ 
 	 <!-- NELS -->
 	 <tool id="nels_export" destination="local"/>
 	 <tool id="nels_exporter_hidden" destination="local"/>
@@ -414,6 +410,7 @@ etc.
          <tool id="trim_galore" destination="drmaa"/>
          <tool id="autodock" destination="drmaa"/>
          <tool id="adscreening" destination="drmaa"/>
+	
 
      </tools>
 	<resources default="default">

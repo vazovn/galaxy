@@ -10,8 +10,8 @@
 %>
 
     <form action="${form_action}" method="post">
-        ${render_msg( message, status )}
         <div class="form-row">
                 <input type="submit" name="cancel" value="Back"/>
          </div>
+         ${render_msg( message, status )}
     </form>
