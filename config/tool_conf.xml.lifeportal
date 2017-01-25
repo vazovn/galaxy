@@ -875,8 +875,6 @@
     <tool file="vcf_tools/filter.xml" />
     <tool file="vcf_tools/extract.xml" />
   </section>
--->
-
   <section name="R (Resctricted for rgroup members)" id="rtool">
      <tool file="myTools/r.xml" />
   </section>
