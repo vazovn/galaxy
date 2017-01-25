@@ -329,7 +329,6 @@ def _get_MAS_projects ( email ):
                               projects.append(p)
         if re.search(username_close, line):
             break
-            
    f.close()
 
    print "Accounting : I am member of the following MAS (Notur) projects ", projects
@@ -363,6 +362,18 @@ def _get_MAS_username (email ) :
        if email == username and status == 'open':
            username = uname
            break
+       
+       ulrikuid = None
+       if username.search("ulrik.uio.no") :
+           userinfo = subprocess.Popen(["ldapsearch", "-x", "-H", "ldap://ldap.uio.no/", "-b", "cn=people,dc=uio,dc=no", "mail={}".format(username)], 
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+           try:
+               ulrikuid = re.search(r"\nuid: (.*)", userinfo).group(1)
+               username = ulrikid
+           except:
+			   ulrikuid = "not_in_ldap"
+		
+           
        ## email prefix in Galaxy == Notur username ( the Galaxy prefix is actually the FEIDE username prefix  : nikolaiv@uio.no)
        else :
            email_prefix = username.split('@')[0]
@@ -1199,6 +1210,7 @@ def project_dropdown_update ( email, static_options ) :
     project_and_balance = {}
 
     my_gold_projects = get_member_of_GOLD_projects ( email )
+    my_MAS_projects = _get_MAS_projects ( email )
     
     ## Get the balance for default project
     default_project_balance = None
@@ -1209,11 +1221,19 @@ def project_dropdown_update ( email, static_options ) :
         my_gold_projects.pop(0)
     else :    
         print "User %s is not a member of the default gx_galaxy project. This shall not happen! " % email
+        return static_options
         
     ## If there are other projects than gx_default in my_gold_projects
     if len(my_gold_projects) > 0 :  
-        all_other_projets = list_all_GOLD_projects_balance (my_gold_projects)
-        project_and_balance.update(all_other_projets)
+        all_other_gold_projects = list_all_GOLD_projects_balance (my_gold_projects)
+        project_and_balance.update(all_other_gold_projects)
+        
+    ## Add all MAS projects to dropdown
+    if len(my_MAS_projects) > 0 :
+        all_mas_projects = {}
+        for mas_project in my_MAS_projects :
+            all_mas_projects[mas_project] = "Notur project : check balance in the terminal mode"
+        project_and_balance.update(all_mas_projects)
            
     updated_static_options = []
  
@@ -1226,11 +1246,10 @@ def project_dropdown_update ( email, static_options ) :
        else :
           project_title = " ".join([key,"(",value,")"])
           updated_static_options.append((project_title , key, False)) 
- 
     
     if len(updated_static_options) > 0 :
         static_options = updated_static_options 
-        
+            
     return static_options
          
          

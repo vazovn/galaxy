@@ -27,6 +27,8 @@ import datetime
 import pytz
 import subprocess
 import os
+import pdfkit
+
 
 ## Nikolay's attachment send as email
 import smtplib
@@ -456,9 +458,11 @@ class ProjectAdmin( BaseUIController ):
                               f.close()
                               
                               ## convert html to pdf
-                              pisa_command = "pisa %s %s " % (pdf_reports_directory+html_filename, pdf_reports_directory+pdf_filename)
-                              p = subprocess.Popen(pisa_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-                              p.wait()
+                              options = {'quiet':''}
+                              try:
+                                  pdfkit.from_file(pdf_reports_directory+html_filename, pdf_reports_directory+pdf_filename, options=options)
+                              except:
+								  pass
 
                               ################  EMAIL send pdf as attachment ########################
                           
@@ -473,7 +477,6 @@ class ProjectAdmin( BaseUIController ):
                               ## delete html file
                               os.unlink(pdf_reports_directory+html_filename)
                               
-                              ## display the list of active projects in GOLD
                               return trans.fill_template( '/webapps/galaxy/project_admin/pdf_report_sent.mako',
                                         message = message,
                                         status =  'done')
