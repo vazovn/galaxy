@@ -80,7 +80,7 @@ def list_owned_GOLD_projects_names_only ( username ) :
     """
     Selects the GOLD projects owned/created by the user calling the function  
     """
-    get_projects_command = "sudo -u gold  /opt/gold/bin/glsproject --show Name,Organization | grep %s " % username
+    get_projects_command = "sudo -u gold  /opt/gold/bin/glsproject --show Name,Organization | grep -i %s " % username
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     p.wait()
     projects = []
@@ -111,7 +111,7 @@ def list_owned_GOLD_projects ( username ) :
     """
     Lists the GOLD projects, users, descriptions of owned/created by the user calling the function  
     """
-    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject --show Organization,Name,Users,Active,Description | grep %s " % username      
+    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject --show Organization,Name,Users,Active,Description | grep -i %s " % username      
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     p.wait()
     projects = []
@@ -127,7 +127,7 @@ def list_owned_GOLD_projects ( username ) :
            
            ## Get the project account info
            project_name = project_line[0]
-           get_account_info_command = "sudo -u gold /opt/gold/bin/glsaccount -h --show Amount,Projects | grep -w %s | uniq " % project_name
+           get_account_info_command = "sudo -u gold /opt/gold/bin/glsaccount -h --show Amount,Projects | grep -i -w %s | uniq " % project_name
            p = subprocess.Popen(get_account_info_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
            p.wait()
            amount = ''
@@ -300,89 +300,6 @@ def list_all_GOLD_projects_balance (project_list):
 
     return project_balance
 
-
-def _get_MAS_projects ( email ):
-   """
-   Gets the MAS projects the user is member of (email is an email if non-feide, or e.g. user@uio.no if feide)
-   """
-   
-   ## Get the real username from MAS
-   username_mas = _get_MAS_username ( email )
-   print "Accounting : real MAS (Notur) username ", username_mas
-   
-   username_open = '<'+username_mas+'>'
-   username_close = '</'+username_mas+'>'
-   f=open('/work/var/user-info', 'r')
-   takeline = False
-   projectline = ''
-   projects = []
-   for line in f :
-        if re.search( username_open, line) :
-            takeline = True
-        if takeline == True  and not re.search( username_open , line) and not re.search( username_close, line) :
-            if re.search('projects', line) :
-                projectline = line.split()
-                if len(projectline) == 2 and len(projectline[1]) > 0 :
-                     full_project_list = projectline[1].split(',')
-                     for p in full_project_list :
-                          if p != 'uio' :
-                              projects.append(p)
-        if re.search(username_close, line):
-            break
-   f.close()
-
-   print "Accounting : I am member of the following MAS (Notur) projects ", projects
-
-   return projects
-
-
-def _get_MAS_username (email ) :
-   """
-   Gets the MAS correct username : 
-   Necessary check in case the MAS email prefix and the MAS username don't match, 
-   e.g. uname = 'pr2f2815' <> email = 'dimitry.pokhotelov@fmi.fi'
-   """
-
-   username = email
-   uname = ''
-   email = ''
-    
-   ## Get the correct username
-   f=open('/work/var/user-info', 'r')
-   for line in f :
-       if re.search( "uname", line) :
-           uname = line.split()[1]
-       if re.search( "status", line) :
-           status = line.split()[1]
-       if re.search( "email", line) and line.split()[0] == "email":
-           email = line.split()[1]
-       
-       
-       ## entire Notur email == the entire Galaxy email (e.g. username = email = 'dimitry.pokhotelov@fmi.fi')
-       if email == username and status == 'open':
-           username = uname
-           break
-       
-       ulrikuid = None
-       if username.search("ulrik.uio.no") :
-           userinfo = subprocess.Popen(["ldapsearch", "-x", "-H", "ldap://ldap.uio.no/", "-b", "cn=people,dc=uio,dc=no", "mail={}".format(username)], 
-                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-           try:
-               ulrikuid = re.search(r"\nuid: (.*)", userinfo).group(1)
-               username = ulrikid
-           except:
-			   ulrikuid = "not_in_ldap"
-		
-           
-       ## email prefix in Galaxy == Notur username ( the Galaxy prefix is actually the FEIDE username prefix  : nikolaiv@uio.no)
-       else :
-           email_prefix = username.split('@')[0]
-           if email_prefix == uname and status == 'open':
-                username = uname
-                break
-   f.close()
-   
-   return username
     
 def _generate_project_name() :
     """
@@ -1113,7 +1030,7 @@ def collect_project_info_for_report ( project_code ) :
               cpu_hours = project_data[6] 
               project_data[6] = float(cpu_hours)
 
-              get_account_info_command = "sudo -u gold /opt/gold/bin/gbalance -h --show Name,Available | grep -w %s | uniq " % project_code
+              get_account_info_command = "sudo -u gold /opt/gold/bin/gbalance -h --show Name,Available | grep -i -w %s | uniq " % project_code
               p = subprocess.Popen(get_account_info_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
               p.wait()
        
@@ -1210,7 +1127,7 @@ def project_dropdown_update ( email, static_options ) :
     project_and_balance = {}
 
     my_gold_projects = get_member_of_GOLD_projects ( email )
-    my_MAS_projects = _get_MAS_projects ( email )
+    my_mas_projects = get_member_of_MAS_projects ( email )
     
     ## Get the balance for default project
     default_project_balance = None
@@ -1221,19 +1138,15 @@ def project_dropdown_update ( email, static_options ) :
         my_gold_projects.pop(0)
     else :    
         print "User %s is not a member of the default gx_galaxy project. This shall not happen! " % email
-        return static_options
         
     ## If there are other projects than gx_default in my_gold_projects
     if len(my_gold_projects) > 0 :  
-        all_other_gold_projects = list_all_GOLD_projects_balance (my_gold_projects)
-        project_and_balance.update(all_other_gold_projects)
-        
-    ## Add all MAS projects to dropdown
-    if len(my_MAS_projects) > 0 :
-        all_mas_projects = {}
-        for mas_project in my_MAS_projects :
-            all_mas_projects[mas_project] = "Notur project : check balance in the terminal mode"
-        project_and_balance.update(all_mas_projects)
+        project_and_balance.update(list_all_GOLD_projects_balance (my_gold_projects))
+           
+    ## If there are any MAS projects
+    if my_mas_projects and len(my_mas_projects) > 0 :
+        for mas_project in my_mas_projects :
+            project_and_balance[mas_project] = "NA"
            
     updated_static_options = []
  
@@ -1246,10 +1159,11 @@ def project_dropdown_update ( email, static_options ) :
        else :
           project_title = " ".join([key,"(",value,")"])
           updated_static_options.append((project_title , key, False)) 
+ 
     
     if len(updated_static_options) > 0 :
         static_options = updated_static_options 
-            
+        
     return static_options
          
          
@@ -1258,7 +1172,7 @@ def get_member_of_GOLD_projects ( username )  :
     Selects the GOLD projects the user is member of  
     """
     
-    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject  --raw --show Name,Users | grep %s " % username
+    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject  --raw --show Name,Users | grep -i %s " % username
     p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     out = p.communicate()[0]
     output = out.split("\n")
@@ -1284,3 +1198,23 @@ def check_if_user_is_feide ( username ):
         return True
     else :
         return False
+
+
+def get_member_of_MAS_projects ( username ) :
+    """
+    Selects the MAS projects the user is member of  
+    """
+    
+    connection = application_db_engine.connect()
+    result = connection.execute("select projects from g_mas_projects where ldap_email = '%s' " % username )
+    if result.rowcount == 0 :                                                           
+        return None
+    else :
+        for row in result :
+            mas_projects = row[0]
+        
+        # convert to list
+        if mas_projects :
+            mas_projects_list = mas_projects.split(",")
+            
+        return 	mas_projects_list	
