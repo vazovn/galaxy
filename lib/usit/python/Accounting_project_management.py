@@ -24,6 +24,8 @@ else:
 
 application_db_engine = create_engine(GOLDDB, encoding='utf-8')
 metadata = MetaData(application_db_engine)
+connection = application_db_engine.connect()
+
 
 def associate_users_to_projects ( emails, project) :
     """
@@ -148,11 +150,9 @@ def list_all_GOLD_projects (filter_by_project_name = None) :
     """
     Lists all GOLD projects or one defined in filter_by_project_name
     """
- 
-    connection = application_db_engine.connect()
 
     if filter_by_project_name :
-        result = connection.execute("select\
+        s = text("select\
                                                                    g_organization,\
                                                                    g_name,\
                                                                    g_active,\
@@ -162,7 +162,10 @@ def list_all_GOLD_projects (filter_by_project_name = None) :
                                                            where\
                                                                    g_active = 'True'\
                                                            and\
-                                                                   g_name = '%s' " % filter_by_project_name)
+                                                                   g_name = :filter_by_project_name ")
+                                                                   
+        result = connection.execute(s,filter_by_project_name=filter_by_project_name)
+    
     else :
         result = connection.execute("select\
                                                                    g_organization,\
@@ -198,14 +201,16 @@ def list_all_GOLD_projects (filter_by_project_name = None) :
     
     string_project_list = ','.join(project_list)
     
-    users = connection.execute("select\
-                                                                  g_project,\
-                                                                  array_to_string(array_agg(g_name),',')\
-                                                          from\
-                                                                  g_project_user\
-                                                         where\
-                                                                  g_project in ( %s ) \
-                                                         group by 1" % string_project_list)
+    s = text("select\
+                    g_project,\
+                    array_to_string(array_agg(g_name),',')\
+                from\
+                    g_project_user\
+                where\
+                    g_project in ({}) \
+                group by 1".format(string_project_list))
+                                                         
+    users = connection.execute(s,string_project_list=string_project_list)
     
     #store users in a hash : key - project_name (lpXX), value - user list
     for row in users:
@@ -223,21 +228,23 @@ def list_all_GOLD_projects (filter_by_project_name = None) :
              
     #print "Admin is True : Accounting : All GOLD projects WITH USERS ", project_data_users
     
-    amounts_and_time  = connection.execute("select\
-                                                                                           g_account_project.g_name,\
-                                                                                           g_allocation.g_id,\
-                                                                                           g_allocation.g_amount,\
-                                                                                           g_allocation.g_start_time,\
-                                                                                           g_allocation.g_end_time\
-                                                                                    from\
-                                                                                           g_account_project,\
-                                                                                           g_allocation\
-                                                                                   where\
-                                                                                           g_account_project.g_name in ( %s ) \
-                                                                                           and\
-                                                                                           g_account_project.g_account = g_allocation.g_account\
-                                                                                   order by\
-                                                                                           g_allocation.g_id " % string_project_list )
+    s  = text("select\
+                    g_account_project.g_name,\
+                    g_allocation.g_id,\
+                    g_allocation.g_amount,\
+                    g_allocation.g_start_time,\
+                    g_allocation.g_end_time\
+                from\
+                    g_account_project,\
+                    g_allocation\
+                where\
+                    g_account_project.g_name in ({}) \
+                       and\
+                    g_account_project.g_account = g_allocation.g_account\
+                order by\
+                    g_allocation.g_id ".format(string_project_list) )
+                                                
+    amounts_and_time  = connection.execute(s,string_project_list=string_project_list)                       
     
     
     for row in amounts_and_time :
@@ -254,9 +261,7 @@ def list_all_GOLD_projects (filter_by_project_name = None) :
                      r = r + projects_amount_start_end[p][1:]
                      final_list.append(r)
                      continue
-                     
-    connection.close()
-    
+                         
     #print "Admin is True : Accounting : All GOLD projects FINAL LIST ",  final_list
     
     return final_list
@@ -274,27 +279,28 @@ def list_all_GOLD_projects_balance (project_list):
          quoted_project_list.append(p_quoted)
          
     string_project_list = ",".join(quoted_project_list)
-    
-    connection = application_db_engine.connect()    
-    result  = connection.execute("select\
+        
+    s  = text("select\
                                       g_account_project.g_name,\
                                       g_allocation.g_amount\
                                   from\
                                       g_account_project,\
                                       g_allocation\
                                   where\
-                                      g_account_project.g_name in ( %s ) \
+                                      g_account_project.g_name in ({}) \
                                   and\
                                       g_account_project.g_account = g_allocation.g_account\
                                   order by\
-                                      g_allocation.g_id " % string_project_list )
+                                      g_allocation.g_id ".format(string_project_list))
+                                      
+    result  = connection.execute(s,string_project_list=string_project_list)
     
     
     if result.rowcount > 0 :
         for row in result :
             project_balance[row[0]] = "{0:.2f}".format(row[1]/3600)
     else :
-        print "Thus user does not have any GOLD projects!"
+        print "This user does not have any GOLD projects!"
         
     #print "RETURN PROJECT BALANCE",   project_balance  
 
@@ -341,8 +347,9 @@ def get_gx_default_project_balance( username ) :
    """
 
    gx_project_balance = '' 
-   connection = application_db_engine.connect()
-   result  = connection.execute("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_id = g_account.g_id and g_account.g_name = '%s_gx_default'" % username );
+   account_g_name = username+'_gx_default'
+   s = text("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_id = g_account.g_id and g_account.g_name = :account_g_name")
+   result  = connection.execute(s,account_g_name=account_g_name)
 
    if result.rowcount > 0 :
         for row in result :
@@ -510,13 +517,11 @@ def check_pending_projects ( project_id = None, email = None) :
     """
 
     pending_projects = []
-    
-    connection = application_db_engine.connect()
-    
+        
     if project_id is None :
          if email :
          ### Managers see only their own pending applications
-              result = connection.execute("select\
+              s = text("select\
                                                                  id,\
                                                                  requestor,\
                                                                  email,\
@@ -532,7 +537,8 @@ def check_pending_projects ( project_id = None, email = None) :
                                                              from\
                                                                  g_lp_applications\
                                                              where\
-                                                                 actual_status = 'pending' and email = '%s' " % email)
+                                                                 actual_status = 'pending' and email = :email")
+              result = connection.execute(s,email=email)
          else :
          ### Administrator see all pending applications
               result = connection.execute("select\
@@ -554,7 +560,7 @@ def check_pending_projects ( project_id = None, email = None) :
                                                                    actual_status = 'pending'")
     else :
          ### Project displayed for modifications before final approval
-              result = connection.execute("select\
+              s = text("select\
                                                                  id,\
                                                                  requestor,\
                                                                  email,\
@@ -570,12 +576,12 @@ def check_pending_projects ( project_id = None, email = None) :
                                                              from\
                                                                  g_lp_applications\
                                                              where\
-                                                                 id = '%s' " % project_id)
+                                                                 id = :project_id ")
+              result = connection.execute(s,project_id=project_id)
   
     for row in result:
                 pending_projects.append(row)
                 
-    connection.close()
                 
     return pending_projects
         
@@ -597,8 +603,6 @@ def approve_pending_project ( kwd) :
     """
 
     print "All kwd  approve pending project ", kwd
-
-    connection = application_db_engine.connect()
     
     last_modified_by = kwd['last_modified_by'].strip()
     project_id = kwd['project_id']
@@ -620,19 +624,17 @@ def approve_pending_project ( kwd) :
               del kwd['reason_for_rejection']
         else :
               reason_for_rejection = "NA"
-
-        connection.execute("update g_lp_applications set \
-                                              reason_for_rejection = '%s', \
-                                              last_modified_by = '%s', \
+                                          
+        s = text("update g_lp_applications set \
+                                              reason_for_rejection = :reason_for_rejection, \
+                                              last_modified_by = :last_modified_by, \
                                               last_modified = NOW(), \
                                               actual_status = 'rejected' \
                                            where \
-                                              id = '%s' " % ( 
-                                              reason_for_rejection,
-                                              last_modified_by,
-                                              project_id
-                                              )
-                                          ) 
+                                              id = :project_id ")    
+                                              
+        connection.execute(s,reason_for_rejection=reason_for_rejection,last_modified_by=last_modified_by,project_id=project_id)
+                                          
         ## Flush button
         del kwd['reject_pending_project']
       
@@ -676,25 +678,20 @@ def approve_pending_project ( kwd) :
         message = message + '\n' + associate_user_message
 
         ## Update Lifeproject application table
-        connection.execute("update g_lp_applications set \
+        u = text("update g_lp_applications set \
                                               status_before_last_modification = 'pending',\
                                               last_modified = NOW(),\
-                                              last_modified_by = '%s' ,\
+                                              last_modified_by = :last_modified_by ,\
                                               actual_status = 'approved',\
-                                              project_code = '%s' ,\
-                                              cpu_hours = '%s',\
-                                              start_date = '%s',\
-                                              end_date = '%s' \
+                                              project_code = :project_code ,\
+                                              cpu_hours = :cpu_amount,\
+                                              start_date = :start_date,\
+                                              end_date = :end_date \
                                          where \
-                                              id = '%s' " % ( 
-                                              last_modified_by,
-                                              project_code,
-                                              cpu_amount,
-                                              start_date,
-                                              end_date,
-                                              project_id
-                                              )
-                                          ) 
+                                              id = :project_id ")                                  
+                                          
+        result = connection.execute(u, last_modified_by=last_modified_by, project_code=project_code, cpu_amount=cpu_amount, start_date=start_date, end_date=end_date, project_id=project_id)  
+                      
         ## Flush button
         del kwd['approve_pending_project']
                                           
@@ -731,30 +728,31 @@ def check_rejected_projects ( project_id = None, email = None) :
     """
 
     rejected_projects = []
-    
-    connection = application_db_engine.connect()
-    
+        
     if project_id is None :
          if email :
          ### Managers see only their own pending applications
-              result = connection.execute("select\
-                                                                 id,\
-                                                                 requestor,\
-                                                                 email,\
-                                                                 institution,\
-                                                                 country,\
-                                                                 project_name,\
-                                                                 cpu_hours,\
-                                                                 description,\
-                                                                 applications,\
-                                                                 start_date,\
-                                                                 end_date,\
-                                                                 date_of_application,\
-                                                                 reason_for_rejection\
-                                                             from\
-                                                                 g_lp_applications\
-                                                             where\
-                                                                 actual_status = 'rejected' and email = '%s' " % email)
+            s = text("select\
+                                id,\
+                                requestor,\
+                                email,\
+                                institution,\
+                                country,\
+                                project_name,\
+                                cpu_hours,\
+                                description,\
+                                applications,\
+                                start_date,\
+                                end_date,\
+                                date_of_application,\
+                                reason_for_rejection\
+                        from\
+                                g_lp_applications\
+                        where\
+                                actual_status = 'rejected' and email = :email ")
+                                
+            result = connection.execute(s, email=email)
+              
          else :
          ### Administrators see all pending applications
               result = connection.execute("select\
@@ -777,30 +775,29 @@ def check_rejected_projects ( project_id = None, email = None) :
                                                                    actual_status = 'rejected'")
     else :
          ### Project displayed for modifications before final approval
-              result = connection.execute("select\
-                                                                 id,\
-                                                                 requestor,\
-                                                                 email,\
-                                                                 institution,\
-                                                                 country,\
-                                                                 project_name,\
-                                                                 cpu_hours,\
-                                                                 description,\
-                                                                 applications,\
-                                                                 start_date,\
-                                                                 end_date,\
-                                                                 date_of_application,\
-                                                                 reason_for_rejection\
-                                                             from\
-                                                                 g_lp_applications\
-                                                             where\
-                                                                 id = '%s' " % project_id)
+              s = text("select\
+                                id,\
+                                requestor,\
+                                email,\
+                                institution,\
+                                country,\
+                                project_name,\
+                                cpu_hours,\
+                                description,\
+                                applications,\
+                                start_date,\
+                                end_date,\
+                                date_of_application,\
+                                reason_for_rejection\
+                        from\
+                                g_lp_applications\
+                        where\
+                                id = :project_id ")
+              result = connection.execute(s, project_id=project_id)
   
     for row in result:
                 rejected_projects.append(row)
-                
-    connection.close()
-                
+                                
     return rejected_projects
         
 
@@ -908,7 +905,7 @@ def register_project_application ( kwd) :
            last_modified_by = kwd['last_modified_by']
 
            ## Update Lifeproject application table
-           connection.execute("insert into g_lp_applications (\
+           s = text("insert into g_lp_applications (\
                                               requestor ,\
                                               requestor_job, \
                                               email, \
@@ -927,43 +924,30 @@ def register_project_application ( kwd) :
                                               last_modified, \
                                               last_modified_by, \
                                               status_before_last_modification ) \
-                                              VALUES (\
-                                              '%s' ,\
-                                              '%s', \
-                                              '%s', \
-                                              '%s', \
-                                              '%s' ,\
-                                              '%s', \
-                                              '%s', \
-                                              '%s', \
-                                              '%d' ,\
-                                              '%s', \
-                                              '%s', \
-                                              '%s', \
-                                              '%s', \
+                    VALUES (\
+                                              :name ,\
+                                              :job_title, \
+                                              :email, \
+                                              :phone, \
+                                              :cellphone ,\
+                                              :institution, \
+                                              :country, \
+                                              :project_name, \
+                                              :cpu_amount ,\
+                                              :applications, \
+                                              :description, \
+                                              :start_date, \
+                                              :end_date, \
                                               NOW(), \
                                               'pending',\
                                               NOW(), \
-                                              '%s', \
-                                              'pending' ) " % ( 
-                                                                name,
-                                                                job_title,
-                                                                email,
-                                                                phone,
-                                                                cellphone,
-                                                                institution,
-                                                                country,
-                                                                project_name,
-                                                                int(cpu_amount),
-                                                                applications,
-                                                                description,
-                                                                start_date,
-                                                                end_date,
-                                                                last_modified_by
-                                                              ) )
+                                              :last_modified_by, \
+                                              'pending' ) ")
+                                              
+           connection.execute(s,name=name,job_title=job_title,email=email,phone=phone,cellphone=cellphone,institution=institution,country=country,project_name=project_name, cpu_amount=int(cpu_amount),applications=applications,description=description,start_date=start_date,end_date=end_date,last_modified_by=last_modified_by)
+           
            message =  "Application stored as 'pending'. A committee will review it as soon as possible and come back to you with further information."
            status = 'done'
-           
            ## Send confirmation 
            sender = 'n.a.vazov@usit.uio.no'
            replyto = 'lifeportal-help@usit.uio.no'
@@ -998,24 +982,16 @@ def collect_project_info_for_report ( project_code ) :
     Gets the information about the project for a report
     """
 
-    connection = application_db_engine.connect()
-
     if project_code :
          ### Project displayed for modifications before final approval
-              result = connection.execute("select\
-                                                                 requestor,\
-                                                                 requestor_job, \
-                                                                 email,\
-                                                                 institution,\
-                                                                 country,\
-                                                                 project_name,\
-                                                                 cpu_hours,\
-                                                                 start_date,\
-                                                                 end_date \
-                                                             from\
-                                                                 g_lp_applications\
-                                                             where\
-                                                                 project_code = '%s' " % project_code)
+              s = text("select\
+                            requestor, requestor_job, email, institution, country, project_name, cpu_hours, start_date, end_date \
+                        from\
+                            g_lp_applications\
+                        where\
+                            project_code = :project_code ") 
+                            
+              result = connection.execute(s, project_code=project_code)
   
               project_data = None
 
@@ -1045,7 +1021,6 @@ def collect_project_info_for_report ( project_code ) :
               project_data.insert(11,project_code)
               
                 
-    connection.close()
     print "Accounting.py PROJECT data ", project_data
 
     return project_data
@@ -1190,9 +1165,8 @@ def get_member_of_GOLD_projects ( username )  :
 
     
 def check_if_user_is_feide ( username ):
-    connection = application_db_engine.connect()
-    result = connection.execute("select * from g_user where g_name = '%s' and g_description = 'Default FEIDE-Galaxy user' " % username )
-    connection.close()
+    s = text("select * from g_user where g_name = :username and g_description = 'Default FEIDE-Galaxy user'")
+    result = connection.execute(s, username=username )
     
     if result.rowcount > 0:               
         return True
@@ -1200,13 +1174,20 @@ def check_if_user_is_feide ( username ):
         return False
 
 
-def get_member_of_MAS_projects ( username ) :
+def get_member_of_MAS_projects ( email ):
     """
     Selects the MAS projects the user is member of  
     """
     
-    connection = application_db_engine.connect()
-    result = connection.execute("select projects from g_mas_projects where ldap_email = '%s' " % username )
+    # 1. email == mas_email for all non uio users
+    s = text("select projects from g_mas_projects where mas_email = :email ")
+    result = connection.execute(s, email=email )
+    
+    # else 2. email[:-6] == 'uio.no' and uname == uname
+    if result.rowcount == 0 and email[-6:] == 'uio.no':
+        s = text("select projects from g_mas_projects where uio_email = :email ")
+        result = connection.execute(s, email=email )
+    
     if result.rowcount == 0 :                                                           
         return None
     else :
