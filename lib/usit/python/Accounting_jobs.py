@@ -180,6 +180,8 @@ def job_charge( slurm_job_id, galaxy_job_id ):
                 p.wait()
 
                 for line in p.stdout.readlines():
+                     if re.search("does not exist", line) :
+						 line = "The project you had selected was not a Lifeportal project. No charges apply!"
                      print line
                      return line
    

@@ -114,7 +114,13 @@ def create_job(jt,job_wrapper,job_destination,log):
     
     # 'account' is always instantiated by the Original Native Specifications
     # it is manually set in the file job_conf.xml
-    account = '--account=%s' % account_value
+    
+    ## LP projects
+    if  project_value.startswith("gx_") or project_value.startswith("lp") :
+        account = '--account=%s' % account_value
+    ## MAS projects
+    else :
+        account = '--account=%s' % project_value
     
     time = ' --time=%s' % time_value
     nodes = ' --nodes=%s' % nodes_value
@@ -163,50 +169,53 @@ def verify_gold_access(job_wrapper,time_value,nodes_value,ntasks_per_node_value,
     
     print "The user requested to run using the project: "+project_value
     LP_user_projects = Accounting_project_management.get_member_of_GOLD_projects ( job_wrapper.user )
-    MAS_user_projects = Accounting_project_management._get_MAS_projects( job_wrapper.user )
+    MAS_user_projects = Accounting_project_management.get_member_of_MAS_projects( job_wrapper.user )
     all_user_projects = LP_user_projects + MAS_user_projects
     if project_value not in (all_user_projects)  :
         log.error( "(%s) You are not member of the selected project! " % project_value )
         return WRONG_PROJECT_ERROR_MESSAGE % project_value
-            
-    ## requested walltime per CPU
-    timestring_raw = '00-'+time_value
-    timestring_secs = Accounting_jobs._slurmtimesecs(timestring_raw)
-    ## total walltime
-    total_walltime = int(timestring_secs) * int(nodes_value) * int(ntasks_per_node_value)
-    (result, available) = Accounting_jobs.job_check_project_balance( project_value, job_wrapper.user,  total_walltime)
-    if result == 'low_balance':
-        available = float(available)/3600
-        log.error( "(%s) You have requested %s hours but the remaining CPU hours in your project are " % ( galaxy_job_id,  time_value) + "%.2f" % round(available,2))
-        return LOW_BALANCE_ERROR % ( available, time_value )
-    elif result == 'reservation_over_balance_limit':
-        available = float(available)/3600
-        log.error( "(%s) You are trying to reserve %s hours. The remaining CPU hours in your project are" % ( galaxy_job_id, time_value ) + "%.2f" % round( available, 2))
-        return DENIED_RESERVATION_ERROR % ( available, time_value)
-    elif result != 'ok' :
-        log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_job_id )
-        return RESERVATION_FAILED_ERROR
+    
+    ## Run checks only for lpXX and gx_default projects:
+    if  project_value.startswith("gx_") or project_value.startswith("lp") : 
+		
+        ## requested walltime per CPU
+        timestring_raw = '00-'+time_value
+        timestring_secs = Accounting_jobs._slurmtimesecs(timestring_raw)
+        ## total walltime
+        total_walltime = int(timestring_secs) * int(nodes_value) * int(ntasks_per_node_value)
+        (result, available) = Accounting_jobs.job_check_project_balance( project_value, job_wrapper.user,  total_walltime)
+        if result == 'low_balance':
+            available = float(available)/3600
+            log.error( "(%s) You have requested %s hours but the remaining CPU hours in your project are " % ( galaxy_job_id,  time_value) + "%.2f" % round(available,2))
+            return LOW_BALANCE_ERROR % ( available, time_value )
+        elif result == 'reservation_over_balance_limit':
+            available = float(available)/3600
+            log.error( "(%s) You are trying to reserve %s hours. The remaining CPU hours in your project are" % ( galaxy_job_id, time_value ) + "%.2f" % round( available, 2))
+            return DENIED_RESERVATION_ERROR % ( available, time_value)
+        elif result != 'ok' :
+            log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_job_id )
+            return RESERVATION_FAILED_ERROR
         
-    pe = int(nodes_value) * int(ntasks_per_node_value)
-    message = Accounting_jobs.job_reserve( galaxy_job_id, project_value, job_wrapper.user, str(timestring_secs), pe)
-    action = "go"
-    if message is not None and re.search("Successfully reserved 0 credits",message) :
-        print "Job reservation failed : ", message
-        print "Job reservation failed - user %s has used up their CPU hour limit for project %s , reservation value = 0 " % (job_wrapper.user, project_value)
-        action = "stop"
-    elif message is not None and re.search("Successfully",message) :
-        print "Job reservation successful : ", message
-    elif message is not None :
-        print "Job reservation failed : ", message
-        print "Job reservation failed - user %s has used up their CPU hour limit for project %s " % (job_wrapper.user, project_value)
-        action = "stop"
-    else :
-        print "Message from drmaa.py - Job reserve returned empty message for project %s : user : %s" % (project_value, job_wrapper.user)
-        action ="stop"
+        pe = int(nodes_value) * int(ntasks_per_node_value)
+        message = Accounting_jobs.job_reserve( galaxy_job_id, project_value, job_wrapper.user, str(timestring_secs), pe)
+        action = "go"
+        if message is not None and re.search("Successfully reserved 0 credits",message) :
+            print "Job reservation failed : ", message
+            print "Job reservation failed - user %s has used up their CPU hour limit for project %s , reservation value = 0 " % (job_wrapper.user, project_value)
+            action = "stop"
+        elif message is not None and re.search("Successfully",message) :
+            print "Job reservation successful : ", message
+        elif message is not None :
+            print "Job reservation failed : ", message
+            print "Job reservation failed - user %s has used up their CPU hour limit for project %s " % (job_wrapper.user, project_value)
+            action = "stop"
+        else :
+            print "Message from drmaa.py - Job reserve returned empty message for project %s : user : %s" % (project_value, job_wrapper.user)
+            action ="stop"
                  
-    if action == "stop" :
-        log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_job_id )
-        return RESERVATION_FAILED_ERROR;
+        if action == "stop" :
+            log.error( "(%s) Job reservation failed! See the log messages above." % galaxy_job_id )
+            return RESERVATION_FAILED_ERROR;
 
     return "ok"
 
