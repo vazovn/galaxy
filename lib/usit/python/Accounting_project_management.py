@@ -12,9 +12,6 @@ import Project_managers
 ## needed to sort complex data structures
 from operator import itemgetter, attrgetter
 
-
-## ==== ACTIVATE THE DB ENGINE variable GOLDDB defined in startup_settings.sh  =====
-
 if os.environ['GOLDDB'] :
     GOLDDB = os.environ['GOLDDB']
     print "Accounting_project_management : GOLDDB INSTANTIATED!!"
@@ -1197,5 +1194,7 @@ def get_member_of_MAS_projects ( email ):
         # convert to list
         if mas_projects :
             mas_projects_list = mas_projects.split(",")
+            
+        print "Accounting : I (", email, ") am member of the following MAS projects ", sorted(mas_projects_list)
             
         return 	mas_projects_list	
