@@ -77,6 +77,8 @@ ${ h.dumps( get_config_dict() )}
                 
                 ## Nikolay - USIT
                 user_dict[ 'is_project_admin' ] = trans.user_is_project_admin()
+                user_dict[ 'can_apply_for_project' ] = trans.check_if_user_is_feide()
+                
 
                 # tags used
                 users_api_controller = trans.webapp.api_controllers[ 'users' ]

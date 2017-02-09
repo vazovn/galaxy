@@ -164,6 +164,10 @@ class ProvidesUserContext( object ):
         project_admin_users = list( set(project_admin_users) | set(project_managers) )
         return self.user and project_admin_users and self.user.email in project_admin_users       
 
+    def check_if_user_is_feide ( self ):
+        import Accounting_project_management
+        return Accounting_project_management.check_if_user_is_feide( self.user.email )
+
 
 class ProvidesHistoryContext( object ):
     """ For transaction-like objects to provide Galaxy convience layer for
