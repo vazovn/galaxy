@@ -998,23 +998,32 @@ def collect_project_info_for_report ( project_code ) :
               
               for row in result:
                      project_data = list(row)
-                     
-              # convert pu hours into hours
-              cpu_hours = project_data[6] 
-              project_data[6] = float(cpu_hours)
 
-              get_account_info_command = "sudo -u gold /opt/gold/bin/gbalance -h --show Name,Available | grep -i -w %s | uniq " % project_code
+              get_account_info_command = "sudo -u gold /opt/gold/bin/gstatement --summarize -h -p %s " % project_code
               p = subprocess.Popen(get_account_info_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
               p.wait()
        
-              available = ()
-              for line in p.stdout.readlines():
-                     account_info = line.split()
-                     available = account_info[1]
-              available = float(available)
+              credit = None
+              debit = None
+              balance = None
               
-              project_data.insert(9,project_data[6]-available)
-              project_data.insert(10,available)
+              for line in p.stdout.readlines():
+                    if re.search("Total Credits", line) :
+                         credit_info = line.split(":")
+                         credit= credit_info[1]
+                    elif re.search("Total Debits", line) :
+                         debit_info = line.split(":")
+                         debit= debit_info[1]
+                    elif re.search("Ending Balance", line) :
+                         balance_info = line.split(":")
+                         balance = balance_info[1]
+             
+              # deposited (all)
+              project_data[6] = credit.strip()
+              # used
+              project_data.insert(9,debit.strip())
+              # available
+              project_data.insert(10,balance.strip())
               project_data.insert(11,project_code)
               
                 

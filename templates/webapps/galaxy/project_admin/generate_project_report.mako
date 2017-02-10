@@ -145,7 +145,7 @@ ${render_msg( message, status )}
         </tr>
 
         <tr>
-              <td>CPU hours required:</td>
+              <td>CPU hours allocated:</td>
               <td>&nbsp;</td>
               <td><input type='text'  maxlength="9" name='cpu_hours_required' value='${project_data[6]}' readonly /></td>
         </tr>

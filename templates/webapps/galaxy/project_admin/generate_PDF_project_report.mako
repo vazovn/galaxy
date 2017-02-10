@@ -142,7 +142,7 @@ ${render_msg( message, status)}
         </tr>
 
         <tr>
-              <td>CPU hours required:</td>
+              <td>CPU hours allocated:</td>
               <td>&nbsp;</td>
               <td>${project_data['cpu_hours_required']}</td>
         </tr>
