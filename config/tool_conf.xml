@@ -7,11 +7,6 @@
     <tool file="data_source/nels_importer.xml" />
   </section>
   
-  <section name="Export files" id="exportfiles" >
-    <tool file="data_destination/nels_exporter_test.xml" />
-    <tool file="data_destination/nels_exporter_hidden.xml" />
-  </section>
-
   <section name="Get Data" id="getext">
     <tool file="data_source/upload.xml"/>
     <tool file="data_source/ucsc_tablebrowser.xml" />
@@ -323,16 +318,17 @@
   </section>
 
  <section name="Graph/Display Data" id="plots">
-    <tool file="plotting/histogram2.xml" />
     <tool file="plotting/scatterplot.xml" />
-    <tool file="plotting/bar_chart.xml" />
-    <tool file="plotting/xy_plot.xml" />
-   <!-- <tool file="plotting/boxplot.xml" /> needs gnuplot -->
-   <!-- <tool file="visualization/GMAJ.xml" />
-    <tool file="visualization/LAJ.xml" />
-    <tool file="visualization/build_ucsc_custom_track.xml" />
-    <tool file="maf/vcf_to_maf_customtrack.xml" />
-    <tool file="mutation/visualize.xml" /> -->
+<!-- <tool file="plotting/histogram2.xml" />
+     <tool file="plotting/bar_chart.xml" />
+     <tool file="plotting/xy_plot.xml" />
+     <tool file="plotting/boxplot.xml" /> needs gnuplot 
+     <tool file="visualization/GMAJ.xml" />
+     <tool file="visualization/LAJ.xml" />
+     <tool file="visualization/build_ucsc_custom_track.xml" />
+     <tool file="maf/vcf_to_maf_customtrack.xml" />
+     <tool file="mutation/visualize.xml" /> 
+-->
   </section>
 
   <section name="NGS: Picard (beta)" id="picard_beta">
