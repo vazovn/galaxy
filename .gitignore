@@ -136,3 +136,9 @@ doc/source/dev/schema.rst
 *.rej
 *~
 .idea/
+
+#Compiled js
+static/*
+
+#ignore default tool_config
+config/tool_conf.xml
