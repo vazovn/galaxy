@@ -457,7 +457,7 @@
   <section name="NGS: Trim Galore" id="trimgalore">
     <tool file="trimgalore/trim_galore_wrapper.xml" />
   </section>
-
+<!--
   <section name="EMBOSS" id="EMBOSSLite">
     <tool file="emboss_5/emboss_antigenic.xml" />
     <tool file="emboss_5/emboss_backtranseq.xml" />
@@ -567,7 +567,7 @@
     <tool file="emboss_5/emboss_wordcount.xml" />
     <tool file="emboss_5/emboss_wordmatch.xml" />
   </section>
-
+-->
 
  <!--
     Keep this section/tools commented until all of the tools have functional tests
