@@ -40,11 +40,6 @@
     <tool file="validation/fix_errors.xml" />
   </section>
 
-  <section name="Tests" id="tests">
-     <tool file="myTools/helloabel.xml" />
-     <tool file="myTools/jobstate.xml" />
-  </section>
-
   <section name="Bioportal Phylogeny Tools" id="bTools">
     <tool file="myTools/mrbayes.xml" />  
     <tool file="myTools/mrbayes-3.2.2.xml" />
@@ -62,8 +57,6 @@
     <tool file="myTools/phylobayes.xml" />
   </section>
 
-
-
   <section name="Gaussian" id="gauss">
      <tool file="myTools/gaussian.xml" />    
   </section>
@@ -79,6 +72,9 @@
      <tool file="published/snpexp.xml" />
   </section>
 
+  <section name="R (Resctricted for rgroup members)" id="rtool">
+     <tool file="myTools/r.xml" />
+  </section>
 
   <section name="NCBI BLAST+" id="ncbi_blast_plus_tools">
    <tool file="ncbi_blast_plus/ncbi_blastn_wrapper.xml" />
@@ -457,7 +453,7 @@
   <section name="NGS: Trim Galore" id="trimgalore">
     <tool file="trimgalore/trim_galore_wrapper.xml" />
   </section>
-
+<!--
   <section name="EMBOSS" id="EMBOSSLite">
     <tool file="emboss_5/emboss_antigenic.xml" />
     <tool file="emboss_5/emboss_backtranseq.xml" />
@@ -567,7 +563,7 @@
     <tool file="emboss_5/emboss_wordcount.xml" />
     <tool file="emboss_5/emboss_wordmatch.xml" />
   </section>
-
+-->
 
  <!--
     Keep this section/tools commented until all of the tools have functional tests
@@ -873,8 +869,10 @@
   </section>
 -->
 
-  <section name="R (Resctricted for rgroup members)" id="rtool">
-     <tool file="myTools/r.xml" />
+  <section name="Tests" id="tests">
+     <tool file="myTools/helloabel.xml" />
+     <tool file="myTools/jobstate.xml" />
   </section>
+
 
 </toolbox>
