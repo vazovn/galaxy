@@ -113,9 +113,12 @@ class UserListGrid( grids.Grid ):
                                                 key="free-text-search",
                                                 visible=False,
                                                 filterable="standard" ) )
-    global_actions = [
-        grids.GridAction( "Create new user", dict( controller='admin', action='users', operation='create', webapp="galaxy" ) )
-    ]
+    
+    ## The button shall be removed - no users shall be managed outside of Dataporten
+    #global_actions = [
+    #    grids.GridAction( "Create new user", dict( controller='admin', action='users', operation='create', webapp="galaxy" ) )
+    #]
+    
     operations = [
         grids.GridOperation( "Manage Roles and Groups",
                              condition=( lambda item: not item.deleted ),
