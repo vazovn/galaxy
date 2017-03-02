@@ -57,8 +57,6 @@
     <tool file="myTools/phylobayes.xml" />
   </section>
 
-
-
   <section name="Gaussian" id="gauss">
      <tool file="myTools/gaussian.xml" />    
   </section>
@@ -875,7 +873,6 @@
      <tool file="myTools/helloabel.xml" />
      <tool file="myTools/jobstate.xml" />
   </section>
-
 
 
 </toolbox>
