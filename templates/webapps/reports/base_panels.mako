@@ -40,5 +40,7 @@
             <span class='brand'>/ ${app.config.brand}</span>
         %endif
         </a>
+        &nbsp;
+        <a href="https://itf-reports-lifeportal-p0202.hpc.uio.no/callback?logout=https://itf-reports-lifeportal-p0202.hpc.uio.no/logout"><font color="red">Logout</font></a>
     </div>
 </%def>
