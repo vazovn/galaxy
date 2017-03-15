@@ -642,7 +642,7 @@ def approve_pending_project ( kwd) :
         ## Send application rejection email
         sender = 'lifeportal-help@usit.uio.no'
         receiver = email
-        bcc = 'n.a.vazov@usit.uio.no'
+        bcc = 'lifeportal-projectadmins@usit.uio.no'
         project_string = '\nproject name : ' + project_name +  '\ncpu_amount : ' + cpu_amount + '\ndescription : ' + description + '\nstart_date : ' + start_date + '\nend_date : ' + end_date + '\napplication_date : ' + application_date
         header = 'To:' + receiver + '\nFrom: ' + sender + '\nBcc: ' + bcc + '\nSubject:Your Lifeportal application has been rejected \n'
         email_msg = header + '\nYour Lifeportal application :\n' + project_string + '\n\nhas been rejected for the following reasons: ' + reason_for_rejection_email_version + '\nPlease, apply again.\n\nThe Lifeportal Resource Allocation Committee'
@@ -705,7 +705,7 @@ def approve_pending_project ( kwd) :
        ## Send email notification about the approved project
         sender =  'lifeportal-help@usit.uio.no'
         receiver = email
-        bcc = 'n.a.vazov@usit.uio.no'
+        bcc = 'lifeportal-projectadmins@usit.uio.no'
         header = 'To:' + receiver + '\nFrom: ' + sender + '\nBcc: ' + bcc +'\nSubject:Your Lifeportal application has been approved \n'
         email_msg = header + '\nYour Lifeportal application :\n' + project_name + '\n\nhas been approved today. The project code associated to it is ' + project_code + '. Please use this code when running your jobs.\nBest regards,\n\nThe Lifeportal Resource Allocation Committee'
 
@@ -950,9 +950,9 @@ def register_project_application ( kwd) :
            message =  "Application stored as 'pending'. A committee will review it as soon as possible and come back to you with further information."
            status = 'done'
            ## Send confirmation 
-           sender = 'n.a.vazov@usit.uio.no'
+           sender = 'lifeportal-projectadmins@usit.uio.no'
            replyto = 'lifeportal-help@usit.uio.no'
-           bcc = 'n.a.vazov@usit.uio.no'
+           bcc = 'lifeportal-projectadmins@usit.uio.no'
                       
            receiver = email
            project_string = '\nproject name : ' + project_name +  '\ncpu_amount : ' + cpu_amount + '\ndescription : ' + description_email_version + '\nstart_date : ' + start_date + '\nend_date : ' + end_date + '\nInstitution :' + institution
