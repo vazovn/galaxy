@@ -376,7 +376,7 @@ def add_project_to_GOLD( email, project_name, cpu_amount, gold_project_descripti
                  print line
                  
    ## Create the project itself
-   create_project_command = "sudo -u gold /opt/gold/bin/gmkproject -d \"%s\" %s -u MEMBERS --createAccount=False -o %s " % ( gold_project_description, project_name, email)
+   create_project_command = "sudo -u gold /opt/gold/bin/gmkproject -d \"%s\" %s -u members --createAccount=False -o %s " % ( gold_project_description, project_name, email)
    p = subprocess.Popen(create_project_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
    p.wait()
 
@@ -385,10 +385,12 @@ def add_project_to_GOLD( email, project_name, cpu_amount, gold_project_descripti
          if re.search("Successfully",line) :
                message = "Succesfully created project : %s" % project_name
          else :
+               # Debug only
+               print "Output gmkproject : ",line
                message = line
                
    ## Create account
-   create_account_command = "sudo -u gold /opt/gold/bin/gmkaccount -p %s -n \"%s\" -u MEMBERS -d \"account for %s project \"" % ( project_name, project_name, project_name ) 
+   create_account_command = "sudo -u gold /opt/gold/bin/gmkaccount -p %s -n \"%s\" -u members -d \"account for %s project \"" % ( project_name, project_name, project_name ) 
    p = subprocess.Popen(create_account_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
    p.wait()
         
@@ -397,6 +399,8 @@ def add_project_to_GOLD( email, project_name, cpu_amount, gold_project_descripti
                  message = message +  "</br>Created account for project %s . </br>" % project_name
                  print "Created account for project %s." % project_name
           else :
+                 # Debug only
+                 print "Output gmkaccount : ",line
                  message = line
 
    ## Credit the account (in hours)
