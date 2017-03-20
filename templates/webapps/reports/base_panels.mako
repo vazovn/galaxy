@@ -41,6 +41,6 @@
         %endif
         </a>
         &nbsp;
-        <a href="https://itf-reports-lifeportal-p0202.hpc.uio.no/callback?logout=https://itf-reports-lifeportal-p0202.hpc.uio.no/logout"><font color="red">Logout</font></a>
+        <a href="https://lifeportal-reports.uio.no/callback?logout=https://lifeportal-reports.uio.no/logout"><font color="red">Logout</font></a>
     </div>
 </%def>
