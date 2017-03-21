@@ -1,3 +1,4 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 # This tool takes a gff file as input and creates filters on attributes based on certain properties.
 # The tool will skip over invalid lines within the file, informing the user about the number of lines skipped.

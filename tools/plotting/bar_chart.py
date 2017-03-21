@@ -1,3 +1,4 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 """
 histogram_gnuplot.py <datafile> <xtic column> <column_list> <title> <ylabel> <yrange_min> <yrange_max> <grath_file>

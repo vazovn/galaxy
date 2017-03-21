@@ -1,3 +1,5 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 """
     Sorts tabular data on one or more columns. All comments of the file are collected
     and placed at the beginning of the sorted output file.

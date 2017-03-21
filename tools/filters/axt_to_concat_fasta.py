@@ -1,3 +1,4 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 """
 Adapted from bx/scripts/axt_to_concat_fasta.py

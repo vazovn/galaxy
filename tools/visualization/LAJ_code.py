@@ -1,3 +1,4 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 # post processing, add sequence and additional annoation info if available
 from six.moves.urllib.parse import urlencode
 

@@ -1,3 +1,4 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 from __future__ import print_function
 
 from shutil import copyfile

@@ -1,3 +1,4 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 # Kanwei Li, 2010
 # Selects N random lines from a file and outputs to another file

@@ -1,3 +1,4 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 """
 Reads a MAF file. Produces a MAF file containing
