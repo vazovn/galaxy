@@ -1,7 +1,0 @@
-.venv/
-.tox/
-client/node_modules/
-database/
-doc/source/conf.py
-eggs/
-lib/galaxy/util/jstree.py
