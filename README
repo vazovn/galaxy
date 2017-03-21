@@ -1,0 +1,19 @@
+#This repo folks bitbucket.usit.uio.no/scm/ft/galaxy.git and maintains only the  tools shipped with Galaxy.
+#After each update to Galaxy this branch must be updated. Then update the /cluster/software/VERSIONS/lifeportal/1.0 via "git fetch/ merger or git pull"
+git clone https://sabryr@bitbucket.usit.uio.no/scm/ft/lifeportal_tool_abel_dependancies.git
+
+#Clean everything except the tools needed
+for i in $(ls  | grep -v tools$) ;do git rm -r  $i; done;
+git rm -r .ci
+git rm .coveragerc 
+git rm .travis.yml
+
+rm paths.txt; for i in $(find $PWD -type d  |awk -F "tools/" '{print $2}' ); do  echo "prepend-path    PATH            \$apphome/"$i >> paths.txt; done;
+
+#set python executable
+for i in $(find -name "*py" -type f ); do  chmod +x  $i; done;
+for i in $(find -name "*pl" -type f ); do  chmod +x  $i; done;
+
+#Add the correct python
+module load lifeportal/1.0;for i in $(find -name "*py" -type f ); do echo $i;  sed  -i "1i #!$(which python)"  $i; done;
+

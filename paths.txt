@@ -1,0 +1,52 @@
+#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+/cluster/software/VERSIONS/python2-2.7.10/bin/python
+/cluster/software/VERSIONS/python2-2.7.10/bin/python
+/cluster/software/VERSIONS/python2-2.7.10/bin/python
+$(echo $PYTHON_TO_USE)
+(echo $PYTHON_TO_USE)
+$PYTHON_TO_USE
+new_text
+$(\$PYTHON_TO_USE)
+$($PYTHON_TO_USE)
+$($PYTHON_TO_USE)
+($PYTHON_TO_USE)
+$PYTHON_TO_USE
+$PYTHON_TO_USE
+$PYTHON_TO_USE
+anything
+("$PYTHON_TO_USE"
+))prepend-path    PATH            $apphome/tools/stats
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/plotting
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/data_source
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/ngs_simulation
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/maf
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/sr_mapping
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/meme
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/sr_assembly
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/visualization
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/phenotype_association
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/filters
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/filters/gff
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/genomespace
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/myTools
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/metag_tools
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/extract
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/evolution
+("$PYTHON_TO_USE"
+)prepend-path    PATH            $apphome/tools/next_gen_conversion
