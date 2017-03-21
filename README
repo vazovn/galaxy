@@ -1,6 +1,6 @@
-#This repo folks bitbucket.usit.uio.no/scm/ft/galaxy.git and maintains only the  tools shipped with Galaxy.
-#After each update to Galaxy this branch must be updated. Then update the /cluster/software/VERSIONS/lifeportal/1.0 via "git fetch/ merger or git pull"
-git clone https://sabryr@bitbucket.usit.uio.no/scm/ft/lifeportal_tool_abel_dependancies.git
+#This maintains only the  tools shipped with Galaxy.
+#Keep this branch uptodate with lifeportal_17_01. Then update the /cluster/software/VERSIONS/lifeportal/1.0 via "git fetch/ merger or git pull"
+git clone https://$USER@bitbucket.usit.uio.no/scm/ft/galaxy.git
 
 #Clean everything except the tools needed
 for i in $(ls  | grep -v tools$) ;do git rm -r  $i; done;
