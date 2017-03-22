@@ -1,4 +1,3 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 """
 Reads a list of intervals and a maf. Produces a new maf containing the

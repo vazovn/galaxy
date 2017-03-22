@@ -1,4 +1,4 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+#!/usr/bin/env python
 #
 # Filters a GFF file using a list of attribute values. Attribute values must
 # be in the first column of the file; subsequent columns are ignored.

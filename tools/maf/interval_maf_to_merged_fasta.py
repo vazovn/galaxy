@@ -1,4 +1,3 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 """
 Reads an interval or gene BED and a MAF Source.

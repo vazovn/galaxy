@@ -1,5 +1,4 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
-#!/usr/bin/env python
+#!/usr/bin/env python python
 # Guruprasad Ananda
 # Refactored 2011 to use numpy instead of rpy, Kanwei Li
 """

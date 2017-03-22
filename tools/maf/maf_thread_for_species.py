@@ -1,4 +1,3 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 """
 Read a maf file and write out a new maf with only blocks having all of

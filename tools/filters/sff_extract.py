@@ -1,4 +1,3 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/python
 '''This software extracts the seq, qual and ancillary information from an sff
 file, like the ones used by the 454 sequencer.

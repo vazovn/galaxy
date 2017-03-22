@@ -1,4 +1,4 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+#!/usr/bin/env python
 # Dan Blankenberg
 # Filters a MAF file according to the provided code file, which is generated in maf_filter.xml <configfiles>
 # Also allows filtering by number of columns in a block, and limiting output species

@@ -1,4 +1,3 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 """
 Filter a gff file using a criterion based on feature counts for a transcript.

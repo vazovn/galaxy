@@ -15,5 +15,5 @@ for i in $(find -name "*py" -type f ); do  chmod +x  $i; done;
 for i in $(find -name "*pl" -type f ); do  chmod +x  $i; done;
 
 #Add the correct python
-module load lifeportal/1.0;for i in $(find -name "*py" -type f ); do echo $i;  sed  -i "1i #!$(which python)"  $i; done;
+module load lifeportal/1.0;for i in $(find -name "*py" -type f ); do echo $i;  sed  -i "1i #!/usr/bin/env $(which python)"  $i; done;
 

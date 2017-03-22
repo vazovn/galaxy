@@ -1,4 +1,5 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+#!/usr/bin/env python
+
 # TODO: Set dbkey to proper UCSC build, if known
 import shutil
 import tempfile

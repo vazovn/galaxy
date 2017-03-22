@@ -1,4 +1,4 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+#!/usr/bin/env python
 # Filename: grep.py
 # Author: Ian N. Schenck
 # Version: 8/23/2005

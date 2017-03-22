@@ -1,4 +1,4 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+#!/usr/bin/env python
 """
 Converts any type of FASTQ file to Sanger type  and makes small adjustments if necessary.
 

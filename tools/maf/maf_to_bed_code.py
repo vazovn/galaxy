@@ -1,4 +1,4 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
+#!/usr/bin/env python
 def exec_after_process(app, inp_data, out_data, param_dict, tool, stdout, stderr):
     output_data = next(iter(out_data.values()))
     new_stdout = ""

@@ -1,4 +1,3 @@
-#!/cluster/software/VERSIONS/python2-2.7.10/bin/python
 #!/usr/bin/env python
 # Dan Blankenberg
 # Selects N random lines from a file and outputs to another file, maintaining original line order
