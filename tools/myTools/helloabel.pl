@@ -17,10 +17,15 @@ my $hostname = hostname();
 #}
 
 
-print  OUT "Hello from Abel!\nIt is $time on $hostname.\n\n";
+print  OUT "Abel is up and running. \nIt is $time on $hostname.\n\n";
 print  OUT "Abel resources:\n";
 close( OUT );
 system("resusage >> $ARGV[0]");
+system("echo >> $ARGV[0]");
+system("echo 'Number of Lifeportal jobs on Cluster' >> $ARGV[0]");
+system("squeue | grep galaxy | wc -l >> $ARGV[0]");
+
+
 
 #close( IN );
 close( OUT );
