@@ -1,0 +1,7 @@
+../subprocess32.py
+../subprocess32.pyc
+../_posixsubprocess.so
+SOURCES.txt
+dependency_links.txt
+top_level.txt
+PKG-INFO
