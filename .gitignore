@@ -142,3 +142,6 @@ static/*
 
 #ignore default tool_config
 config/tool_conf.xml
+
+#Tool config files
+*.xml
