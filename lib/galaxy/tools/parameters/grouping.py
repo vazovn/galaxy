@@ -20,6 +20,8 @@ from galaxy.util.bunch import Bunch
 from galaxy.util.dictifiable import Dictifiable
 from galaxy.util.expressions import ExpressionContext
 
+import Filesender
+
 log = logging.getLogger( __name__ )
 
 
@@ -288,6 +290,7 @@ class UploadDataset( Group ):
 
     def get_uploaded_datasets( self, trans, context, override_name=None, override_info=None ):
         def get_data_file_filename( data_file, override_name=None, override_info=None, purge=True ):
+            
             dataset_name = override_name
             dataset_info = override_info
 
@@ -299,8 +302,17 @@ class UploadDataset( Group ):
                 # Use the existing file
                 if not dataset_name and 'filename' in data_file:
                     dataset_name = get_file_name( data_file['filename'] )
+                    
+                    # Nikolay USIT - Filesender : get real file name from Filesender database
+                    if len(Filesender.get_real_file_name(dataset_name)) > 0:
+                        real_name_from_filesender = Filesender.get_real_file_name(dataset_name)[0]
+                        dataset_name = real_name_from_filesender
+                    else:
+                        pass
+                    
                 if not dataset_info:
                     dataset_info = 'uploaded file'
+                
                 return Bunch( type='file', path=data_file['local_filename'], name=dataset_name, purge_source=purge )
             except:
                 # The uploaded file should've been persisted by the upload tool action

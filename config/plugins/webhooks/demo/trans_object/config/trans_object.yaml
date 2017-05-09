@@ -1,7 +1,7 @@
 name: trans_object
 type: 
   - masthead
-activate: true
+activate: false
 
 icon: fa-user
 tooltip: Show Username
