@@ -8,5 +8,5 @@ tooltip: Filesender Lifeportal
 
 function: >  
     $.getJSON("/api/webhooks/filesender/get_data", 
-        function(data) {window.open('https://FILESENDER_URL', '_blank');}
+        function(data) {window.open('https://filesender.itf-lifeportal-core-d01.hpc.uio.no', '_blank');}
     );
