@@ -36,7 +36,6 @@ from galaxy.web.framework import helpers
 from galaxy.web.framework import formbuilder
 
 import Add_user_to_gold
-import re
 
 import logging
 log = logging.getLogger( __name__ )
@@ -600,7 +599,6 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
         if getattr( self.app.config, "normalize_remote_user_email", False ):
             remote_user_email = remote_user_email.lower()
         user = self.sa_session.query( self.app.model.User).filter( self.app.model.User.table.c.email == remote_user_email ).first()
-        
         if user:
             # GVK: June 29, 2009 - This is to correct the behavior of a previous bug where a private
             # role and default user / history permissions were not set for remote users.  When a
