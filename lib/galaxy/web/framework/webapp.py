@@ -442,18 +442,12 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
             assert self.app.config.remote_user_header in self.environ, \
                 "use_remote_user is set but %s header was not provided" % self.app.config.remote_user_header
             remote_user_email = self.environ[ self.app.config.remote_user_header ]
-
-            ## Nikolay - USIT
-            idp_request = None
-            if self.environ and 'HTTP_REFERER' in self.environ.keys() :
-                    if re.search("dataporten",self.environ['HTTP_REFERER']) :
-                        idp_request = self.environ['HTTP_REFERER']
-            
             if galaxy_session:
                 # An existing session, make sure correct association exists
+                get_or_create_remote_user_called = True
                 if galaxy_session.user is None:
                     # No user, associate
-                    galaxy_session.user = self.get_or_create_remote_user( remote_user_email, idp_request )
+                    galaxy_session.user = self.get_or_create_remote_user( remote_user_email )
                     galaxy_session_requires_flush = True
                 elif (not remote_user_email.startswith('(null)') and  # Apache does this, see remoteuser.py
                       (galaxy_session.user.email != remote_user_email) and
@@ -463,12 +457,24 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
                     # remote user, and the currently set remote_user is not a
                     # potentially impersonating admin.
                     invalidate_existing_session = True
-                    user_for_new_session = self.get_or_create_remote_user( remote_user_email, idp_request )
+                    user_for_new_session = self.get_or_create_remote_user( remote_user_email )
                     log.warning( "User logged in as '%s' externally, but has a cookie as '%s' invalidating session",
                                  remote_user_email, galaxy_session.user.email )
+                else:
+                    get_or_create_remote_user_called = False
+                    print "get_or_create_remote_user has not been called. Not adding user to gold"
             else:
                 # No session exists, get/create user for new session
-                user_for_new_session = self.get_or_create_remote_user( remote_user_email, idp_request )
+                user_for_new_session = self.get_or_create_remote_user( remote_user_email )
+            if get_or_create_remote_user_called and self.app.config.use_remote_user:
+                ## Nikolay - USIT
+                idp_request = None
+                if self.environ and 'HTTP_REFERER' in self.environ.keys() :
+                    if self.environ['HTTP_REFERER'].startswith("https://auth.dataporten.no") :
+                        idp_request = self.environ['HTTP_REFERER']
+                        Add_user_to_gold.add_remote_user_to_gold( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request) )
+                        Add_user_to_gold.add_remote_user_to_mas( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request), idp_request )
+            
         else:
             if galaxy_session is not None and galaxy_session.user and galaxy_session.user.external:
                 # Remote user support is not enabled, but there is an existing
@@ -584,7 +590,7 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
             galaxy_session.user = user_for_new_session
         return galaxy_session
 
-    def get_or_create_remote_user( self, remote_user_email, idp_request):
+    def get_or_create_remote_user( self, remote_user_email ):
         """
         Create a remote user with the email remote_user_email and return it
         """
@@ -593,10 +599,6 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
         if getattr( self.app.config, "normalize_remote_user_email", False ):
             remote_user_email = remote_user_email.lower()
         user = self.sa_session.query( self.app.model.User).filter( self.app.model.User.table.c.email == remote_user_email ).first()
-        
-        ## Nikolay - USIT
-        Add_user_to_gold.add_remote_user_to_gold( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request) )
-        Add_user_to_gold.add_remote_user_to_mas( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request), idp_request )
         
         if user:
             # GVK: June 29, 2009 - This is to correct the behavior of a previous bug where a private
