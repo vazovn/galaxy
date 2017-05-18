@@ -626,12 +626,6 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
             user.username = username
             self.sa_session.add( user )
             self.sa_session.flush()
-            
-            
-            print "IDP RESUEST ", idp_request
-            
-            
-            
             self.app.security_agent.create_private_user_role( user )
             # We set default user permissions, before we log in and set the default history permissions
             if 'webapp' not in self.environ or self.environ['webapp'] != 'tool_shed':
