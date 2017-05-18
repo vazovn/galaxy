@@ -442,9 +442,9 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
             assert self.app.config.remote_user_header in self.environ, \
                 "use_remote_user is set but %s header was not provided" % self.app.config.remote_user_header
             remote_user_email = self.environ[ self.app.config.remote_user_header ]
+            get_or_create_remote_user_called = True
             if galaxy_session:
                 # An existing session, make sure correct association exists
-                get_or_create_remote_user_called = True
                 if galaxy_session.user is None:
                     # No user, associate
                     galaxy_session.user = self.get_or_create_remote_user( remote_user_email )
@@ -466,8 +466,9 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
             else:
                 # No session exists, get/create user for new session
                 user_for_new_session = self.get_or_create_remote_user( remote_user_email )
+                
+            ## Nikolay - USIT
             if get_or_create_remote_user_called and self.app.config.use_remote_user:
-                ## Nikolay - USIT
                 idp_request = None
                 if self.environ and 'HTTP_REFERER' in self.environ.keys() :
                     if self.environ['HTTP_REFERER'].startswith("https://auth.dataporten.no") :
