@@ -152,7 +152,7 @@ def add_remote_user_to_mas(email, idp_provider_type, request):
     if 'userids' not in request_dict:
         return "none"
     
-    if idp_provider_type[0] == "feide" and idp_provider_type[1] == "uio.no":
+    if len(idp_provider_type) > 1 and idp_provider_type[0] == "feide" and idp_provider_type[1] == "uio.no":
 
         uname = uname_from_request(request)
         user = Mas_projects.query.filter_by(uname=uname).first()
