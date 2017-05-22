@@ -147,7 +147,12 @@ def add_remote_user_to_mas(email, idp_provider_type, request):
     :param request:
     """
     
-    if idp_provider_type[0] == "feide" and idp_provider_type[2] == "uio.no":
+    ## If logging in from Dataporten for the first time, 'userids' is missing in the request
+    request_dict = json.loads(urlparse.parse_qs(request)['acresponse'][0])
+    if 'userids' not in request_dict:
+        return "none"
+    
+    if idp_provider_type[0] == "feide" and idp_provider_type[1] == "uio.no":
 
         uname = uname_from_request(request)
         user = Mas_projects.query.filter_by(uname=uname).first()
@@ -211,9 +216,23 @@ def idp_provider_type_from_request(request):
     if not request:
         return "none"
     else:
+        
         try:
-    #    idp_provider_type = json.loads(urlparse.parse_qs(requestsplit[2])['acresponse'][0])['def'][0]
-            idp_provider_type = json.loads(urlparse.parse_qs(request)['acresponse'][0])['def'][0]
+            request_dict = json.loads(urlparse.parse_qs(request)['acresponse'][0])
+            
+            #This check is needed if logging for the first time from Dataporten
+            if 'def' in request_dict:
+                idp_provider_type_id = request_dict['def'][0][0]
+                idp_provider_type_sub_id = request_dict['def'][0][2]
+                idp_provider_type = [idp_provider_type_id, idp_provider_type_sub_id]
+            else :
+                if 'id' in request_dict and 'subid' in request_dict and request_dict['id'].startswith("https://idp.feide"):
+                    idp_provider_type = ['feide', request_dict['subid']]
+                elif 'type' in request_dict:
+                    idp_provider_type = [request_dict['type']]
+                    
+            print "IDP PROVIDER TYPE ", idp_provider_type
+            
         except (ValueError, TypeError, AttributeError) as e:
             log_message(e)
             log_message(request)
