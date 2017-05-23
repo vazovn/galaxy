@@ -290,7 +290,6 @@ class UploadDataset( Group ):
 
     def get_uploaded_datasets( self, trans, context, override_name=None, override_info=None ):
         def get_data_file_filename( data_file, override_name=None, override_info=None, purge=True ):
-            
             dataset_name = override_name
             dataset_info = override_info
 
@@ -312,7 +311,6 @@ class UploadDataset( Group ):
                     
                 if not dataset_info:
                     dataset_info = 'uploaded file'
-                
                 return Bunch( type='file', path=data_file['local_filename'], name=dataset_name, purge_source=purge )
             except:
                 # The uploaded file should've been persisted by the upload tool action
