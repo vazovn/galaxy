@@ -461,7 +461,6 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
                                  remote_user_email, galaxy_session.user.email )
                 else:
                     get_or_create_remote_user_called = False
-                    print "get_or_create_remote_user has not been called. Not adding user to gold"
             else:
                 # No session exists, get/create user for new session
                 user_for_new_session = self.get_or_create_remote_user( remote_user_email )
@@ -474,6 +473,7 @@ class GalaxyWebTransaction( base.DefaultWebTransaction,
                         idp_request = self.environ['HTTP_REFERER']
                         Add_user_to_gold.add_remote_user_to_gold( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request) )
                         Add_user_to_gold.add_remote_user_to_mas( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request), idp_request )
+                        log.warning( "Added user '%s'to GOLD", remote_user_email)
             
         else:
             if galaxy_session is not None and galaxy_session.user and galaxy_session.user.external:
