@@ -21,6 +21,7 @@ database/tmp
 database/*.sqlite
 database/openid_consumer_cache
 database/dependencies
+database
 
 # Python bytecode
 *.pyc
