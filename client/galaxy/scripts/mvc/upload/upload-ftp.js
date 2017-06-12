@@ -107,6 +107,7 @@ define( [ 'utils/utils' ], function( Utils ) {
             return  '<tr class="upload-ftp-row">' +
                         '<td class="_has_collection" style="display: none;"><div class="icon"/></td>' +
                         '<td class="ftp-name">' + options.path + '</td>' +
+                        '<td class="ftp-name">' + options.real_name + '</td>' +
                         '<td class="ftp-size">' + Utils.bytesToString( options.size ) + '</td>' +
                         '<td class="ftp-time">' + options.ctime + '</td>' +
                     '</tr>';
@@ -126,6 +127,7 @@ define( [ 'utils/utils' ], function( Utils ) {
                             '<tr>' +
                                 '<th class="_has_collection" style="display: none;"><div class="upload-selectall"></th>' +
                                 '<th>Name</th>' +
+                                '<th>Real Name</th>' +
                                 '<th>Size</th>' +
                                 '<th>Created</th>' +
                             '</tr>' +
@@ -145,7 +147,7 @@ define( [ 'utils/utils' ], function( Utils ) {
         _template: function() {
             return  '<div class="upload-ftp">' +
                         '<div class="upload-ftp-wait fa fa-spinner fa-spin"/>' +
-                        '<div class="upload-ftp-help">This Galaxy server allows you to upload files via FTP. To upload some files, log in to the FTP server at <strong>' + this.options.ftp_upload_site + '</strong> using your Galaxy credentials (email address and password).</div>' +
+                        '<div class="upload-ftp-help">' + this.options.ftp_upload_site + '</div>' +
                         '<div class="upload-ftp-content"/>' +
                     '<div>';
         }

@@ -10,6 +10,9 @@ from galaxy.util import jstree, unicodify
 from galaxy.web.base.controller import BaseAPIController
 from operator import itemgetter
 
+import re
+import Filesender
+
 import logging
 log = logging.getLogger( __name__ )
 
@@ -92,7 +95,7 @@ class RemoteFilesAPIController( BaseAPIController ):
             try:
                 user_ftp_dir = trans.user_ftp_dir
                 if user_ftp_dir is not None:
-                    response = self.__load_all_filenames( user_ftp_dir )
+                    response = self.__load_all_filenames( user_ftp_dir, trans.user.email )
                 else:
                     log.warning( 'You do not have an FTP directory named as your login at this Galaxy instance.' )
                     return None
@@ -101,7 +104,7 @@ class RemoteFilesAPIController( BaseAPIController ):
                 return None
         return response
 
-    def __load_all_filenames( self, directory ):
+    def __load_all_filenames( self, directory, email ):
         """
         Loads recursively all files within the given folder and its
         subfolders and returns a flat list.
@@ -109,10 +112,38 @@ class RemoteFilesAPIController( BaseAPIController ):
         response = []
         if os.path.exists( directory ):
             for ( dirpath, dirnames, filenames ) in os.walk( directory ):
+                
+                ## Nikolay - USIT The user ftp upload dir is ending with user.email, if not - the ftp upload dir belongs to another user : skip it
+                if not dirpath.endswith(email) :
+                    continue
+                
+                ## Nikolay - USIT If walking the common filesender directory (/filesender/..../files), filter only the files belonging to the user
+                ## In this case the directory == dirpath, otherwise dirpath contains an additional user subdirectory dirpath/email
+                ## This longer dirpath is used for other ftp uploads, not coming from filesender (e.g. Abel home dir)
+                user_filenames = []
+                if dirpath == directory :
+                    print "FILENAMES TO FILTER ", filenames
+                    user_filenames = Filesender.get_user_files(email)
+                    
+                
                 for filename in filenames:
+                    
+                    ## Nikolay - USIT Filter only the files which are in /files common directory and which belong to the user
+                    if not filename in user_filenames.keys() and dirpath == directory:
+                        continue
+                    
                     path = os.path.relpath( os.path.join( dirpath, filename ), directory )
+                    
                     statinfo = os.lstat( os.path.join( dirpath, filename ) )
+                    
+                    ## Nikolay - USIT Check for the real file name for ftp upload
+                    if user_filenames[filename]:
+                        real_file_name = user_filenames[filename]
+                    else:
+                        real_file_name = filename
+                    
                     response.append( dict( path=path,
+                                           real_name = real_file_name,
                                            size=statinfo.st_size,
                                            ctime=time.strftime( "%m/%d/%Y %I:%M:%S %p", time.localtime( statinfo.st_ctime ) ) ) )
         else:
