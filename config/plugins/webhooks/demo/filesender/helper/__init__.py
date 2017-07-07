@@ -23,7 +23,7 @@ def check_user_upload_dir(path,email):
     ## will/can be used for uploads from the user's home directory on the cluster.
     
     destination = path+"/"+email
-    source = os.environ['FILESENDER_STORAGE']
+    source = os.environ['FILESENDER_STORAGE'] + "/files"
     
     try:
         os.symlink(source,destination)
