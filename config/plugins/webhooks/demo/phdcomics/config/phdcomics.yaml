@@ -2,4 +2,4 @@ name: phdcomics
 type:
   - tool
   - workflow
-activate: true
+activate: false
