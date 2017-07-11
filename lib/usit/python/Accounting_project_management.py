@@ -1208,6 +1208,6 @@ def get_member_of_MAS_projects ( email ):
         if mas_projects :
             mas_projects_list = mas_projects.split(",")
             
-        print "Accounting : I (", email, ") am member of the following MAS projects ", sorted(mas_projects_list)
+            print "Accounting : I (", email, ") am member of the following MAS projects ", sorted(mas_projects_list)
             
-        return 	mas_projects_list	
+            return 	mas_projects_list	
