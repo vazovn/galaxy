@@ -29,7 +29,7 @@ function( Utils, UploadModel, UploadRow, UploadFtp, Popover, Select, Ui ) {
 
             // append buttons to dom
             this.btnLocal    = new Ui.Button( { id: 'btn-local', title: 'Choose local file',   onclick: function() { self.uploadbox.select() }, icon: 'fa fa-laptop' } );
-            this.btnFtp      = new Ui.Button( { id: 'btn-ftp',   title: 'Choose FTP file',     onclick: function() { self._eventFtp() }, icon: 'fa fa-folder-open-o' } );
+            this.btnFtp      = new Ui.Button( { id: 'btn-ftp',   title: 'Upload from Filesender',     onclick: function() { self._eventFtp() }, icon: 'fa fa-folder-open-o' } );
             this.btnCreate   = new Ui.Button( { id: 'btn-new',   title: 'Paste/Fetch data',    onclick: function() { self._eventCreate() }, icon: 'fa fa-edit' } );
             this.btnStart    = new Ui.Button( { id: 'btn-start', title: 'Start',               onclick: function() { self._eventStart() } } );
             this.btnStop     = new Ui.Button( { id: 'btn-stop',  title: 'Pause',               onclick: function() { self._eventStop() } } );
