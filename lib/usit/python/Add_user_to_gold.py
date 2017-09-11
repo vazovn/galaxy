@@ -223,7 +223,7 @@ def idp_provider_type_from_request(request):
             #This check is needed if logging for the first time from Dataporten
             if 'def' in request_dict:
                 idp_provider_type_id = request_dict['def'][0][0]
-                idp_provider_type_sub_id = request_dict['def'][0][2]
+                idp_provider_type_sub_id = request_dict['def'][0][1] if len(request_dict['def'][0]) == 2 else request_dict['def'][0][2] 
                 idp_provider_type = [idp_provider_type_id, idp_provider_type_sub_id]
             else :
                 if 'id' in request_dict and 'subid' in request_dict and request_dict['id'].startswith("https://idp.feide"):
