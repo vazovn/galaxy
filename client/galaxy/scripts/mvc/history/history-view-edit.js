@@ -68,6 +68,10 @@ var HistoryViewEdit = _super.extend(
         // ---- set up instance vars
         /** editor for tags - sub-view */
         this.tagsEditor = null;
+
+        /** enable drag and drop - sub-view */
+        this.dragItems  = true;
+
         /** editor for annotations - sub-view */
         this.annotationEditor = null;
 
@@ -152,6 +156,7 @@ var HistoryViewEdit = _super.extend(
     renderItems : function( $whereTo ){
         var views = _super.prototype.renderItems.call( this, $whereTo );
         if( !this.searchFor ){ this._renderCounts( $whereTo ); }
+        else{ this._renderSearchFindings( $whereTo ); }
         return views;
     },
 
@@ -285,23 +290,31 @@ var HistoryViewEdit = _super.extend(
     _collectionActions : function(){
         var panel = this;
         return [
-            {   html: _l( 'Build Dataset List' ), func: function() {
-                    LIST_COLLECTION_CREATOR.createListCollection( panel.getSelectedModels() )
-                        .done( function(){ panel.model.refresh(); });
-                }
+            {   html: _l( 'Build Dataset List' ), func: function() { panel.buildCollection( "list") }
             },
             // TODO: Only show quick pair if two things selected.
-            {   html: _l( 'Build Dataset Pair' ), func: function() {
-                    PAIR_COLLECTION_CREATOR.createPairCollection( panel.getSelectedModels() )
-                        .done( function(){ panel.model.refresh(); });
-                }
+            {   html: _l( 'Build Dataset Pair' ), func: function() { panel.buildCollection( "paired") }
             },
-            {   html: _l( 'Build List of Dataset Pairs' ), func: function() {
-                    LIST_OF_PAIRS_COLLECTION_CREATOR.createListOfPairsCollection( panel.getSelectedModels() )
-                        .done( function(){ panel.model.refresh(); });
-                }
+            {   html: _l( 'Build List of Dataset Pairs' ), func: function() { panel.buildCollection( "list:paired" ) }
             },
         ];
+    },
+
+    buildCollection : function( collectionType, selection, hideSourceItems ) {
+        var panel = this;
+        var selection = selection || panel.getSelectedModels();
+        var hideSourceItems = hideSourceItems || false;
+        var createFunc;
+        if( collectionType == "list" ) {
+            createFunc = LIST_COLLECTION_CREATOR.createListCollection;
+        } else if( collectionType == "paired" ) {
+            createFunc = PAIR_COLLECTION_CREATOR.createPairCollection;
+        } else if( collectionType == "list:paired" ) {
+            createFunc = LIST_OF_PAIRS_COLLECTION_CREATOR.createListOfPairsCollection;
+        } else {
+            console.warn( "Unknown collectionType encountered " + collectionType );
+        }
+        createFunc( selection, hideSourceItems ).done( function() { panel.model.refresh() } );
     },
 
     // ------------------------------------------------------------------------ sub-views
@@ -415,10 +428,10 @@ var HistoryViewEdit = _super.extend(
     },
 
     /** override to display number found in subtitle */
-    _renderSearchFindings : function(){
-        this.$( '> .controls .subtitle' ).html([
-            _l( 'Found' ), this.views.length
-        ].join(' '));
+    _renderSearchFindings : function( $whereTo ){
+        $whereTo = $whereTo instanceof jQuery? $whereTo : this.$el;
+        var html = this.templates.found( this.model.toJSON(), this );
+        $whereTo.find( '> .controls .subtitle' ).html( html );
         return this;
     },
 
@@ -586,8 +599,37 @@ HistoryViewEdit.prototype.templates = (function(){
         '<% } %>',
     ], 'history' );
 
+    var foundTemplate = BASE_MVC.wrapTemplate([
+        _l( 'Found' ), ' <%- view.views.length %>, ',
+
+        '<% if( history.contents_active.deleted ){ %>',
+            '<% if( view.model.contents.includeDeleted ){ %>',
+                '<a class="toggle-deleted-link" href="javascript:void(0);">',
+                    _l( 'hide deleted' ),
+                '</a>, ',
+            '<% } else { %>',
+                '<a class="toggle-deleted-link" href="javascript:void(0);">',
+                    _l( 'show deleted' ),
+                '</a>, ',
+            '<% } %>',
+        '<% } %>',
+
+        '<% if( history.contents_active.hidden ){ %>',
+            '<% if( view.model.contents.includeHidden ){ %>',
+                '<a class="toggle-hidden-link" href="javascript:void(0);">',
+                    _l( 'hide hidden' ),
+                '</a>',
+            '<% } else { %>',
+                '<a class="toggle-hidden-link" href="javascript:void(0);">',
+                    _l( 'show hidden' ),
+                '</a>',
+            '<% } %>',
+        '<% } %>',
+    ], 'history' );
+
     return _.extend( _.clone( _super.prototype.templates ), {
-        counts : countsTemplate
+        counts : countsTemplate,
+        found : foundTemplate 
     });
 }());
 

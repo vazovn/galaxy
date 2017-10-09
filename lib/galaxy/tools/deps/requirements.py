@@ -1,5 +1,7 @@
 import copy
 
+import six
+
 from galaxy.util import (
     asbool,
     xml_text,
@@ -11,32 +13,34 @@ DEFAULT_REQUIREMENT_TYPE = "package"
 DEFAULT_REQUIREMENT_VERSION = None
 
 
-class ToolRequirement( object ):
+@six.python_2_unicode_compatible
+class ToolRequirement(object):
     """
     Represents an external requirement that must be available for the tool to
     run (for example, a program, package, or library).  Requirements can
     optionally assert a specific version.
     """
-    def __init__( self, name=None, type=None, version=None, specs=[] ):
+
+    def __init__(self, name=None, type=None, version=None, specs=[]):
         self.name = name
         self.type = type
         self.version = version
         self.specs = specs
 
-    def to_dict( self ):
+    def to_dict(self):
         specs = [s.to_dict() for s in self.specs]
         return dict(name=self.name, type=self.type, version=self.version, specs=specs)
 
-    def copy( self ):
-        return copy.deepcopy( self )
+    def copy(self):
+        return copy.deepcopy(self)
 
     @staticmethod
-    def from_dict( dict ):
-        version = dict.get( "version", None )
+    def from_dict(dict):
+        version = dict.get("version", None)
         name = dict.get("name", None)
         type = dict.get("type", None)
         specs = [RequirementSpecification.from_dict(s) for s in dict.get("specs", [])]
-        return ToolRequirement( name=name, type=type, version=version, specs=specs )
+        return ToolRequirement(name=name, type=type, version=version, specs=specs)
 
     def __eq__(self, other):
         return self.name == other.name and self.type == other.type and self.version == other.version and self.specs == other.specs
@@ -46,6 +50,11 @@ class ToolRequirement( object ):
 
     def __hash__(self):
         return hash((self.name, self.type, self.version, frozenset(self.specs)))
+
+    def __str__(self):
+        return "ToolRequirement[%s,version=%s,type=%s,specs=%s]" % (self.name, self.version, self.type, self.specs)
+
+    __repr__ = __str__
 
 
 class RequirementSpecification(object):
@@ -68,7 +77,7 @@ class RequirementSpecification(object):
 
     @staticmethod
     def from_dict(dict):
-        uri = dict.get["uri"]
+        uri = dict.get("uri")
         version = dict.get("version", None)
         return RequirementSpecification(uri=uri, version=version)
 
@@ -86,6 +95,7 @@ class ToolRequirements(object):
     """
     Represents all requirements (packages, env vars) needed to run a tool.
     """
+
     def __init__(self, tool_requirements=None):
         if tool_requirements:
             if not isinstance(tool_requirements, list):
@@ -143,7 +153,8 @@ DEFAULT_CONTAINER_RESOLVE_DEPENDENCIES = False
 DEFAULT_CONTAINER_SHELL = "/bin/sh"  # Galaxy assumes bash, but containers are usually thinner.
 
 
-class ContainerDescription( object ):
+@six.python_2_unicode_compatible
+class ContainerDescription(object):
 
     def __init__(
         self,
@@ -157,7 +168,7 @@ class ContainerDescription( object ):
         self.resolve_dependencies = resolve_dependencies
         self.shell = shell
 
-    def to_dict( self ):
+    def to_dict(self):
         return dict(
             identifier=self.identifier,
             type=self.type,
@@ -166,7 +177,7 @@ class ContainerDescription( object ):
         )
 
     @staticmethod
-    def from_dict( dict ):
+    def from_dict(dict):
         identifier = dict["identifier"]
         type = dict.get("type", DEFAULT_CONTAINER_TYPE)
         resolve_dependencies = dict.get("resolve_dependencies", DEFAULT_CONTAINER_RESOLVE_DEPENDENCIES)
@@ -178,14 +189,17 @@ class ContainerDescription( object ):
             shell=shell,
         )
 
+    def __str__(self):
+        return "ContainerDescription[identifier=%s,type=%s]" % (self.identifier, self.type)
 
-def parse_requirements_from_dict( root_dict ):
+
+def parse_requirements_from_dict(root_dict):
     requirements = root_dict.get("requirements", [])
     containers = root_dict.get("containers", [])
     return ToolRequirements.from_list(requirements), map(ContainerDescription.from_dict, containers)
 
 
-def parse_requirements_from_xml( xml_root ):
+def parse_requirements_from_xml(xml_root):
     """
 
     >>> from xml.etree import ElementTree
@@ -208,23 +222,23 @@ def parse_requirements_from_xml( xml_root ):
     >>> reqs[0].type
     'binary'
     """
-    requirements_elem = xml_root.find( "requirements" )
+    requirements_elem = xml_root.find("requirements")
 
     requirement_elems = []
     if requirements_elem is not None:
-        requirement_elems = requirements_elem.findall( 'requirement' )
+        requirement_elems = requirements_elem.findall('requirement')
 
     requirements = ToolRequirements()
     for requirement_elem in requirement_elems:
-        name = xml_text( requirement_elem )
-        type = requirement_elem.get( "type", DEFAULT_REQUIREMENT_TYPE )
-        version = requirement_elem.get( "version", DEFAULT_REQUIREMENT_VERSION )
-        requirement = ToolRequirement( name=name, type=type, version=version )
-        requirements.append( requirement )
+        name = xml_text(requirement_elem)
+        type = requirement_elem.get("type", DEFAULT_REQUIREMENT_TYPE)
+        version = requirement_elem.get("version", DEFAULT_REQUIREMENT_VERSION)
+        requirement = ToolRequirement(name=name, type=type, version=version)
+        requirements.append(requirement)
 
     container_elems = []
     if requirements_elem is not None:
-        container_elems = requirements_elem.findall( 'container' )
+        container_elems = requirements_elem.findall('container')
 
     containers = map(container_from_element, container_elems)
 

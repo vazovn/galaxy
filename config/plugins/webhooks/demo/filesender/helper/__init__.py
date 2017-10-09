@@ -3,9 +3,12 @@ import os
 import errno
 import Dumper
 
+from galaxy.util import Params
+
+
 log = logging.getLogger(__name__)
 
-def main(trans, webhook):
+def main(trans, webhook, params):
     if trans.user:
         email = trans.user.email
         user_upload_dir = trans.app.config.ftp_upload_dir

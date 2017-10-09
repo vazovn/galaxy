@@ -31,7 +31,7 @@ define(['libs/bootstrap-tour'],function(BootstrapTour) {
                 };
             }
             if (step.postclick){
-                step.onHide = function(){
+                step.onNext = function(){
                     _.each(step.postclick, function(postclick){
                         // TODO: click delay between clicks
                         $(postclick).click();
@@ -77,6 +77,7 @@ define(['libs/bootstrap-tour'],function(BootstrapTour) {
         });
     };
     var ToursView = Backbone.View.extend({
+        title: "Tours",
         // initialize
         initialize: function() {
             var self = this;
