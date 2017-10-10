@@ -306,7 +306,7 @@ class UploadDataset(Group):
                     
                     dataset_name = get_file_name(data_file['filename'])
                     
-                    # Nikolay USIT - Filesender : get real file name from Filesender database to appear in the history pannel
+                    # Nikolay USIT - Filesender: get real file name from Filesender database to appear in the history pannel
                     if len(Filesender.get_real_file_name(dataset_name)) > 0:
                         dataset_name = Filesender.get_real_file_name(dataset_name)[0]
 
