@@ -93,6 +93,8 @@
                                          <th>Active</th>
                                          <th>Amount</th>
                                          <th>Description</th>
+                                         <th>Start</th>
+                                         <th>End</th>
                              </tr>
                              %for p in projects :
                                  <tr>

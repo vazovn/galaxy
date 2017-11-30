@@ -110,37 +110,106 @@ def list_owned_GOLD_projects ( username ) :
     """
     Lists the GOLD projects, users, descriptions of owned/created by the user calling the function  
     """
-    get_projects_command = "sudo -u gold /opt/gold/bin/glsproject --show Organization,Name,Users,Active,Description | grep -i %s " % username      
-    p = subprocess.Popen(get_projects_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    p.wait()
-    projects = []
-    for line in p.stdout.readlines():
-       project_line = line.split()
-       if project_line[0] == username :
-           ## Join the description in one cell
-           project_line[4:] = [" ".join(project_line[4:])] 
-           ## Replace the comma with newline in users list
-           project_line[2] = project_line[2].replace(",","</br>")
-           ## Remove the owner
-           project_line = project_line[1:]
-           
-           ## Get the project account info
-           project_name = project_line[0]
-           get_account_info_command = "sudo -u gold /opt/gold/bin/glsaccount -h --show Amount,Projects | grep -i -w %s | uniq " % project_name
-           p = subprocess.Popen(get_account_info_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-           p.wait()
-           amount = ''
-           for line in p.stdout.readlines():
-                account_info = line.split()
-                amount = account_info[0]
-           project_line[3:3] = [amount]
-           
-           ## The project info is now collected
-           projects.append(project_line)
     
-    projects_sorted = sorted(projects, key=itemgetter(0))
-    print "Admin is True : Accounting : I own the following GOLD projects ", projects_sorted
-    return projects_sorted
+    s = text("select\
+                    g_name,\
+                    g_active,\
+                    g_description\
+              from\
+                    g_project\
+              where\
+                    g_organization = :username ")
+    
+    result = connection.execute(s,username=username)
+    
+    project_data = []
+    project_data_users = []
+    project_list = []
+    users_list = {}
+    projects_amount_start_end = {}
+    final_list = []
+    
+    if not result :
+       print "No projects available! You shall not be able to get here, check smth is wrong!"
+       return final_list
+              
+    for row in result:
+             project_data.append(row)
+             project_id = "'"+row[0]+"'"
+             project_list.append(project_id)
+    
+    if len(project_list) > 1 :
+        string_project_list = ','.join(project_list)
+    else :
+        string_project_list = project_list[0]
+    
+    #print "STRING PROJECT LIST OK", string_project_list
+    
+    s = text("select\
+                    g_project,\
+                    array_to_string(array_agg(g_name),',')\
+                from\
+                    g_project_user\
+                where\
+                    g_project in ({}) \
+                group by 1".format(string_project_list))
+                                                         
+    users = connection.execute(s,string_project_list=string_project_list)
+    
+    #store users in a hash : key - project_name (lpXX), value - user list
+    for row in users:
+       users = row[1].replace(",","</br>")
+       users_list[row[0]] = users
+
+    #print "USERS_LIST OK", users_list
+
+
+    #append user list to project data array
+    for k in users_list :
+       for p in project_data :
+            if k == p[0] :
+               p_list = list(p)
+               p_list.insert(1,users_list[k])
+               project_data_users.append(p_list)
+               continue
+             
+    #print "Project Manager is True : Accounting : All GOLD projects WITH USERS ", project_data_users
+    
+    s  = text("select\
+                    g_account_project.g_name,\
+                    g_allocation.g_id,\
+                    g_allocation.g_amount,\
+                    g_allocation.g_start_time,\
+                    g_allocation.g_end_time\
+                from\
+                    g_account_project,\
+                    g_allocation\
+                where\
+                    g_account_project.g_name in ({}) \
+                       and\
+                    g_account_project.g_account = g_allocation.g_account\
+                order by\
+                    g_allocation.g_id ".format(string_project_list) )
+                                                
+    amounts_and_time  = connection.execute(s,string_project_list=string_project_list)                       
+    
+    for row in amounts_and_time :
+         amount = "{0:.2f}".format(row[2]/3600)
+         start = datetime.datetime.fromtimestamp(row[3]).strftime('%Y-%m-%d')
+         stop = datetime.datetime.fromtimestamp(row[4]).strftime('%Y-%m-%d')
+         projects_amount_start_end[row[0]] = [amount, start, stop]
+         
+     
+    for p in projects_amount_start_end :
+         for r in project_data_users :
+                if p == r[0] :
+                     r.insert(3,projects_amount_start_end[p][0])
+                     r = r + projects_amount_start_end[p][1:]
+                     final_list.append(r)
+                     continue
+                         
+    #print "Project manager is True : Accounting : MY All GOLD projects FINAL LIST ",  final_list    
+    return final_list
 
 
 def list_all_GOLD_projects (filter_by_project_name = None) :
