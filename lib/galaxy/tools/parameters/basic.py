@@ -925,6 +925,11 @@ class SelectToolParameter(ToolParameter):
     def to_text(self, value):
         if not isinstance(value, list):
             value = [value]
+
+            # Nikolay USIT - a fix to display dynamic options, like project number
+            if value :
+                self.is_dynamic = True
+            
         # FIXME: Currently only translating values back to labels if they
         #        are not dynamic
         if self.is_dynamic:
