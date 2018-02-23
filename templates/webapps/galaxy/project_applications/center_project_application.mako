@@ -122,7 +122,7 @@ ${render_msg( message, status )}
         <tr>
               <td>End date :</td>
               <td>&nbsp;</td>
-              <td><input type='date'  name='end_date' pattern="\d\d\d\d-\d\d-\d\d" value='2017-12-31' readonly /></td>
+              <td><input type='date'  name='end_date' pattern="\d\d\d\d-\d\d-\d\d" value='2018-12-31' readonly /></td>
         </tr>
 
 
