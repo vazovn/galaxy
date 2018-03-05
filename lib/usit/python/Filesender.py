@@ -21,7 +21,7 @@ def get_user_files( email ):
               from \
                     files as f, transfers as t \
               where \
-                    t.user_email = :email \
+                    LOWER(t.user_email) = :email \
                 and \
                     t.id = f.transfer_id \
                 and \
