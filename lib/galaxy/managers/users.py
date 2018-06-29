@@ -1,19 +1,22 @@
 """
 Manager and Serializer for Users.
 """
+import logging
 
 import sqlalchemy
 
-from galaxy import model
-from galaxy import exceptions
-from galaxy import util
-
-from galaxy.managers import base
-from galaxy.managers import deletable
-from galaxy.managers import api_keys
+from galaxy import (
+    exceptions,
+    model,
+    util
+)
+from galaxy.managers import (
+    api_keys,
+    base,
+    deletable
+)
 from galaxy.security import validate_user_input
 
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -329,7 +332,6 @@ class UserSerializer( base.ModelSerializer, deletable.PurgableSerializerMixin ):
             'quota'         : lambda i, k, **c: self.user_manager.quota(i, total=True),
 
             'tags_used'     : lambda i, k, **c: self.user_manager.tags_used(i),
-            'has_requests'  : lambda i, k, trans=None, **c: self.user_manager.has_requests(i, trans)
         })
 
 

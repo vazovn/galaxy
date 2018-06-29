@@ -2,6 +2,7 @@
 Tags Controller: handles tagging/untagging of entities
 and provides autocomplete support.
 """
+import logging
 
 from six import text_type
 from sqlalchemy.sql import select
@@ -10,11 +11,10 @@ from sqlalchemy.sql.expression import and_, func
 from galaxy import web
 from galaxy.web.base.controller import BaseUIController, UsesTagsMixin
 
-import logging
 log = logging.getLogger(__name__)
 
 
-class TagsController (BaseUIController, UsesTagsMixin):
+class TagsController(BaseUIController, UsesTagsMixin):
 
     @web.expose
     @web.require_login("edit item tags")

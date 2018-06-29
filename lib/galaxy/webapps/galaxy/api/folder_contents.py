@@ -1,15 +1,20 @@
 """
 API operations on the contents of a library folder.
 """
-from galaxy import util
-from galaxy import exceptions
-from galaxy import managers
+import logging
+
+from galaxy import (
+    exceptions,
+    managers,
+    util
+)
 from galaxy.managers import folders
-from galaxy.web import _future_expose_api as expose_api
-from galaxy.web import _future_expose_api_anonymous as expose_api_anonymous
+from galaxy.web import (
+    _future_expose_api as expose_api,
+    _future_expose_api_anonymous as expose_api_anonymous
+)
 from galaxy.web.base.controller import BaseAPIController, UsesLibraryMixin, UsesLibraryMixinItems
 
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -87,7 +92,7 @@ class FolderContentsController(BaseAPIController, UsesLibraryMixin, UsesLibraryM
                 if content_item.description:
                     return_item.update(dict(description=content_item.description))
 
-            if content_item.api_type == 'file':
+            elif content_item.api_type == 'file':
                 #  Is the dataset public or private?
                 #  When both are False the dataset is 'restricted'
                 #  Access rights are checked on the dataset level, not on the ld or ldda level to maintain consistency
@@ -109,6 +114,7 @@ class FolderContentsController(BaseAPIController, UsesLibraryMixin, UsesLibraryM
                                         is_unrestricted=is_unrestricted,
                                         is_private=is_private,
                                         can_manage=can_manage,
+                                        state=library_dataset_dict['state'],
                                         file_size=nice_size))
                 if content_item.library_dataset_dataset_association.message:
                     return_item.update(dict(message=content_item.library_dataset_dataset_association.message))
@@ -269,7 +275,7 @@ class FolderContentsController(BaseAPIController, UsesLibraryMixin, UsesLibraryM
         from_hdca_id = payload.pop('from_hdca_id', None)
         ldda_message = payload.pop('ldda_message', '')
         if ldda_message:
-            ldda_message = util.sanitize_html.sanitize_html(ldda_message, 'utf-8')
+            ldda_message = util.sanitize_html.sanitize_html(ldda_message)
         try:
             if from_hda_id:
                 decoded_hda_id = self.decode_id(from_hda_id)

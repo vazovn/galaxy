@@ -9,7 +9,6 @@ import sqlalchemy.orm.exc
 from sqlalchemy import and_, false, true
 
 import galaxy.tools.deps.requirements
-
 from galaxy import util
 from galaxy.util import checkers
 from galaxy.web import url_for
@@ -302,7 +301,7 @@ def get_repository_file_contents(app, file_path, repository_id, is_admin=False):
         return '<br/>gzip compressed file<br/>'
     elif checkers.is_bz2(file_path):
         return '<br/>bz2 compressed file<br/>'
-    elif checkers.check_zip(file_path):
+    elif checkers.is_zip(file_path):
         return '<br/>zip compressed file<br/>'
     elif checkers.check_binary(file_path):
         return '<br/>Binary file<br/>'
@@ -472,7 +471,7 @@ def handle_email_alerts(app, host, repository, content_alert_str='', new_repo_al
         ctx = repo.changectx(tip_changeset)
         try:
             username = ctx.user().split()[0]
-        except:
+        except Exception:
             username = ctx.user()
         # We'll use 2 template bodies because we only want to send content
         # alerts to tool shed admin users.

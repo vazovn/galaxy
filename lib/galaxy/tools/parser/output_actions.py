@@ -243,7 +243,10 @@ class FromParamToolOutputActionOption(ToolOutputActionOption):
                 # if this is an HDCA for instance let reverse.ext grab
                 # the reverse element and then continue for loop to grab
                 # dataset extension
-                value = value.collection[attr_name].element_object
+                try:
+                    value = value.collection[attr_name].element_object
+                except KeyError:
+                    value = value.child_collection[attr_name].element_object
             elif hasattr(value, "collection") and value in COLLECTION_ATTRIBUTES:
                 value = getattr(value.collection, attr_name)
             else:
@@ -544,7 +547,7 @@ class BooleanFilter(ToolOutputActionOptionFilter):
             try:
                 value = fields[self.column]
                 value = self.cast(value)
-            except:
+            except Exception:
                 value = False  # unable to cast or access value; treat as false
             if self.keep == bool(value):
                 rval.append(fields)

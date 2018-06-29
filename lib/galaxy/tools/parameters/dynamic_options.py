@@ -14,7 +14,6 @@ from galaxy.model import (
     User
 )
 from galaxy.util import string_as_bool
-
 from . import validation
 
 log = logging.getLogger(__name__)
@@ -36,7 +35,7 @@ class Filter(object):
         self.elem = elem
 
     def get_dependency_name(self):
-        """Returns the name of any depedencies, otherwise None"""
+        """Returns the name of any dependencies, otherwise None"""
         return None
 
     def filter_options(self, options, trans, other_values):
@@ -72,7 +71,7 @@ class StaticValueFilter(Filter):
         filter_value = self.value
         try:
             filter_value = User.expand_user_properties(trans.user, filter_value)
-        except:
+        except Exception:
             pass
         for fields in options:
             if (self.keep and fields[self.column] == filter_value) or (not self.keep and fields[self.column] != filter_value):
@@ -277,7 +276,7 @@ class MultipleSplitterFilter(Filter):
         Filter.__init__(self, d_option, elem)
         self.separator = elem.get("separator", ",")
         columns = elem.get("column", None)
-        assert columns is not None, "Required 'columns' attribute missing from filter"
+        assert columns is not None, "Required 'column' attribute missing from filter"
         self.columns = [d_option.column_spec_to_index(column) for column in columns.split(",")]
 
     def filter_options(self, options, trans, other_values):
@@ -306,9 +305,9 @@ class AttributeValueSplitterFilter(Filter):
         Filter.__init__(self, d_option, elem)
         self.pair_separator = elem.get("pair_separator", ",")
         self.name_val_separator = elem.get("name_val_separator", None)
-        self.columns = elem.get("column", None)
-        assert self.columns is not None, "Required 'columns' attribute missing from filter"
-        self.columns = [int(column) for column in self.columns.split(",")]
+        columns = elem.get("column", None)
+        assert columns is not None, "Required 'column' attribute missing from filter"
+        self.columns = [d_option.column_spec_to_index(column) for column in columns.split(",")]
 
     def filter_options(self, options, trans, other_values):
         attr_names = []
@@ -510,7 +509,8 @@ class DynamicOptions(object):
                     full_path = os.path.join(self.tool_param.tool.app.config.tool_data_path, data_file)
                     if os.path.exists(full_path):
                         self.index_file = data_file
-                        self.file_fields = self.parse_file_fields(open(full_path))
+                        with open(full_path) as fh:
+                            self.file_fields = self.parse_file_fields(fh)
                     else:
                         self.missing_index_file = data_file
             elif dataset_file is not None:
@@ -623,8 +623,10 @@ class DynamicOptions(object):
                 options = self.parse_file_fields(StringIO(contents))
         elif self.tool_data_table:
             options = self.tool_data_table.get_fields()
-        else:
+        elif self.file_fields:
             options = list(self.file_fields)
+        else:
+            options = []
         for filter in self.filters:
             options = filter.filter_options(options, trans, other_values)
         return options
@@ -659,7 +661,7 @@ class DynamicOptions(object):
 
     def get_options(self, trans, other_values):
         rval = []
-        if self.file_fields is not None or self.tool_data_table is not None or self.dataset_ref_name is not None:
+        if self.file_fields is not None or self.tool_data_table is not None or self.dataset_ref_name is not None or self.missing_index_file:
             options = self.get_fields(trans, other_values)
             for fields in options:
                 rval.append((fields[self.columns['name']], fields[self.columns['value']], False))

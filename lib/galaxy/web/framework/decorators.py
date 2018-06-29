@@ -135,7 +135,7 @@ def expose_api(func, to_json=True, user_required=True):
         trans.response.headers['Cache-Control'] = "max-age=0,no-cache,no-store"
 
         # Perform api_run_as processing, possibly changing identity
-        if 'payload' in kwargs and 'run_as' in kwargs['payload']:
+        if 'payload' in kwargs and isinstance(kwargs['payload'], dict) and 'run_as' in kwargs['payload']:
             if not trans.user_can_do_run_as():
                 error_message = 'User does not have permissions to run jobs as another user'
                 return error
@@ -148,7 +148,7 @@ def expose_api(func, to_json=True, user_required=True):
                 user = trans.sa_session.query(trans.app.model.User).get(decoded_user_id)
                 trans.api_inherit_admin = trans.user_is_admin()
                 trans.set_user(user)
-            except:
+            except Exception:
                 trans.response.status = 400
                 return "That user does not exist."
         try:
@@ -158,7 +158,7 @@ def expose_api(func, to_json=True, user_required=True):
             return rval
         except paste.httpexceptions.HTTPException:
             raise  # handled
-        except:
+        except Exception:
             log.exception('Uncaught exception in exposed API method:')
             raise paste.httpexceptions.HTTPServerError()
     return expose(_save_orig_fn(decorator, func))
@@ -184,7 +184,7 @@ def __extract_payload_from_request(trans, func, kwargs):
                     # 40000000000000e5 will be parsed as a scientific notation float. This is as opposed to hex strings
                     # in larger JSON structures where quoting prevents this (further below)
                     payload[k] = loads(v, parse_float=util.parse_non_hex_float)
-                except:
+                except Exception:
                     # may not actually be json, just continue
                     pass
         payload = util.recursively_stringify_dictionary_keys(payload)
@@ -275,7 +275,7 @@ def _future_expose_api(func, to_json=True, user_required=True, user_or_session_r
                 user = trans.sa_session.query(trans.app.model.User).get(decoded_user_id)
                 trans.api_inherit_admin = trans.user_is_admin()
                 trans.set_user(user)
-            except:
+            except Exception:
                 error_code = error_codes.USER_INVALID_RUN_AS
                 return __api_error_response(trans, err_code=error_code, status_code=400)
         try:
