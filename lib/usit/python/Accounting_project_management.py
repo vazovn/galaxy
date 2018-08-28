@@ -414,7 +414,7 @@ def get_gx_default_project_balance( username ) :
 
    gx_project_balance = '' 
    gx_project_amount = ''
-   gx_project_reservation = ''
+   gx_project_reservation = None
    account_g_name = username+'_gx_default'
    s = text("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_account = g_account.g_id and g_account.g_name = :account_g_name")
    result_amount  = connection.execute(s,account_g_name=account_g_name)
@@ -422,8 +422,6 @@ def get_gx_default_project_balance( username ) :
    if result_amount.rowcount > 0 :
         for row in result_amount :
             gx_project_amount = row[0]
-
-   ## NEW CODE
 
    s = text("select\
                 SUM(g_reservation_allocation.g_amount)\
@@ -438,16 +436,18 @@ def get_gx_default_project_balance( username ) :
              and\
                 to_timestamp(g_reservation.g_end_time) > NOW()")
 
-   result_reservation  = connection.execute(s,account_g_name=username)
+   result_reservation  = connection.execute(s,username=username)
 
    if result_reservation.rowcount > 0 :
       for row in result_reservation :
          gx_project_reservation = row[0]
-      gx_project_balance = "{0:.2f}".format((gx_project_amount-gx_project_reservation)/3600)
+         print "AMOUNT :" , gx_project_amount
+         print "RESERVATION :",  gx_project_reservation
+   
+   if gx_project_reservation is not None :
+         gx_project_balance = "{0:.2f}".format((gx_project_amount-gx_project_reservation)/3600)
    else :
       gx_project_balance = "{0:.2f}".format(gx_project_amount/3600)
-   
-   ## NEW CODE
 
    return gx_project_balance
 
