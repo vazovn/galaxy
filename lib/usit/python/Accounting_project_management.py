@@ -413,15 +413,44 @@ def get_gx_default_project_balance( username ) :
    """
 
    gx_project_balance = '' 
+   gx_project_amount = ''
+   gx_project_reservation = None
    account_g_name = username+'_gx_default'
-   s = text("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_id = g_account.g_id and g_account.g_name = :account_g_name")
-   result  = connection.execute(s,account_g_name=account_g_name)
+   s = text("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_account = g_account.g_id and g_account.g_name = :account_g_name")
+   result_amount  = connection.execute(s,account_g_name=account_g_name)
 
-   if result.rowcount > 0 :
-        for row in result :
-            gx_project_balance = "{0:.2f}".format(row[0]/3600)
-            
+   if result_amount.rowcount > 0 :
+        for row in result_amount :
+            gx_project_amount = row[0]
+
+   s = text("select\
+                SUM(g_reservation_allocation.g_amount)\
+             from\
+                g_reservation,g_reservation_allocation\
+             where\
+                g_reservation.g_request_id = g_reservation_allocation.g_request_id\
+             and\
+                g_reservation.g_user = :username\
+             and\
+                g_reservation.g_deleted = 'False'\
+             and\
+                to_timestamp(g_reservation.g_end_time) > NOW()")
+
+   result_reservation  = connection.execute(s,username=username)
+
+   if result_reservation.rowcount > 0 :
+      for row in result_reservation :
+         gx_project_reservation = row[0]
+         print "AMOUNT :" , gx_project_amount
+         print "RESERVATION :",  gx_project_reservation
+   
+   if gx_project_reservation is not None :
+         gx_project_balance = "{0:.2f}".format((gx_project_amount-gx_project_reservation)/3600)
+   else :
+      gx_project_balance = "{0:.2f}".format(gx_project_amount/3600)
+
    return gx_project_balance
+
 
 def add_project_to_GOLD( email, project_name, cpu_amount, gold_project_description, start_date, end_date) :
    """
