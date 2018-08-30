@@ -441,8 +441,8 @@ def get_gx_default_project_balance( username ) :
    if result_reservation.rowcount > 0 :
       for row in result_reservation :
          gx_project_reservation = row[0]
-         print "AMOUNT :" , gx_project_amount
-         print "RESERVATION :",  gx_project_reservation
+         #print "AMOUNT :" , gx_project_amount
+         #print "RESERVATION :",  gx_project_reservation
    
    if gx_project_reservation is not None :
          gx_project_balance = "{0:.2f}".format((gx_project_amount-gx_project_reservation)/3600)
@@ -1200,7 +1200,33 @@ def get_GOLD_project_usage( project_name,start_date,end_date ) :
    if project_usage :
        return project_usage
 
-    
+
+def remove_stale_reservations ( email) :
+    """
+    GOLD does not remove stale reservations and reservations for jobs which have been cancelled by lifeportal users.
+    These reservations, which have expired at the moment of this check, are removed by this function.
+    """
+
+    list_of_stale_reservation_ids = []
+
+    s = text("select g_id from g_reservation where g_user = :username and g_deleted = 'False' and to_timestamp(g_end_time) < NOW()")
+    reservation_ids  = connection.execute(s,username=email)
+
+    if reservation_ids.rowcount > 0 :
+        for row in reservation_ids :
+            list_of_stale_reservation_ids.append(row[0])
+        
+        ## set them to deleted
+        for res in list_of_stale_reservation_ids :
+            remove_stale_command = "sudo -u gold /opt/gold/bin/grmres  -r %s " % res
+            p = subprocess.Popen(remove_stale_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            p.wait()
+        
+        print "Stale reservations removed %s. The value is set back to g_deleted = 'True' " % (list_of_stale_reservation_ids)    
+    else :
+        print "No stale reservations found!"
+
+
 def project_dropdown_update ( email, static_options ) :
     """
     Function dynamically modifies the projects dropdown in the job parameters block for logged user.
@@ -1212,6 +1238,9 @@ def project_dropdown_update ( email, static_options ) :
     my_gold_projects = get_member_of_GOLD_projects ( email )
     my_mas_projects = get_member_of_MAS_projects ( email )
     
+    ## Remove stale reservations
+    remove_stale_reservations(email)
+
     ## Get the balance for default project
     default_project_balance = None
     if "gx_default" in my_gold_projects :
