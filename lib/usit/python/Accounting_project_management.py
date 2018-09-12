@@ -413,15 +413,44 @@ def get_gx_default_project_balance( username ) :
    """
 
    gx_project_balance = '' 
+   gx_project_amount = ''
+   gx_project_reservation = None
    account_g_name = username+'_gx_default'
-   s = text("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_id = g_account.g_id and g_account.g_name = :account_g_name")
-   result  = connection.execute(s,account_g_name=account_g_name)
+   s = text("select g_allocation.g_amount from g_allocation,g_account where g_allocation.g_account = g_account.g_id and g_account.g_name = :account_g_name")
+   result_amount  = connection.execute(s,account_g_name=account_g_name)
 
-   if result.rowcount > 0 :
-        for row in result :
-            gx_project_balance = "{0:.2f}".format(row[0]/3600)
-            
+   if result_amount.rowcount > 0 :
+        for row in result_amount :
+            gx_project_amount = row[0]
+
+   s = text("select\
+                SUM(g_reservation_allocation.g_amount)\
+             from\
+                g_reservation,g_reservation_allocation\
+             where\
+                g_reservation.g_request_id = g_reservation_allocation.g_request_id\
+             and\
+                g_reservation.g_user = :username\
+             and\
+                g_reservation.g_deleted = 'False'\
+             and\
+                to_timestamp(g_reservation.g_end_time) > NOW()")
+
+   result_reservation  = connection.execute(s,username=username)
+
+   if result_reservation.rowcount > 0 :
+      for row in result_reservation :
+         gx_project_reservation = row[0]
+         #print "AMOUNT :" , gx_project_amount
+         #print "RESERVATION :",  gx_project_reservation
+   
+   if gx_project_reservation is not None :
+         gx_project_balance = "{0:.2f}".format((gx_project_amount-gx_project_reservation)/3600)
+   else :
+      gx_project_balance = "{0:.2f}".format(gx_project_amount/3600)
+
    return gx_project_balance
+
 
 def add_project_to_GOLD( email, project_name, cpu_amount, gold_project_description, start_date, end_date) :
    """
@@ -1171,7 +1200,33 @@ def get_GOLD_project_usage( project_name,start_date,end_date ) :
    if project_usage :
        return project_usage
 
-    
+
+def remove_stale_reservations ( email) :
+    """
+    GOLD does not remove stale reservations and reservations for jobs which have been cancelled by lifeportal users.
+    These reservations, which have expired at the moment of this check, are removed by this function.
+    """
+
+    list_of_stale_reservation_ids = []
+
+    s = text("select g_id from g_reservation where g_user = :username and g_deleted = 'False' and to_timestamp(g_end_time) < NOW()")
+    reservation_ids  = connection.execute(s,username=email)
+
+    if reservation_ids.rowcount > 0 :
+        for row in reservation_ids :
+            list_of_stale_reservation_ids.append(row[0])
+        
+        ## set them to deleted
+        for res in list_of_stale_reservation_ids :
+            remove_stale_command = "sudo -u gold /opt/gold/bin/grmres  -r %s " % res
+            p = subprocess.Popen(remove_stale_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            p.wait()
+        
+        print "Stale reservations removed %s. The value is set back to g_deleted = 'True' " % (list_of_stale_reservation_ids)    
+    else :
+        print "No stale reservations found!"
+
+
 def project_dropdown_update ( email, static_options ) :
     """
     Function dynamically modifies the projects dropdown in the job parameters block for logged user.
@@ -1183,6 +1238,9 @@ def project_dropdown_update ( email, static_options ) :
     my_gold_projects = get_member_of_GOLD_projects ( email )
     my_mas_projects = get_member_of_MAS_projects ( email )
     
+    ## Remove stale reservations
+    remove_stale_reservations(email)
+
     ## Get the balance for default project
     default_project_balance = None
     if "gx_default" in my_gold_projects :
