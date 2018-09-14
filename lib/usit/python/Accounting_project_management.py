@@ -18,10 +18,21 @@ if os.environ['GOLDDB'] :
 else:
     print "GOLDDB not accessible or not set!"
     sys.exit()
+    
+if os.environ['GALAXYDB'] :
+    GALAXYDB = os.environ['GALAXYDB']
+    print "Accounting_project_management : GALAXYDB INSTANTIATED!!"
+else:
+    print "GALAXYDB not accessible or not set!"
+    sys.exit()
 
 application_db_engine = create_engine(GOLDDB, encoding='utf-8')
 metadata = MetaData(application_db_engine)
 connection = application_db_engine.connect()
+
+application_db_engine_galaxy = create_engine(GALAXYDB, encoding='utf-8')
+metadata_galaxy = MetaData(application_db_engine_galaxy)
+connection_galaxy = application_db_engine_galaxy.connect()
 
 
 def associate_users_to_projects ( emails, project) :
@@ -1207,22 +1218,53 @@ def remove_stale_reservations ( email) :
     These reservations, which have expired at the moment of this check, are removed by this function.
     """
 
-    list_of_stale_reservation_ids = []
-
-    s = text("select g_id from g_reservation where g_user = :username and g_deleted = 'False' and to_timestamp(g_end_time) < NOW()")
-    reservation_ids  = connection.execute(s,username=email)
-
-    if reservation_ids.rowcount > 0 :
-        for row in reservation_ids :
-            list_of_stale_reservation_ids.append(row[0])
+    ## get existing reservations (names = job_id)
+    gold_list_of_stale_reservation_names = []
+    txt_gold_list_of_stale_reservation_names = ""
+    
+    s = text("select g_name from g_reservation where g_user = :username and g_deleted = 'False'")
+    gold_reservation_ids  = connection.execute(s,username=email)
+    if gold_reservation_ids.rowcount > 0 :
+        for row in gold_reservation_ids :
+            gold_list_of_stale_reservation_names.append(row[0])
         
-        ## set them to deleted
-        for res in list_of_stale_reservation_ids :
-            remove_stale_command = "sudo -u gold /opt/gold/bin/grmres  -r %s " % res
-            p = subprocess.Popen(remove_stale_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            p.wait()
+        ## convert to qouted string for the DB query below
+        quoted_list_of_stale = []
+        for r in gold_list_of_stale_reservation_names :
+             r_quoted =  "'"+r+"'"
+             quoted_list_of_stale.append(r_quoted)
+        txt_gold_list_of_stale_reservation_names = ",".join(quoted_list_of_stale)
+                
+    else :
+        return
+
+    ## get list of 'error' or 'deleted' jobs which might have reservations
+    list_of_job_ids = []
+    s_galaxy = text("select \
+                          job.id \
+                     from \
+                          job,galaxy_user \
+                     where \
+                          (job.state = 'error' or job.state = 'deleted') \
+                     and \
+                          job.user_id = galaxy_user.id \
+                     and \
+                          galaxy_user.email = :g_email \
+                     and \
+                          job.id in ({})".format(txt_gold_list_of_stale_reservation_names))
+                          
+    error_jobs = connection_galaxy.execute(s_galaxy,g_email=email)
+    
+    if error_jobs.rowcount > 0 :
+        for row in error_jobs :
+            list_of_job_ids.append(row[0])
         
-        print "Stale reservations removed %s. The value is set back to g_deleted = 'True' " % (list_of_stale_reservation_ids)    
+        for res in gold_list_of_stale_reservation_names :
+            if int(res) in list_of_job_ids :
+                 remove_stale_command = "sudo -u gold /opt/gold/bin/grmres  -n %s " % res
+                 p = subprocess.Popen(remove_stale_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                 p.wait()
+                 print "Stale reservation removed %s. The value is set back to g_deleted = 'True'" % res
     else :
         print "No stale reservations found!"
 
