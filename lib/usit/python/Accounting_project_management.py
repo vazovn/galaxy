@@ -445,6 +445,8 @@ def get_gx_default_project_balance( username ) :
              and\
                 g_reservation.g_deleted = 'False'\
              and\
+                g_reservation.g_project = 'gx_default'\
+             and\
                 to_timestamp(g_reservation.g_end_time) > NOW()")
 
    result_reservation  = connection.execute(s,username=username)
