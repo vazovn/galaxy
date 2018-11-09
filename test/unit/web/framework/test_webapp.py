@@ -2,17 +2,12 @@
 Unit tests for ``galaxy.web.framework.webapp``
 """
 import logging
-import os
 import re
-import sys
 import unittest
 
 import galaxy.config
 from galaxy.web.framework import webapp as Webapp
-
-unit_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
-sys.path.insert(1, unit_root)
-from unittest_utils import galaxy_mock
+from ...unittest_utils import galaxy_mock
 
 log = logging.getLogger(__name__)
 
@@ -23,13 +18,13 @@ class StubGalaxyWebTransaction(Webapp.GalaxyWebTransaction):
 
 
 class CORSParsingMockConfig(galaxy_mock.MockAppConfig):
-    # we can't use the actual Configuration for parsing*, so steal the parser for the mock instead
-    # *It causes problems when it's change to tempfile.tempdir persists across tests
-    _parse_allowed_origin_hostnames = galaxy.config.Configuration._parse_allowed_origin_hostnames.__func__
-
     def __init__(self, **kwargs):
         super(CORSParsingMockConfig, self).__init__(**kwargs)
         self.allowed_origin_hostnames = self._parse_allowed_origin_hostnames(kwargs)
+
+    @staticmethod
+    def _parse_allowed_origin_hostnames(kwargs):
+        return galaxy.config.Configuration._parse_allowed_origin_hostnames(kwargs)
 
 
 class GalaxyWebTransaction_Headers_TestCase(unittest.TestCase):

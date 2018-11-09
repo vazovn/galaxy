@@ -69,10 +69,10 @@ def main():
 
     try:
         group_col = int(sys.argv[3]) - 1
-    except:
+    except Exception:
         stop_err("Group column not specified.")
 
-    tmpfile = tempfile.NamedTemporaryFile()
+    tmpfile = tempfile.NamedTemporaryFile(mode='r')
 
     try:
         """

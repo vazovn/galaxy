@@ -1,5 +1,4 @@
 import os
-
 from contextlib import contextmanager
 from shutil import rmtree
 from string import Template
@@ -225,6 +224,7 @@ class MockDataset(object):
     def __init__(self, id):
         self.id = id
         self.object_store_id = None
+        self.tags = []
 
 
 # Poor man's mocking. Need to get a real mocking library as real Galaxy development

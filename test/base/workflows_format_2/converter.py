@@ -32,7 +32,7 @@ RUN_ACTIONS_TO_STEPS = {
 
 def yaml_to_workflow(has_yaml, galaxy_interface, workflow_directory):
     """Convert a Format 2 workflow into standard Galaxy format from supplied stream."""
-    as_python = yaml.load(has_yaml)
+    as_python = yaml.safe_load(has_yaml)
     return python_to_workflow(as_python, galaxy_interface, workflow_directory)
 
 
@@ -109,7 +109,7 @@ def _python_to_workflow(as_python, conversion_context):
                 run_action_path = run_action["@import"]
                 runnable_path = os.path.join(conversion_context.workflow_directory, run_action_path)
                 with open(runnable_path, "r") as f:
-                    runnable_description = yaml.load(f)
+                    runnable_description = yaml.safe_load(f)
                     run_action = runnable_description
 
             run_class = run_action["class"]
@@ -133,7 +133,7 @@ def _python_to_workflow(as_python, conversion_context):
         if "label" in output and "id" in output:
             raise Exception("label and id are aliases for outputs, may only define one")
         if "label" not in output and "id" not in output:
-            raise Exception("Output must define a label.")
+            label = ""
 
         raw_label = output.pop("label", None)
         raw_id = output.pop("id", None)
@@ -290,6 +290,10 @@ def transform_subworkflow(context, step):
     _populate_tool_state(step, tool_state)
 
 
+def _runtime_value():
+    return {"__class__": "RuntimeValue"}
+
+
 def transform_tool(context, step):
     if "tool_id" not in step:
         raise Exception("Tool steps must define a tool_id.")
@@ -323,7 +327,7 @@ def transform_tool(context, step):
             # value dedicated to this purpose (e.g. a ficitious
             # {"__class__": "ConnectedValue"}) that could be further
             # validated by Galaxy.
-            return {"__class__": "RuntimeValue"}
+            return _runtime_value()
         if isinstance(value, dict):
             new_values = {}
             for k, v in value.items():
@@ -345,13 +349,16 @@ def transform_tool(context, step):
         else:
             return value
 
-    if "state" in step:
-        step_state = step["state"]
+    runtime_inputs = step.get("runtime_inputs", [])
+
+    if "state" in step or runtime_inputs:
+        step_state = step.pop("state", {})
         step_state = replace_links(step_state)
 
         for key, value in step_state.items():
             tool_state[key] = json.dumps(value)
-        del step["state"]
+        for runtime_input in runtime_inputs:
+            tool_state[runtime_input] = json.dumps(_runtime_value())
 
     # Fill in input connections
     _populate_input_connections(context, step, connect)
@@ -387,6 +394,28 @@ def transform_tool(context, step):
                     "DeleteIntermediatesAction",
                     name,
                     arguments,
+                )
+                post_job_actions[action_name] = action
+
+            add_tags = output.get("add_tags", [])
+            if add_tags:
+                action_name = "TagDatasetAction%s" % name
+                arguments = dict(tags=",".join(add_tags))
+                action = _action(
+                    "TagDatasetAction",
+                    name,
+                    arguments
+                )
+                post_job_actions[action_name] = action
+
+            remove_tags = output.get("remove_tags", [])
+            if remove_tags:
+                action_name = "RemoveTagDatasetAction%s" % name
+                arguments = dict(tags=",".join(remove_tags))
+                action = _action(
+                    "RemoveTagDatasetAction",
+                    name,
+                    arguments
                 )
                 post_job_actions[action_name] = action
 

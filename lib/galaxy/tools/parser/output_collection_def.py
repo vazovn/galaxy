@@ -29,7 +29,7 @@ def dataset_collector_descriptions_from_elem(elem, legacy=True):
     if num_discover_dataset_blocks == 0 and legacy:
         collectors = [DEFAULT_DATASET_COLLECTOR_DESCRIPTION]
     else:
-        collectors = map(lambda elem: dataset_collection_description(**elem.attrib), primary_dataset_elems)
+        collectors = [dataset_collection_description(**e.attrib) for e in primary_dataset_elems]
 
     if num_discover_dataset_blocks > 1:
         for collector in collectors:
@@ -63,6 +63,7 @@ class DatasetCollectionDescription(object):
         self.default_visible = asbool(kwargs.get("visible", None))
         self.assign_primary_output = asbool(kwargs.get('assign_primary_output', False))
         self.directory = kwargs.get("directory", None)
+        self.recurse = False
 
 
 class ToolProvidedMetadataDatasetCollection(DatasetCollectionDescription):
@@ -77,6 +78,7 @@ class FilePatternDatasetCollectionDescription(DatasetCollectionDescription):
     def __init__(self, **kwargs):
         super(FilePatternDatasetCollectionDescription, self).__init__(**kwargs)
         pattern = kwargs.get("pattern", "__default__")
+        self.recurse = asbool(kwargs.get("recurse", False))
         if pattern in NAMED_PATTERNS:
             pattern = NAMED_PATTERNS.get(pattern)
         self.pattern = pattern

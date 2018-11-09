@@ -1,24 +1,29 @@
 """
 API operations on the contents of a history dataset.
 """
+import logging
+
 from six import string_types
 
-from galaxy import model
-from galaxy import exceptions as galaxy_exceptions
-from galaxy import web
-from galaxy.web.framework.helpers import is_true
-from galaxy import util
-
-from galaxy.visualization.data_providers.genome import FeatureLocationIndexDataProvider
-from galaxy.visualization.data_providers.genome import SamDataProvider
-from galaxy.visualization.data_providers.genome import BamDataProvider
+from galaxy import (
+    exceptions as galaxy_exceptions,
+    managers,
+    model,
+    util,
+    web
+)
 from galaxy.datatypes import dataproviders
+from galaxy.visualization.data_providers.genome import (
+    BamDataProvider,
+    FeatureLocationIndexDataProvider,
+    SamDataProvider
+)
+from galaxy.web.base.controller import (
+    BaseAPIController,
+    UsesVisualizationMixin
+)
+from galaxy.web.framework.helpers import is_true
 
-from galaxy.web.base.controller import BaseAPIController
-from galaxy.web.base.controller import UsesVisualizationMixin
-from galaxy import managers
-
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -28,6 +33,7 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
         super(DatasetsController, self).__init__(app)
         self.hda_manager = managers.hdas.HDAManager(app)
         self.hda_serializer = managers.hdas.HDASerializer(self.app)
+        self.ldda_manager = managers.lddas.LDDAManager(app)
 
     def _parse_serialization_params(self, kwd, default_view):
         view = kwd.get('view', None)
@@ -87,6 +93,26 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
             log.error(rval + ": %s" % str(e), exc_info=True)
             trans.response.status = 500
         return rval
+
+    @web._future_expose_api
+    def update_permissions(self, trans, dataset_id, payload, **kwd):
+        """
+        PUT /api/datasets/{encoded_dataset_id}/permissions
+        Updates permissions of a dataset.
+
+        :rtype:     dict
+        :returns:   dictionary containing new permissions
+        """
+        if payload:
+            kwd.update(payload)
+        hda_ldda = kwd.get('hda_ldda', 'hda')
+        dataset_assoc = self.get_hda_or_ldda(trans, hda_ldda=hda_ldda, dataset_id=dataset_id)
+        if hda_ldda == "hda":
+            self.hda_manager.update_permissions(trans, dataset_assoc, **kwd)
+            return self.hda_manager.serialize_dataset_association_roles(trans, dataset_assoc)
+        else:
+            self.ldda_manager.update_permissions(trans, dataset_assoc, **kwd)
+            return self.hda_manager.serialize_dataset_association_roles(trans, dataset_assoc)
 
     def _dataset_state(self, trans, dataset, **kwargs):
         """
@@ -301,7 +327,7 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
                                                                     alt_name=filename)
                 else:
                     file_path = hda.file_name
-                rval = open(file_path)
+                rval = open(file_path, 'rb')
 
             else:
                 display_kwd = kwd.copy()
@@ -378,5 +404,5 @@ class DatasetsController(BaseAPIController, UsesVisualizationMixin):
             return converted
 
         except model.NoConverterException:
-            exc_data = dict(source=original.ext, target=target_ext, available=original.get_converter_types().keys())
+            exc_data = dict(source=original.ext, target=target_ext, available=list(original.get_converter_types().keys()))
             raise galaxy_exceptions.RequestParameterInvalidException('Conversion not possible', **exc_data)

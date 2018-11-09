@@ -10,7 +10,7 @@ import os
 import random
 import shutil
 import threading
-
+import time
 from xml.etree import ElementTree
 
 try:
@@ -22,11 +22,13 @@ from galaxy.exceptions import ObjectInvalid, ObjectNotFound
 from galaxy.util import (
     directory_hash_id,
     force_symlink,
-    safe_makedirs,
-    safe_relpath,
     umask_fix_perms,
 )
 from galaxy.util.odict import odict
+from galaxy.util.path import (
+    safe_makedirs,
+    safe_relpath,
+)
 from galaxy.util.sleeper import Sleeper
 
 NO_SESSION_ERROR_MESSAGE = "Attempted to 'create' object store entity in configuration with no database session present."
@@ -357,7 +359,7 @@ class DiskObjectStore(ObjectStore):
 
     def empty(self, obj, **kwargs):
         """Override `ObjectStore`'s stub by checking file size on disk."""
-        return os.path.getsize(self.get_filename(obj, **kwargs)) == 0
+        return self.size(obj, **kwargs) == 0
 
     def size(self, obj, **kwargs):
         """Override `ObjectStore`'s stub by return file size on disk.
@@ -366,7 +368,14 @@ class DiskObjectStore(ObjectStore):
         """
         if self.exists(obj, **kwargs):
             try:
-                return os.path.getsize(self.get_filename(obj, **kwargs))
+                filepath = self.get_filename(obj, **kwargs)
+                for _ in range(0, 2):
+                    size = os.path.getsize(filepath)
+                    if size != 0:
+                        break
+                    # May be legitimately 0, or there may be an issue with the FS / kernel, so we try again
+                    time.sleep(0.01)
+                return size
             except OSError:
                 return 0
         else:
@@ -424,7 +433,9 @@ class DiskObjectStore(ObjectStore):
                 if preserve_symlinks and os.path.islink(file_name):
                     force_symlink(os.readlink(file_name), self.get_filename(obj, **kwargs))
                 else:
-                    shutil.copy(file_name, self.get_filename(obj, **kwargs))
+                    path = self.get_filename(obj, **kwargs)
+                    shutil.copy(file_name, path)
+                    umask_fix_perms(path, self.config.umask, 0o666)
             except IOError as ex:
                 log.critical('Error copying %s to %s: %s' % (file_name, self._get_filename(obj, **kwargs), ex))
                 raise ex
@@ -505,6 +516,13 @@ class NestedObjectStore(ObjectStore):
         """For the first backend that has this `obj`, get its URL."""
         return self._call_method('get_object_url', obj, None, False, **kwargs)
 
+    def _repr_object_for_exception(self, obj):
+        try:
+            # there are a few objects in python that don't have __class__
+            return '{}(id={})'.format(obj.__class__.__name__, obj.id)
+        except AttributeError:
+            return str(obj)
+
     def _call_method(self, method, obj, default, default_is_exception,
             **kwargs):
         """Check all children object stores for the first one with the dataset."""
@@ -513,7 +531,7 @@ class NestedObjectStore(ObjectStore):
                 return store.__getattribute__(method)(obj, **kwargs)
         if default_is_exception:
             raise default('objectstore, _call_method failed: %s on %s, kwargs: %s'
-                          % (method, str(obj), str(kwargs)))
+                          % (method, self._repr_object_for_exception(obj), str(kwargs)))
         else:
             return default
 
@@ -621,7 +639,7 @@ class DistributedObjectStore(NestedObjectStore):
     def create(self, obj, **kwargs):
         """The only method in which obj.object_store_id may be None."""
         if obj.object_store_id is None or not self.exists(obj, **kwargs):
-            if obj.object_store_id is None or obj.object_store_id not in self.weighted_backend_ids:
+            if obj.object_store_id is None or obj.object_store_id not in self.backends:
                 try:
                     obj.object_store_id = random.choice(self.weighted_backend_ids)
                 except IndexError:
@@ -642,26 +660,27 @@ class DistributedObjectStore(NestedObjectStore):
             return self.backends[object_store_id].__getattribute__(method)(obj, **kwargs)
         if default_is_exception:
             raise default('objectstore, _call_method failed: %s on %s, kwargs: %s'
-                          % (method, str(obj), str(kwargs)))
+                          % (method, self._repr_object_for_exception(obj), str(kwargs)))
         else:
             return default
 
     def __get_store_id_for(self, obj, **kwargs):
-        if obj.object_store_id is not None and obj.object_store_id in self.backends:
-            return obj.object_store_id
-        else:
-            # if this instance has been switched from a non-distributed to a
-            # distributed object store, or if the object's store id is invalid,
-            # try to locate the object
-            log.warning('The backend object store ID (%s) for %s object with ID %s is invalid'
-                        % (obj.object_store_id, obj.__class__.__name__, obj.id))
-            for id, store in self.backends.items():
-                if store.exists(obj, **kwargs):
-                    log.warning('%s object with ID %s found in backend object store with ID %s'
-                                % (obj.__class__.__name__, obj.id, id))
-                    obj.object_store_id = id
-                    _create_object_in_session(obj)
-                    return id
+        if obj.object_store_id is not None:
+            if obj.object_store_id in self.backends:
+                return obj.object_store_id
+            else:
+                log.warning('The backend object store ID (%s) for %s object with ID %s is invalid'
+                            % (obj.object_store_id, obj.__class__.__name__, obj.id))
+        # if this instance has been switched from a non-distributed to a
+        # distributed object store, or if the object's store id is invalid,
+        # try to locate the object
+        for id, store in self.backends.items():
+            if store.exists(obj, **kwargs):
+                log.warning('%s object with ID %s found in backend object store with ID %s'
+                            % (obj.__class__.__name__, obj.id, id))
+                obj.object_store_id = id
+                _create_object_in_session(obj)
+                return id
         return None
 
 
@@ -722,6 +741,9 @@ def build_object_store_from_config(config, fsmon=False, config_xml=None):
     elif store == 's3':
         from .s3 import S3ObjectStore
         return S3ObjectStore(config=config, config_xml=config_xml)
+    elif store == 'cloud':
+        from .cloud import Cloud
+        return Cloud(config=config, config_xml=config_xml)
     elif store == 'swift':
         from .s3 import SwiftObjectStore
         return SwiftObjectStore(config=config, config_xml=config_xml)
@@ -793,3 +815,24 @@ def _create_object_in_session(obj):
         object_session(obj).flush()
     else:
         raise Exception(NO_SESSION_ERROR_MESSAGE)
+
+
+class ObjectStorePopulator(object):
+    """ Small helper for interacting with the object store and making sure all
+    datasets from a job end up with the same object_store_id.
+    """
+
+    def __init__(self, app):
+        self.object_store = app.object_store
+        self.object_store_id = None
+
+    def set_object_store_id(self, data):
+        # Create an empty file immediately.  The first dataset will be
+        # created in the "default" store, all others will be created in
+        # the same store as the first.
+        data.dataset.object_store_id = self.object_store_id
+        try:
+            self.object_store.create(data.dataset)
+        except ObjectInvalid:
+            raise Exception('Unable to create output dataset: object store is full')
+        self.object_store_id = data.dataset.object_store_id  # these will be the same thing after the first output

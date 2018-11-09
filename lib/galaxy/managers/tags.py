@@ -1,11 +1,15 @@
 import logging
 import re
-import galaxy.model
 
-from galaxy.util import unicodify
 from six import string_types
 from sqlalchemy.sql import select
 from sqlalchemy.sql.expression import func
+
+import galaxy.model
+from galaxy.util import (
+    strip_control_characters,
+    unicodify,
+)
 
 log = logging.getLogger(__name__)
 
@@ -134,6 +138,8 @@ class TagManager(object):
             tag_name = tag
         elif isinstance(tag, galaxy.model.Tag):
             tag_name = tag.name
+        elif isinstance(tag, galaxy.model.ItemTagAssociation):
+            tag_name = tag.user_tname
         # Check for an item-tag association to see if item has a given tag.
         item_tag_assoc = self._get_item_tag_assoc(user, item, tag_name)
         if item_tag_assoc:
@@ -168,6 +174,8 @@ class TagManager(object):
         item_tag_assoc.user_tname = name
         item_tag_assoc.user_value = value
         item_tag_assoc.value = lc_value
+        # Need to flush to get an ID. We need an ID to apply multiple tags with the same tname to an object.
+        self.sa_session.flush()
         return item_tag_assoc
 
     def apply_item_tags(self, user, item, tags_str):
@@ -252,6 +260,8 @@ class TagManager(object):
         # Gracefully handle None.
         if not tag_str:
             return dict()
+        # Strip unicode control characters
+        tag_str = strip_control_characters(tag_str)
         # Split tags based on separators.
         reg_exp = re.compile('[' + self.tag_separators + ']')
         raw_tags = reg_exp.split(tag_str)
@@ -302,7 +312,7 @@ class TagManager(object):
         """Get name, value pair from a tag string."""
         # Use regular expression to parse name, value.
         reg_exp = re.compile("[" + self.key_value_separators + "]")
-        name_value_pair = reg_exp.split(tag_str)
+        name_value_pair = reg_exp.split(tag_str, 1)
         # Add empty slot if tag does not have value.
         if len(name_value_pair) < 2:
             name_value_pair.append(None)

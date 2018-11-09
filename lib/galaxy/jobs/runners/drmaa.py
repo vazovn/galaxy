@@ -97,6 +97,7 @@ class DRMAAJobRunner(AsynchronousJobRunner):
 
         self._init_monitor_thread()
         self._init_worker_threads()
+        self.redact_email_in_job_name = self.app.config.redact_email_in_job_name
 
     def url_to_destination(self, url):
         """Convert a legacy URL to a job destination"""
@@ -115,7 +116,7 @@ class DRMAAJobRunner(AsynchronousJobRunner):
         """Get any native DRM arguments specified by the site configuration"""
         try:
             return url.split('/')[2] or None
-        except:
+        except Exception:
             return None
 
     def queue_job(self, job_wrapper):
@@ -172,7 +173,7 @@ class DRMAAJobRunner(AsynchronousJobRunner):
         
         try:
             self.write_executable_script(ajs.job_file, script)
-        except:
+        except Exception:
             job_wrapper.fail("failure preparing job script", exception=True)
             log.exception("(%s) failure writing job script" % galaxy_id_tag)
             return
@@ -205,7 +206,7 @@ class DRMAAJobRunner(AsynchronousJobRunner):
                     log.warning('(%s) drmaa.Session.runJob() failed, will retry: %s', galaxy_id_tag, e)
                     fail_msg = "Unable to run this job due to a cluster error, please retry it later"
                     time.sleep(5)
-                except:
+                except Exception:
                     log.exception('(%s) drmaa.Session.runJob() failed unconditionally', galaxy_id_tag)
                     trynum = 5
             else:
@@ -335,21 +336,27 @@ class DRMAAJobRunner(AsynchronousJobRunner):
 
     def stop_job(self, job):
         """Attempts to delete a job from the DRM queue"""
+        dest_params = {}
+        try:
+            # fully dynamic destinations may not be defined in the job config
+            dest_params = self.app.job_config.get_destination(job.destination_id).params
+        except KeyError:
+            pass
         try:
             ext_id = job.get_job_runner_external_id()
             assert ext_id not in (None, 'None'), 'External job id is None'
-            kill_script = job.get_destination_configuration(self.app.config, "drmaa_external_killjob_script", None)
+            kill_script = job.get_destination_configuration(dest_params, self.app.config, "drmaa_external_killjob_script", None)
             if kill_script is None:
                 self.ds.kill(ext_id)
             else:
                 command = shlex.split(kill_script)
                 command.extend([str(ext_id), str(self.userid)])
                 subprocess.Popen(command, shell=False)
-            log.debug("(%s/%s) Removed from DRM queue at user's request" % (job.get_id(), ext_id))
+            log.info("(%s/%s) Removed from DRM queue at user's request" % (job.get_id(), ext_id))
         except drmaa.InvalidJobException:
-            log.debug("(%s/%s) User killed running job, but it was already dead" % (job.get_id(), ext_id))
+            log.exception("(%s/%s) User killed running job, but it was already dead" % (job.get_id(), ext_id))
         except Exception as e:
-            log.debug("(%s/%s) User killed running job, but error encountered removing from DRM queue: %s" % (job.get_id(), ext_id, e))
+            log.exception("(%s/%s) User killed running job, but error encountered removing from DRM queue: %s" % (job.get_id(), ext_id, e))
 
     def recover(self, job, job_wrapper):
         """Recovers jobs stuck in the queued/running state when Galaxy started"""
@@ -415,7 +422,7 @@ class DRMAAJobRunner(AsynchronousJobRunner):
         job_name = 'g%s' % galaxy_id_tag
         if job_wrapper.tool.old_id:
             job_name += '_%s' % job_wrapper.tool.old_id
-        if external_runjob_script is None:
+        if not self.redact_email_in_job_name and external_runjob_script is None:
             job_name += '_%s' % job_wrapper.user
         job_name = ''.join(x if x in (string.ascii_letters + string.digits + '_') else '_' for x in job_name)
         if self.restrict_job_name_length:
