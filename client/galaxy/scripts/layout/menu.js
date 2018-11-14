@@ -144,16 +144,6 @@ var Collection = Backbone.Collection.extend({
         //
         // Admin.
         //
-
-//<<<<<<< HEAD
-//        Galaxy.user.get( 'is_admin' ) && this.add({
-//            id              : 'admin',
-//            title           : _l('Admin'),
-//            url             : 'admin',
-//            tooltip         : 'Administer this Galaxy Instance',
-//            cls             : 'admin-only'
-//        });
-//=======
   
         if (Galaxy.user.get("is_admin")) {
             this.add({
@@ -164,19 +154,12 @@ var Collection = Backbone.Collection.extend({
                 cls: "admin-only"
             });
         }
-//>>>>>>> galaxy_release_18.09
 
 
         //
         // Project Application Tab
         //
-        //Galaxy.user.get( 'can_apply_for_project' ) && this.add({
-        //    id              : 'project_application',
-        //    title           : 'Apply for a project',
-        //    url             : 'project_application',
-        //    tooltip         : 'Project Application'
-        //});
-        
+
         if (Galaxy.user.get("can_apply_for_project")) {
 			this.add({
 				id: "project_application",
@@ -188,12 +171,6 @@ var Collection = Backbone.Collection.extend({
         //
         // Project Admin.
         //
-        //Galaxy.user.get( 'is_project_admin' ) && this.add({
-        //    id              : 'project_admin',
-        //    title           : 'ProjectAdmin',
-        //    url             : 'project_admin',
-        //    tooltip         : 'Project Administration Section'
-        //});
 
 		if (Galaxy.user.get("is_project_admin")) {
 			this.add({

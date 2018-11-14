@@ -243,7 +243,6 @@ class UserManager(base.ModelManager, deletable.PurgableManagerMixin):
         tags = [((name + ':' + val) if val else name) for name, val in tags]
         return sorted(tags)
 
-#<<<<<<< HEAD
     def has_requests(self, user, trans):
         """
         """

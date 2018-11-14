@@ -103,6 +103,12 @@ class RemoteUser(object):
         # seems improbable that an attacker with access to the server hosting
         # Galaxy would not have access to Galaxy itself, and be attempting to
         # attack the system
+        
+        ## Nikolay USIT 
+        ## Don't know if HTTP_GX_SECRET is used elsewhere, prefer to keep it
+        if environ.get('HTTP_OIDC_CLAIM_AUD') is not None:
+            environ['HTTP_GX_SECRET'] = environ.get('HTTP_OIDC_CLAIM_AUD')
+        
         if self.config_secret_header is not None:
             if environ.get('HTTP_GX_SECRET') is None:
                 title = "Access to Galaxy is denied"

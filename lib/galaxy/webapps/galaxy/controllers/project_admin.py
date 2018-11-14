@@ -29,7 +29,6 @@ import subprocess
 import os
 import pdfkit
 
-
 ## Nikolay's attachment send as email
 import smtplib
 from galaxy.web.base.controller import BaseUIController
