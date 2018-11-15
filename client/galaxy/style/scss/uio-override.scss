@@ -1,0 +1,101 @@
+/*------------------------------------*\
+# COLOR
+\*------------------------------------*/
+
+$color-button          : #2974b5;
+$color-button-hover    : #5494cc;
+$color-line            : #eaeaea;
+$color-link            : #2771bb;
+$color-body            : #444444;
+$color-header          : #222222;
+$color-dark            : #000000;
+$color-light           : #ffffff;
+
+#masthead {
+  background:url("/static/images/uio-app-uio-small-black-eng.png") no-repeat scroll 1% 50% $color-dark !important;
+  .navbar-brand {
+    img, a span {
+      display:none !important;
+    }
+  }
+}
+body#center-panel {
+  margin-top:40px;
+  margin-left:38px;
+  color: $color-body;
+  font-family:Arial, Helvetica, sans-serif;
+  font-size:1.6rem;
+  line-height:2.6rem;
+  font-weight:normal;
+}
+#center-panel {
+  h2, h3, h4, h5, h6 {
+    color: $color-header;
+    font-weight:normal;
+    margin-bottom:8.5px;
+    margin-top:17px;
+  }
+  h1 {
+    margin-bottom:25px;
+    margin-bottom:8.5px;
+    font-size:3.6rem;
+    line-height:4.5rem;
+    color: $color-header;
+    font-weight:normal;
+    margin-top:17px;
+  }
+  a {
+    color:$color-link;
+    text-decoration:none;
+  }
+  .lead {
+    font-family:Georgia, "Bitstream Charter", "Charis SIL", Utopia, "URW Bookman L", serif;
+    font-size:2rem;
+    line-height:3.2rem;
+    margin-bottom:40px;
+  }
+  .button:not(.dropdown-toggle) {
+    background-color:$color-button;
+    background-image:url("../images/button-white-arrow.png");
+    background-position:93% 50%;
+    background-repeat:no-repeat;
+    background-size:auto 0.8em;
+    padding:7px 70px 10px 20px;
+    margin:10px 7px 10px 0;
+    border-radius:3px;
+    border:medium none;
+    color:$color-light;
+    cursor:pointer;
+    display:inline-block;
+    font-size:1.8rem;
+    font-weight:bold;
+    outline:medium none;
+    text-decoration:none;
+    &:hover, &:focus {
+      background-color:$color-button-hover;
+    }
+  }
+
+  hr {
+    height:4px;
+    color:$color-line;
+    background-color:$color-line;
+    border:none;
+  }
+  footer {
+    font-size:90%;
+  }
+}
+
+.partnerlogoer ul {
+  margin: 0;
+padding: 0;
+list-style-type: none;
+text-align: left;
+}
+
+.partnerlogoer ul li {
+display: inline;
+padding: .2em 1em;
+}
+
