@@ -77,6 +77,7 @@ static/welcome.html.*
 static/welcome.html
 static/maps/layout/menu.js.map
 static/client_build_hash.txt
+local_env.sh
 
 
 # Tool data.
