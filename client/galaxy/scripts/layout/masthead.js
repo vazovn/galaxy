@@ -80,7 +80,7 @@ var View = Backbone.View.extend({
     },
 
     render: function() {
-        this.$navbarBrandTitle.html(`${(this.options.brand && `/ ${this.options.brand}`) || ""}`);
+        this.$navbarBrandTitle.html(`${(this.options.brand &&  ${this.options.brand}`) || ""}`);
         this.$navbarBrandLink.attr("href", this.options.logo_url);
         this.$navbarBrandImage.attr("src", this.options.logo_src);
         this.quotaMeter.render();
