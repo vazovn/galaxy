@@ -1605,7 +1605,7 @@ div.permissionContainer {
     }
     background: $panel-bg-color;
     min-height: 100%;
-    padding: 35px 10px;
+    padding: 5px 10px;
 }
 
 div.toolSectionPad {
@@ -1668,12 +1668,12 @@ div.toolSectionBody div.toolPanelLabel {
 }
 
 div.toolTitleNoSection {
-    padding-bottom: 10px;
+    padding-bottom: 5px;
     font-weight: bold;
-    padding-top: 5px;
-    position: fixed;
-    top: 65px;
-    width: 210px;
+    //padding-top: 5px;
+    //position: fixed;
+    //top: 65px;
+    //width: 210px;
 }
 
 // Dataset Display Styles
