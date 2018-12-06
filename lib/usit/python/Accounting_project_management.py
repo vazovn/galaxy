@@ -1346,7 +1346,7 @@ def get_member_of_GOLD_projects ( username )  :
 
     
 def check_if_user_is_feide ( username ):
-    s = text("select * from g_user where g_name = :username and g_description = 'Default FEIDE-Galaxy user'")
+    s = text("select g_name from g_user where g_name = :username and g_description = 'Default FEIDE-Galaxy user'")
     result = connection.execute(s, username=username )
     
     if result.rowcount > 0:               

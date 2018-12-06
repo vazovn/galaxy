@@ -44,6 +44,7 @@
                                <input type="submit" name="deactivate_project" value="Deactivate project"/>
                                <input type="submit" name="generate_report_page" value="Generate report page"/>
                       </div>
+                      </br>
                       <table id="create_gold_project" class="grid">
                                 <tr><h2 colspan=8 align="center">Full Lifeportal local projects list</h2></tr>
                                 <tr><h6 colspan=8 align="center"><font color="red">Attention! The Amount of CPU hours below will only be displayed from <em>Start date</em>.</p>
