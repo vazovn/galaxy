@@ -1,0 +1,91 @@
+<tool id="MrModeltest" name="MrModeltest (2.3)" version="2.3">
+
+  <description>performs hierarchical likelihood ratio tests and calculating approximate AIC and/or very approximate AICc values of the nucleotide substitution models.</description>
+
+  <command>
+
+    cp $nexusfile $nexusfile.name;
+
+    #if str( $selinputs.extrainputs) == 'many':
+      #if str($selinputs.input1) != "None": 
+        cp $input1 $input1.name;
+      #end if
+      #if str($selinputs.input2) != "None": 
+        cp $input2 $input2.name;
+      #end if
+      #if str($selinputs.input3) != "None": 
+        cp $input3 $input3.name;
+      #end if
+      #if str($selinputs.input4) != "None": 
+        cp $input4 $input4.name;
+      #end if
+    #end if
+
+    module load mrmodeltest/0.2;
+    mailfit_galaxy.pl $nexusfile.name;
+
+    if [ -e "${nexusfile.name}.mfit.log" ];
+    then cp ${nexusfile.name}.mfit.log mfit.log;
+    fi;
+
+    if [ -e "${nexusfile.name}.mfit.out" ];
+    then cp ${nexusfile.name}.mfit.out mfit.out;
+    fi;
+
+    sleep 1
+  </command>
+
+
+  <inputs>
+
+  <conditional name="selinputs">
+      <param name="extrainputs" type="select" label="Input files" help="Register and upload the nexus file and all input files listed in the PAUP command block.">
+            <option value="one">Only one input file</option>
+            <option value="many">Multiple input files</option>
+      </param>
+      <when value="one">
+        <param name="nexusfile" type="data" label="Input nexus file for PAUP" help="" optional="false" format="txt" />
+      </when>
+      <when value="many">
+        <param name="nexusfile" type="data" label="Input nexus file" help="" optional="false" format="txt" />
+        <param name="input1" type="data" label="Input data file" help="" optional="True"/>
+        <param name="input2" type="data" label="Input data file" optional="True"/>
+        <param name="input3" type="data" label="Input data file" optional="True"/>
+        <param name="input4" type="data" label="Input data file" optional="True"/>
+      </when>
+    </conditional>  
+
+  </inputs>
+
+  <outputs>
+
+    <data format="txt" name="log" label="MrModeltest on ${selinputs.nexusfile} - log" from_work_dir="mfit.log" />
+    <data format="txt" name="out" label="MrModeltest on ${selinputs.nexusfile} - output" from_work_dir="mfit.out" />
+
+  </outputs>
+
+  <help>
+
+**About MrModeltest**
+
+MrModeltest performs hierarchical likelihood ratio tests and calcules approximate AIC and/or very approximate AICc values of the nucleotide substitution models currently implemented in both PAUP*4 and MrBayes v3. Version 2.3 also does some model averaging of the parameter estimates obtained by PAUP.
+
+MrModeltest 2.3 is a modified version of David Posada's Modeltest 3.6 (see Modeltest homepage). "Modified version" means that it was rewritten to compare 24 instead of 56 models of nucleotide substitution (basically a Modeltest version 1.0). On the other hand, all of the 24 models can be implemented in MrBayes version 3. Furthermore, MrModeltest uses (by default) four different hierarchies for the likelihood ratio tests. The hierarchies are described in detail in Posada, D. and K. A. Crandall. 2001. Selecting the best-fit model of nucleotide substitution. Systematic Biology, 50:580-601 (Fig. 4a-d). 
+
+In this Galaxy implementation, MrModeltest calculation has been simplified by a script, written by J. A. A. Nylander. This script does does all the necessary calculations including the PAUP steps. Summary of the results can be found in the mfit.log file.
+
+**Input**: File in Nexus format.
+
+**Home page**: http://www.abc.se/~nylander/mrmodeltest2/mrmodeltest2.html
+
+**Citation:**
+Nylander, J. A. A. 2004. MrModeltest v2. Program distributed by the author. Evolutionary Biology Centre, Uppsala University. 
+
+
+**About PAUP**
+
+PAUP* version 4.0 is a major upgrade and new release of the software package for inference of evolutionary trees. The success of previous versions of PAUP: Phylogenetic Analysis Using Parsimony has made it the most widely used software package for the inference of evolutionary trees. In addition, the PAUP manual has proven to be an essential guide, serving as a comprehensive introduction to phylogenetic analysis for beginning researchers, as well as an important reference for experts in the field. With the inclusion of maximum likelihood and distance methods in PAUP* 4.0, the new version represents a great improvement over its predecessors. In addition, the speed of the branch-and-bound algorithm has been enhanced and a number of new features have been added, from agreement subtrees to tests for combinability of data and permutation tests for nonrandomness of data structure. 
+
+**Home page**: http://paup.csit.fsu.edu/ http://www.abc.se/~nylander/mrmodeltest2/mrmodeltest2.html
+  </help>
+</tool>

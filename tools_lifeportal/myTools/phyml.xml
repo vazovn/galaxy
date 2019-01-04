@@ -1,0 +1,405 @@
+<tool id="PhyML" name="PhyML (3.0)" version="3.0">
+  <description>Software for estimation of maximum likelihood phylogenies from alignments of nucleotide or amino acid sequences.</description>
+
+  <parallelism method="basic"></parallelism>
+
+  <command>
+  cp $infile $infile.name;
+  module load phyml/3.0;
+  PhyML_3.0_linux64
+  ## (-i)
+  -i "$infile.name"  
+
+  ## (-d)
+  #if str( $data_selector.data_type ) == 'nucleotide':
+   -d nt
+  #else
+   -d aa
+  #end if
+  
+  ## (-q)
+  #if str( $format_type ) == 'sequential':
+   -q 
+  #end if
+
+  ## (-n) 
+  #if str( $num_sets) != '':
+    -n "$num_sets"
+  #end if
+  
+
+  ##(-b)
+  #if str($bootstrap_selector.bootstrap ) != '0':
+    #if str($bootstrap_selector.bootstrap ) != 'replicates':
+      -b "$bootstrap_selector.bootstrap"
+    #else if (str($bootstrap_selector.bootstrap ) == 'replicates') and (str( $bootstrap_selector.replicates ) != ''):
+      -b "$bootstrap_selector.replicates"
+    #end if 
+  #end if 
+
+  ## (-m)
+  #if str( $data_selector.model) != '':
+  -m "$data_selector.model"
+  #end if
+
+  ## (-f)
+  #if str( $data_selector.frequencies_selector.frequencies ) == 'e':
+   -f e
+  #end if
+  #if str( $data_selector.frequencies_selector.frequencies ) == 'm':
+   -f m
+  #end if
+  #if (str( $data_selector.frequencies_selector.frequencies ) == 'user') and (str ( $data_selector.frequencies_selector.afreq ) != '') and (str ( $data_selector.frequencies_selector.cfreq ) != '') and (str ( $data_selector.frequencies_selector.gfreq ) != '') and (str ( $data_selector.frequencies_selector.tfreq ) != ''):
+   -f "$data_selector.frequencies_selector.afreq"A "$data_selector.frequencies_selector.cfreq"C "$data_selector.frequencies_selector.gfreq"G "$data_selector.frequencies_selector.tfreq"T 
+  #end if
+
+  ## (-t)
+  #if str( $data_selector.data_type ) == 'nucleotide':
+    #if str( $data_selector.tstvratio ) != '':
+      -t "$data_selector.tstvratio"
+    #end if 
+  #end if 
+
+  ## (-v)
+  #if str( $prop_invar ) != '':
+    -v "$prop_invar"
+  #end if
+
+  ## (-c)
+  #if str( $nb_subs_cat ) != '':
+    -c "$nb_subs_cat"
+  #end if
+
+  ## (-a)
+  #if str( $gamma ) != '':
+    -a "$gamma"
+  #end if
+  
+  ## (--use_median)
+  #if str( $use_median ) == "true":
+    --use_median
+  #end if
+
+
+  ## (-s)
+  #if str( $topology_selector.topology ) != '':
+    -s "$topology_selector.topology"
+    ## (-u)
+    #if (str( $topology_selector.tree_selector.tree ) == 'user') and (str( $topology_selector.tree_selector.treefile ) != 'None') :
+      -u "$topology_selector.tree_selector.treefile"
+    #end if 
+    ## (-p)
+    #if str( $topology_selector.tree_selector.tree ) == 'parsimony':
+      -p
+    #end if 
+  #end if
+  #if str( $topology_selector.topology ) == 'SPR':
+    ## (--rand_start) 
+    #if (str( $topology_selector.tree_selector.tree ) == 'random' ):
+      #if str( $topology_selector.tree_selector.n_rand_starts ) == '':
+        --rand_start
+      ## (--n_rand_starts) 
+      #else:
+      --rand_start --n_rand_starts "$topology_selector.tree_selector.n_rand_starts"
+      #end if  
+    #end if  
+  #end if
+
+
+  ## (-o)
+  
+  #if str( $opt_param ) != 'default':
+    -o "$opt_param"
+  #end if
+   
+  ## (-r_seed)
+  #if str( $r_seed ) != '':
+    --r_seed "$r_seed"
+  #end if
+
+  ## ( --print_site_lnl)
+  #if str( $print_lnl ) == "true":
+    --print_site_lnl
+  #end if
+
+  ## ( --print_trace)
+  #if str( $print_trace ) == "true":
+    --print_trace
+  #end if
+  
+  > phyml_stdout;
+
+  if [ -e "${infile.name}_phyml_tree.txt" ];
+  then cp ${infile.name}_phyml_tree.txt phyml_tree.txt;
+  fi;
+
+  if [ -e "${infile.name}_phyml_stats.txt" ];
+  then cp ${infile.name}_phyml_stats.txt phyml_stats.txt;
+  fi;
+ 
+  if [ -e "${infile.name}_phyml_boot_trees.txt" ];
+  then cp ${infile.name}_phyml_boot_trees.txt phyml_boot_trees.txt;
+  fi;
+
+  if [ -e "${infile.name}_phyml_boot_stats.txt" ];
+  then cp ${infile.name}_phyml_boot_stats.txt phyml_boot_stats.txt;
+  fi;
+
+  if [ -e "${infile.name}_phyml_rand_trees.txt" ];
+  then cp ${infile.name}_phyml_rand_trees.txt phyml_rand_trees.txt;
+  fi;
+
+  if [ -e "${infile.name}_phyml_lk.txt" ];
+  then cp ${infile.name}_phyml_lk.txt phyml_lk.txt;
+  fi;
+
+  if [ -e "${infile.name}_phyml_trace.txt" ];
+  then cp ${infile.name}_phyml_trace.txt phyml_trace.txt;
+  fi;
+
+  sleep 1
+  #####tar cvf all_phyml_results.tar ${infile.name}_phyml_*.txt 
+
+
+  </command>
+
+  <requirements>
+    <requirement type="binary">phyml-mpi</requirement>
+  </requirements>
+
+  <inputs>
+  
+  ## (-i)
+  <param name="infile" type="data" label="Input PHYLIP file (-i)" help="" optional="false" format="txt" />
+  
+
+  ## (-q)      
+  <param name="format_type" type="select" label="Format (-q)">
+    <option value="interleaved" selected="true">Interleaved (default)</option>
+    <option value="sequential">Sequential</option>
+  </param> 
+
+  ## (-n)
+  <param name="num_sets" type="integer" value="" size="8" label="Number of data sets (-n)" help="Optional." optional="true" />
+
+  ## (-d)   
+  <conditional name="data_selector">    
+    <param name="data_type" type="select" label="Data type (-d)">
+      <option value="nucleotide" selected="true">Nucleotide (default)</option>
+      <option value="aminoacid">Amino Acid</option>
+    </param>
+  ## (-m)
+    <when value="nucleotide">
+      <param name="model" type="select" label="Substitution model (-m)">
+        <option value="HKY85" select="true">HKY85 (default)</option> 
+        <option value="JC69">JC69</option> 
+        <option value="K80">K80</option>
+        <option value="F81">F81</option>
+        <option value="F84">F84</option>
+        <option value="TN93">TN93</option>
+        <option value="GTR">GTR</option>
+      </param>
+  ## (-f) 
+      <conditional name="frequencies_selector">  
+        <param name="frequencies" type="select" label="Equilibrium frequencies (-f)" optional="true" >
+          <option value="default" select="true">default</option> 
+          <option value="e">empirical</option> 
+          <option value="m">maximum likelihood</option> 
+          <option value="user">user-defined frequencies</option>
+        </param>
+        <when value="user">
+          <param name="afreq" type="float" value="" size="8" label="Frequency for A" optional="true" />
+          <param name="cfreq" type="float" value="" size="8" label="Frequency for C" optional="true" />
+          <param name="gfreq" type="float" value="" size="8" label="Frequency for G" optional="true" />
+          <param name="tfreq" type="float" value="" size="8" label="Frequency for T" optional="true" />
+        </when>
+      </conditional> 
+  ## (-t)
+      <param name="tstvratio" type="text" value="" size="8" label="Transition/transversion ratio (-t)"  help="Fixed positive value or 'e' for the maximum likelihood estimate. Optional." optional="true"/>
+    </when>
+
+    <when value="aminoacid">
+  ## (-m)
+      <param name="model" type="select" label="Substitution model (-m)">
+        <option value="LG" select="true">LG (default)</option> 
+        <option value="WAG">WAG</option> 
+        <option value="JTT">JTT</option>
+        <option value="MtREV">MtREV</option>
+        <option value="Dayhoff">Dayhoff</option>
+        <option value="DCMut">DCMut</option>
+        <option value="RtREV">RtREV</option>
+        <option value="CpREV">CpREV</option>
+        <option value="VT">VT</option>
+        <option value="Blosum62">Blosum62</option>
+        <option value="MtMam">MtMam</option>
+        <option value="MtArt">MtArt</option>
+        <option value="HIVw">HIVw</option>
+        <option value="HIVb">HIVb</option>
+      </param>
+  ## (-f) 
+      <conditional name="frequencies_selector">  
+        <param name="frequencies" type="select" label="Equilibrium frequencies (-f)" optional="true" > 
+          <option value="default" select="true">default</option> 
+          <option value="e">empirical</option> 
+          <option value="m">maximum likelihood</option>   
+        </param>
+      </conditional> 
+    </when>
+  </conditional>
+
+
+
+  ## (-p) below
+
+
+  ## (-v)
+  <param name="prop_invar" type="text" value="" size="8" label="Proportion of invariable sites (-v)"  help="Fixed value between 0 and 1 or 'e' for the maximum likelihood estimate. Optional." optional="true" />
+
+  ## (-c)
+  <param name="nb_subs_cat" type="integer" value="" size="8" label="Number of substitution rate categories (-c)" optional="true" help="Positive interger. Optional, default: 4." />
+
+  ## (-a)
+  <param name="gamma" type="text" value="" size="8" label="Gamma shape parameter (-a)"  optional="true" help="Fixed positive value or 'e' for the maximum likelihood estimate. Optional, default: e" />
+
+
+  ## (--use_median)
+  <param name="use_median" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Use median as middle of each substitution rate class (--use_median)" help="Default: mean."/>
+
+  ## (-s)
+  <conditional name="topology_selector">  
+    <param name="topology" type="select" label=" Type of tree improvement (-s)">
+       <option value="NNI" select="true">NNI (default, fast, BioNJ starting tree)</option> 
+       <option value="SPR">SPR (slower)</option>
+       <option value="BEST">BEST (best of NNI and SPR)</option>
+    </param>
+
+    <when value="NNI">
+      <conditional name="tree_selector">  
+        <param name="tree" type="select" label="Starting tree">
+          <option value="BIONJ" select="true">BioNJ (default)</option>
+          <option value="user">user defined tree (-u)</option> 
+          <option value="parsimony">minimum parsimony (-p)</option>
+        </param>
+        <when value="user">
+          ## (-u)
+          <param name="treefile" type="data" label="Starting tree (-u)" help="Tree in Newick format." optional="true" format="txt" />
+        </when>
+      </conditional>
+    </when>
+
+    <when value="SPR">
+      <conditional name="tree_selector">  
+        <param name="tree" type="select" label="Starting tree">
+          <option value="BIONJ" select="true">BioNJ (default)</option>
+          <option value="user">user defined tree (-u)</option> 
+          <option value="random">random trees (--rand_start)</option>
+          <option value="parsimony">minimum parsimony (-p)</option>
+        </param>
+        <when value="user">
+          ## (-u)
+          <param name="treefile" type="data" label="Starting tree (-u)" help="Tree in Newick format." optional="true" format="txt" />
+        </when>
+        <when value="random">
+          ##(--n_rand_starts)
+          <param name="n_rand_starts" type="integer" value="" size="8" label="Number of initial random trees (--n_rand_starts num)" optional="true"  help="Integer between 1 and 10." />
+        </when>
+      </conditional>
+    </when>
+
+    <when value="BEST">
+      <conditional name="tree_selector">  
+        <param name="tree" type="select" label="Starting tree">
+          <option value="BIONJ" select="true">BioNJ (default)</option>
+          <option value="user">user defined tree (-u)</option> 
+          <option value="parsimony">minimum parsimony (-p)</option>
+        </param>
+        <when value="user">
+          ## (-u)
+          <param name="treefile" type="data" label="Starting tree (-u)" help="Tree in Newick format." optional="true" format="txt" />
+        </when>
+      </conditional>
+    </when>
+  </conditional>
+
+  ## (-o)
+  <param name="opt_param" type="select" label="Parameter optimization (-o)">
+    <option value="default" select="true">default</option>
+    <option value="tlr">tree topology, branch lengths, substitution rate (tlr)</option>
+    <option value="tl">tree topology, branch lengths (tl)</option> 
+    <option value="lr">branch lengths, substitution rate (lr)</option>
+    <option value="l">branch lengths(l)</option>
+    <option value="r">substitution rate (r)</option>
+    <option value="n"> no parameter optimization (n)</option>
+  </param>
+
+  ## (-r_seed)
+    <param name="r_seed" type="integer" value="" size="8" label="Random integer seed (--r_seed)" help="Optional." optional="true" />
+
+  ## (-b)
+  <conditional name="bootstrap_selector">          
+  <param name="bootstrap" type="select" label="Bootstrap (-b)">
+    <option value="0" selected="true">no bootstrap</option>
+    <option value="replicates">replicates</option>
+    <option value="-1">aLTR statistics</option>
+    <option value="-2">Chi2-based branch support</option>
+    <option value="-4">SH-like branch support</option>
+  </param> 
+  <when value="replicates">
+    <param name="replicates" type="integer" value="" size="8" label="Number of bootstrap replicates (-b)" help="" optional="true" />
+  </when>
+  </conditional>
+
+  ##(--print_site_lnl)
+  <param name="print_lnl" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Print the likelihood for each site. (--print_site_lnl)" help=""/>
+
+  ##(--print_trace)
+  <param name="print_trace" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Print each phylogeny explored during the tree search process (--print_trace)" help=""/>
+  </inputs>
+
+
+
+  <outputs>
+
+  <data format="txt" name="tree" from_work_dir="phyml_tree.txt" label="PhyML on ${infile.name} - tree" />
+  <data format="txt" name="model_param" from_work_dir="phyml_stats.txt" label="PhyML on ${infile.name} -  model parameters" />
+  <data format="txt" name="boot_trees" from_work_dir="phyml_boot_trees.txt" label="PhyML on ${infile.name} - trees - bootstrap replicates" >
+      <filter>(bootstrap_selector['bootstrap'] == 'replicates')</filter>
+  </data>
+  <data format="txt" name="boot_stats" from_work_dir="phyml_boot_stats.txt" label="PhyML on ${infile.name} - model parameters - bootstrap replicates" >
+      <filter>(bootstrap_selector['bootstrap'] == 'replicates')</filter>
+  </data>
+  <data format="txt" name="boot_rand_trees" from_work_dir="phyml_rand_trees.txt" label="PhyML on ${infile.name} - trees - multiple random starts" >
+      <filter>(topology_selector['topology'] == 'SPR')</filter>
+      <filter>(topology_selector.tree_selector['tree'] == 'random')</filter>
+  </data>
+  <data format="txt" name="lk" from_work_dir="phyml_lk.txt" label="PhyML on ${infile.name} - likelihood for each site" >
+      <filter>(print_lnl == 'true')</filter>
+  </data>
+  <data format="txt" name="trace" from_work_dir="phyml_trace.txt" label="PhyML on ${infile.name} - explored phylogeny" >
+      <filter>(print_trace == 'true')</filter>
+  </data>
+  <data format="txt" name="stdout" from_work_dir="phyml_stdout" label="PhyML on ${infile.name} - stdout" />
+
+  </outputs>
+
+  <help>
+
+**About PhyML**
+
+PhyML is a phylogeny software based on the maximum-likelihood principle. Early PhyML versions used a fast algorithm to perform Nearest Neighbor Interchanges (NNIs), in order to improve a reasonable starting tree topology. Since the original publication (Guindon and Gascuel 2003), PhyML has been widely used (>1,250 citations in ISI Web of Science), due to its simplicity and a fair accuracy/speed compromise. In the mean time research around PhyML has continued. We designed an efficient algorithm to search the tree space using Subtree Pruning and Regrafting (SPR) topological moves (Hordijk and Gascuel 2005), and proposed a fast branch test based on an approximate likelihood ratio test (Anisimova and Gascuel 2006). However, these novelties were not included in the official version of PhyML, and we found that improvements were still needed in order to make them effective in some practical cases. PhyML 3.0 achieves this task. It implements new algorithms to search the space of tree topologies with user-defined intensity. A non-parametric, Shimodaira-Hasegawa-like branch test is also available. The program provides a number of new evolutionary models and its interface was entirely re-designed. We tested PhyML 3.0 on a large collection of real data sets to ensure that the new version is stable, ready-to-use and still reasonably fast and accurate. 
+ 
+
+**Input**: File in PHYLIP format.
+
+**Home page**: http://www.atgc-montpellier.fr/phyml/usersguide.php
+
+**Citation:**
+"New Algorithms and Methods to Estimate Maximum-Likelihood Phylogenies: Assessing the Performance of PhyML 3.0."
+Guindon S., Dufayard J.F., Lefort V., Anisimova M., Hordijk W., Gascuel O.
+Systematic Biology, 59(3):307-21, 2010.
+
+**Note on program parameters:**
+All parameters except -i (input file) are optional.
+                                    
+  </help>
+</tool>

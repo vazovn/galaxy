@@ -1,0 +1,106 @@
+<tool id="autodock" name="Autodock (4.2.3)" version="4.2.3">
+  <description>suite of automated docking tools. It is designed to predict how small molecules, such as substrates or drug candidates, bind to a receptor of known 3D structure.</description>
+  <parallelism method="basic"></parallelism>
+
+  <command>
+    
+    module load autodock/4.2.3;
+    #if str($other_file) != "None" :
+       cp $other_file $other_file.name;
+       tar xvf $other_file.name;  
+    #end if
+    
+    #if str($ligand_file) != "None" :
+      ln -s $ligand_file $ligand_file.name; 
+    #end if
+    
+    #if str($receptor_file) != "None" :
+      ln -s $receptor_file $receptor_file.name; 
+    #end if
+    
+    #if str($atompar_file) != "None" :
+      ln -s $atompar_file $atompar_file.name; 
+    #end if
+    
+    #if str($gpf_file) != "None" :
+       ln -s $gpf_file $gpf_file.name;  ## cp $gpf_file $gpf_file.name;
+    ##  #set $gpf = $gpf_file.name
+    ##  #set $glg_file = $gpf[:].replace(".gpf",".glg")
+      autogrid4
+        -p $gpf_file.name
+        ## -l $glg_file
+        -l glgfile
+    #end if
+    >autogridout
+    2>autogriderr;
+
+    
+    ln -s $dpf_file $dpf_file.name;   ## cp $dpf_file $dpf_file.name;
+    autodock4 
+    -p $dpf_file.name
+    -l dlgfile
+    #if str( $resnum ) == "true":
+     -k
+    #end if
+    #if str( $header ) == "true":
+     -i
+    #end if
+    #if str( $torsions ) == "true":
+     -t
+    #end if
+    >autodockout
+    2>autodockerr;
+    
+    #if str($other_file) != "None" :
+      rm $other_file.name;
+    #end if
+    rm $ligand_file.name;
+    rm $receptor_file.name;
+    #if str($atompar_file) != "None" :
+      rm $atompar_file.name;
+    #end if
+    rm $gpf_file.name;
+    rm $dpf_file.name;
+    tar --exclude='*galaxy*' -cvf autodock_res.tar *
+
+  </command>
+
+  <requirements>
+    <requirement type="binary">autodock4</requirement>
+  </requirements>
+
+  <inputs>
+    <param name="gpf_file" type="data" label="Grid parameter file" format="txt" help="Input file for autogrid."/>
+    <param name="dpf_file" type="data" label="Docking parameter file" optional="false" format="txt" help="Input file for autodock."/>
+    <param name="ligand_file" type="data" label="Ligand file" optional="false" format="txt" help="Ligand molecule in PDBQT."/>
+    <param name="receptor_file" type="data" label="Receptor file" optional="false" format="txt" help="Receptor molecule in PDBQT."/>
+    <param name="atompar_file" type="data" label="Atomic parameter file" optional="true" format="txt" help="User-defined atomic parameter file."/>
+    <param name="other_file" type="data" label="All other files" optional="true" format="tar" help="All other input in archive (tar) format."/>
+    
+    
+    <param name="resnum" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Keep original residue numbers (autodock -k)"/>
+    <param name="header" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Ignore header checking (autodock -i)"/>
+    <param name="torsions" type="boolean" checked="false" truevalue="true" falsevalue="false" display="checkboxes" label="Parse the PDBQT file to check torsions, then stop (autodock -t)"/>
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="log" label="Autodock on ${gpf_file.name} - output" from_work_dir="dlgfile"/>
+    <data format="tar" name="results" label="Autodock on ${gpf_file.name} - all results" from_work_dir="autodock_res.tar"/>
+  </outputs>
+
+  <help>
+**About Autodock**
+
+AutoDock is a suite of automated docking tools. It is designed to predict how small molecules, such as substrates or drug candidates, bind to a receptor of known 3D structure. 
+
+AutoDock 4 consists of two programs: autodock performs the docking of the ligand to a set of grids describing the target protein; autogrid pre-calculates these grids.
+ 
+**Home page**: http://autodock.scripps.edu/
+
+**Input**: Input files for ligand and receptor are in a PDBQT format. 
+
+**Output**: ??
+
+
+  </help>
+</tool>

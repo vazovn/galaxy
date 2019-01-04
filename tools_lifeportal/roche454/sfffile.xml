@@ -1,0 +1,33 @@
+<tool id="sfffile" name="Sff File (3.0)" version="3.0">
+<description>Select reads to include or exclude from one or more input Sff files</description>
+<command>
+module load newbler/3.0;
+module load galaxy-scripts;
+
+sfffile -$include_or_exclude $list_file -o $output
+#for $i in $inputs
+${i.input}
+#end for
+</command>
+<inputs>
+    <repeat name="inputs" title="Input Files">
+        <param name="input" type="data" format="sff" label="Sff file"/>
+    </repeat>
+    <param name="list_file" type="data" format="text" label="List of read IDs"/>
+    <param name="include_or_exclude" type="select" label="Include or exclude the named reads?">
+        <option value='i' selected='true'>include</option>
+        <option value='e'>exclude</option>
+    </param>
+</inputs>
+
+<outputs>
+    <data name="output" format="sff"/>
+</outputs>
+
+<help>
+
+**What it does**
+
+This tool creates an Sff file, either including or excluding named reads.
+</help>
+</tool>

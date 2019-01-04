@@ -1,0 +1,136 @@
+<tool id="R" name="R" version="3.1.1">
+
+  <description>programming language for statistical computing.</description>
+  <parallelism method="basic"></parallelism>
+
+  <command>
+     #if str( $selinputs.extrainputs) == 'many':
+      #if str($selinputs.input1) != "None": 
+        cp $input1 $input1.name;
+      #end if
+      #if str($selinputs.input2) != "None": 
+        cp $input2 $input2.name;
+      #end if
+      #if str($selinputs.input3) != "None": 
+        cp $input3 $input3.name;
+      #end if
+      #if str($selinputs.input4) != "None": 
+        cp $input4 $input4.name;
+      #end if
+    #end if
+       
+       module load R;
+       module unload intel;
+       module load intel/2013.sp1.3;
+       module load galaxy-scripts;
+       ####R CMD BATCH --no-save --no-restore  "$inputfile" R.log;
+       Rclean.pl $inputfile;
+
+    #if str( $seloutputs.extraoutputs) == 'many':
+      #if str($seloutputs.outputname1) != "":
+         if [ -e "$seloutputs.outputname1" ]; then cp $seloutputs.outputname1 output1; fi;
+      #end if
+      #if str($seloutputs.outputname2) != "":
+         if [ -e "$seloutputs.outputname2" ]; then cp $seloutputs.outputname2 output2; fi;
+      #end if
+      #if str($seloutputs.outputname3) != "":
+         if [ -e "$seloutputs.outputname3" ]; then cp $seloutputs.outputname3 output3; fi;
+      #end if
+      #if str($seloutputs.outputname4) != "":
+         if [ -e "$seloutputs.outputname4" ]; then cp $seloutputs.outputname4 output4; fi;
+      #end if
+    #end if
+    sleep 1        
+
+  </command>
+
+  <requirements>
+    <requirement type="binary">R</requirement>
+  </requirements>
+
+  <inputs> 
+    <conditional name="selinputs">
+      <param name="extrainputs" type="select" label="Input files" help="You can register several data files together with your R script.">
+            <option value="one">One R script</option>
+            <option value="many">One R script and data files</option>
+      </param>
+      <when value="one">
+        <param name="inputfile" type="data" label="R script" help="Your R script" optional="false" format="txt" />
+      </when>
+      <when value="many">
+        <param name="inputfile" type="data" label="R script" help="Your R script" optional="false" format="txt" />
+        <param name="input1" type="data" value="" label="Input file" help="Register and upload all input files used by your R script." optional="True"/>
+        <param name="input2" type="data" value="" label="Input file" optional="True"/>
+        <param name="input3" type="data" value="" label="Input file" optional="True"/>
+        <param name="input4" type="data" value="" label="Input file" optional="True"/>
+      </when>
+    </conditional>  
+
+    <conditional name="seloutputs">
+      <param name="extraoutputs" type="select" label="Output files" help="">
+            <option value="one">Only 'Rout' file</option>
+            <option value="many">More output files</option>
+      </param>
+
+      <when value="many">
+        <param name="outputname1" type="text" size="20" value="" label="Output file" help="Register all output files produced by your R script." optional="True" />
+        <param name="outputname2" type="text" size="20" value="" label="Output file" help="" optional="True" />
+        <param name="outputname3" type="text" size="20" value="" label="Output file" help="" optional="True" />
+        <param name="outputname4" type="text" size="20" value="" label="Output file" help="" optional="True" />
+      </when> 
+    </conditional>
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="log" label="R - ${selinputs.inputfile.name} - out file" from_work_dir="R.log"/>
+
+    <data format="txt" name="output1" label="R - ${selinputs.inputfile.name} - output1" from_work_dir="output1">
+       <filter>(seloutputs['extraoutputs'] == "many")</filter> 
+       <filter>(seloutputs['outputname1'] != "")</filter>
+    </data>
+    <data format="txt" name="output2" label="R - ${selinputs.inputfile.name} - output2" from_work_dir="output2">
+       <filter>(seloutputs['extraoutputs'] == "many")</filter>
+       <filter>(seloutputs['outputname2'] != "")</filter>
+    </data>
+    <data format="txt" name="output3" label="R - ${selinputs.inputfile.name} - output3" from_work_dir="output3">
+       <filter>(seloutputs['extraoutputs'] == "many")</filter>
+       <filter>(seloutputs['outputname3'] != "")</filter>
+    </data>
+    <data format="txt" name="output4" label="R - ${selinputs.inputfile.name} - output4" from_work_dir="output4">
+       <filter>(seloutputs['extraoutputs'] == "many")</filter>
+       <filter>(seloutputs['outputname4'] != "")</filter>
+    </data>
+  </outputs>
+
+  <help>
+**About R**
+
+R is a language and environment for statistical computing and graphics. It is a GNU project which is similar to the S language and environment which was developed at Bell Laboratories (formerly ATandT, now Lucent Technologies) by John Chambers and colleagues. R can be considered as a different implementation of S. There are some important differences, but much code written for S runs unaltered under R.
+
+R provides a wide variety of statistical (linear and nonlinear modelling, classical statistical tests, time-series analysis, classification, clustering, ...) and graphical techniques, and is highly extensible. The S language is often the vehicle of choice for research in statistical methodology, and R provides an Open Source route to participation in that activity.
+
+One of R's strengths is the ease with which well-designed publication-quality plots can be produced, including mathematical symbols and formulae where needed. Great care has been taken over the defaults for the minor design choices in graphics, but the user retains full control.
+
+R is available as Free Software under the terms of the Free Software Foundation's GNU General Public License in source code form. It compiles and runs on a wide variety of UNIX platforms and similar systems (including FreeBSD and Linux), Windows and MacOS.
+
+R is an integrated suite of software facilities for data manipulation, calculation and graphical display. It includes
+
+    an effective data handling and storage facility,
+    a suite of operators for calculations on arrays, in particular matrices,
+    a large, coherent, integrated collection of intermediate tools for data analysis,
+    graphical facilities for data analysis and display either on-screen or on hardcopy, and
+    a well-developed, simple and effective programming language which includes conditionals, loops, user-defined recursive functions and input and output facilities. 
+
+
+R, like S, is designed around a true computer language, and it allows users to add additional functionality by defining new functions. Much of the system is itself written in the R dialect of S, which makes it easy for users to follow the algorithmic choices made. For computationally-intensive tasks, C, C++ and Fortran code can be linked and called at run time. Advanced users can write C code to manipulate R objects directly.
+
+Many users think of R as a statistics system. We prefer to think of it of an environment within which statistical techniques are implemented. R can be extended (easily) via packages. There are about eight packages supplied with the R distribution and many more are available through the CRAN family of Internet sites covering a very wide range of modern statistics.
+
+R has its own LaTeX-like documentation format, which is used to supply comprehensive documentation, both on-line in a number of formats and in hardcopy. 
+
+**Home page**: http://www.r-project.org/
+
+**Input and output**: Input is your R script (currently, Galaxy will not upload any files named "star".R, the script will upload if one skips the R extention).  All needed data files and expected outputs have to be registered.
+                                    
+  </help>
+</tool>

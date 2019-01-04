@@ -1,0 +1,108 @@
+<tool id="PAUP" name="PAUP (4.0b10)" version="4.0b10">
+  <description>inference of evolutionary trees.</description>
+
+  <parallelism method="basic"></parallelism>
+
+  <command>
+    cp $nexusfile $nexusfile.name;
+
+    #if str( $selinputs.extrainputs) == 'many':
+      #if str($selinputs.input1) != "None": 
+        cp $input1 $input1.name;
+      #end if
+      #if str($selinputs.input2) != "None": 
+        cp $input2 $input2.name;
+      #end if
+      #if str($selinputs.input3) != "None": 
+        cp $input3 $input3.name;
+      #end if
+      #if str($selinputs.input4) != "None": 
+        cp $input4 $input4.name;
+      #end if
+    #end if
+
+    module load paup/4b10;
+    export HOME=/cluster/home/galaxy;
+    paup4b10 -n -u $nexusfile.name > pauplog;
+
+
+    #if str($output1) != "":
+       if [ -e "$output1" ]; then cp $output1 out1; fi;
+    #end if
+    #if str($output2) != "":
+       if [ -e "$output2" ]; then cp $output2 out2; fi;
+    #end if
+    #if str($output3) != "":
+       if [ -e "$output3" ]; then cp $output3 out3; fi;
+    #end if
+    #if str($output4) != "":
+       if [ -e "$output4" ]; then cp $output4 out4; fi;
+    #end if
+
+    sleep 1
+
+  </command>
+
+  <requirements>
+    <requirement type="binary">paup4b10</requirement>
+  </requirements>
+
+  <inputs>
+
+  <conditional name="selinputs">
+      <param name="extrainputs" type="select" label="Input files" help="Register and upload the nexus file and all input files listed in the PAUP command block.">
+            <option value="one">Only one input file</option>
+            <option value="many">Multiple input files</option>
+      </param>
+      <when value="one">
+        <param name="nexusfile" type="data" label="Input file with PAUP command block" help="" optional="false" format="txt" />
+      </when>
+      <when value="many">
+        <param name="nexusfile" type="data" label="Input file with PAUP command block" help="" optional="false" format="txt" />
+        <param name="input1" type="data" label="Input data file" help="" optional="True"/>
+        <param name="input2" type="data" label="Input data file" optional="True"/>
+        <param name="input3" type="data" label="Input data file" optional="True"/>
+        <param name="input4" type="data" label="Input data file" optional="True"/>
+      </when>
+  </conditional>  
+
+
+    <param name="output1" type="text" size="20" value="" label="Output file" help="Register all input file as listed in the paup command block" />
+    <param name="output2" type="text" size="20" value="" label="Output file 2 (Optional)" help="" optional="True" />
+    <param name="output3" type="text" size="20" value="" label="Output file 3 (Optional)" help="" optional="True" />
+    <param name="output4" type="text" size="20" value="" label="Output file 4 (Optional)" help="" optional="True" />
+
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="log" label="PAUP on ${selinputs.nexusfile.name} - stdout" from_work_dir="pauplog" />
+    <data format="txt" name="outputt1" label="PAUP on ${selinputs.nexusfile.name} - ${output1}" from_work_dir="out1" />
+    <data format="txt" name="outputt2" label="PAUP on ${selinputs.nexusfile.name} - ${output2}" from_work_dir="out2">
+       <filter>(output2 != "")</filter>
+    </data>
+    <data format="txt" name="outputt3" label="PAUP on ${selinputs.nexusfile.name} - ${output3}" from_work_dir="out3">
+       <filter>(output3 != "")</filter>
+    </data>
+    <data format="txt" name="outputt4" label="PAUP on ${selinputs.nexusfile.name} - ${output4}" from_work_dir="out4">
+       <filter>(output4 != "")</filter>
+    </data>
+  </outputs>
+
+  <help>
+
+**About PAUP**
+
+PAUP* version 4.0 is a major upgrade and new release of the software package for inference of evolutionary trees. The success of previous versions of PAUP: Phylogenetic Analysis Using Parsimony has made it the most widely used software package for the inference of evolutionary trees. In addition, the PAUP manual has proven to be an essential guide, serving as a comprehensive introduction to phylogenetic analysis for beginning researchers, as well as an important reference for experts in the field. With the inclusion of maximum likelihood and distance methods in PAUP* 4.0, the new version represents a great improvement over its predecessors. In addition, the speed of the branch-and-bound algorithm has been enhanced and a number of new features have been added, from agreement subtrees to tests for combinability of data and permutation tests for nonrandomness of data structure. 
+
+**Input**: File in Nexus format including the PAUP command block.
+
+**Home page**: http://paup.csit.fsu.edu/
+
+**Quick start**: http://paup.csit.fsu.edu/Quick_start_v1.pdf, http://pauptech.csit.fsu.edu/%7epaupforum
+
+
+**Citation:**
+Swofford, D.L. (1998). PAUP: Phylogenetic Analysis Using Parsimony (and Other Methods), Version 4.0d64 ed, Sinauer Associates, Inc. Publishers, Sunderland, MA.
+                                    
+  </help>
+</tool>

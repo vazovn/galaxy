@@ -1,0 +1,37 @@
+<tool id="Gaussian (g09d01)" name="Gaussian09" version="g09d01">
+  <description>Package for electronic structure modeling.</description>
+  <parallelism method="basic"></parallelism>
+
+  <command>
+    module load gaussian/g09d01;
+    g09 $infile ./gaussian.log
+     
+  </command>
+
+  <requirements>
+    <requirement type="binary">g09</requirement>
+  </requirements>
+
+  <inputs>
+    <param name="infile" type="data" label="Input file" help="" optional="false" format="txt" />
+  </inputs>
+
+  <outputs>
+    <data format="txt" name="results" from_work_dir="gaussian.log" label="Gaussian on ${infile.name}" />
+  </outputs>
+
+  <help>
+**About Gaussian**
+
+Gaussian provides state-of-the-art capabilities for electronic structure modeling. It contains every scientific/modeling feature, and none imposes any artificial limitations on calculations other than your computing resources and patience. 
+
+**Home page**: http://www.gaussian.com/
+
+**Input**: http://www.gaussian.com/g_tech/g_ur/m_input.htm
+
+**Citation:**
+
+Gaussian 09, Revision 9.01, M. J. Frisch, G. W. Trucks, H. B. Schlegel, G. E. Scuseria, M. A. Robb, J. R. Cheeseman, G. Scalmani, V. Barone, B. Mennucci, G. A. Petersson, H. Nakatsuji, M. Caricato, X. Li, H. P. Hratchian, A. F. Izmaylov, J. Bloino, G. Zheng, J. L. Sonnenberg, M. Hada, M. Ehara, K. Toyota, R. Fukuda, J. Hasegawa, M. Ishida, T. Nakajima, Y. Honda, O. Kitao, H. Nakai, T. Vreven, J. A. Montgomery, Jr., J. E. Peralta, F. Ogliaro, M. Bearpark, J. J. Heyd, E. Brothers, K. N. Kudin, V. N. Staroverov, R. Kobayashi, J. Normand, K. Raghavachari, A. Rendell, J. C. Burant, S. S. Iyengar, J. Tomasi, M. Cossi, N. Rega, J. M. Millam, M. Klene, J. E. Knox, J. B. Cross, V. Bakken, C. Adamo, J. Jaramillo, R. Gomperts, R. E. Stratmann, O. Yazyev, A. J. Austin, R. Cammi, C. Pomelli, J. W. Ochterski, R. L. Martin, K. Morokuma, V. G. Zakrzewski, G. A. Voth, P. Salvador, J. J. Dannenberg, S. Dapprich, A. D. Daniels, Ö. Farkas, J. B. Foresman, J. V. Ortiz, J. Cioslowski, and D. J. Fox, Gaussian, Inc., Wallingford CT, 2009.
+
+  </help>
+</tool>

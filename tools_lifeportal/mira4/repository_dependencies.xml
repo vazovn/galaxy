@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<repositories description="This requires the MIRA datatype definitions (e.g. the MIRA Assembly Format).">
+    <repository changeset_revision="ddd2e3362c5e" name="mira_datatypes" owner="peterjc" toolshed="https://toolshed.g2.bx.psu.edu" />
+</repositories>
