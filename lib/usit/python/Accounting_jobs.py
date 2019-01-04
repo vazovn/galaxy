@@ -25,7 +25,11 @@ else:
 
 application_db_engine = create_engine(GOLDDB, encoding='utf-8')
 metadata = MetaData(application_db_engine)
-                    
+
+
+def gold_engine_dispose():
+    application_db_engine.dispose()
+
 def _slurmtimesecs (elapsed_time) :
     """
     Converts time into seconds

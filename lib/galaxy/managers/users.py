@@ -287,10 +287,7 @@ class UserManager(base.ModelManager, deletable.PurgableManagerMixin):
         
 
 class UserSerializer( base.ModelSerializer, deletable.PurgableSerializerMixin ):
-#=======
-
-#class UserSerializer(base.ModelSerializer, deletable.PurgableSerializerMixin):
-#>>>>>>> galaxy_release_18.09
+	
     model_manager_class = UserManager
 
     def __init__(self, app):

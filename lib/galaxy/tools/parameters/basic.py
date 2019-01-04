@@ -837,8 +837,6 @@ class SelectToolParameter(ToolParameter):
         elif self.__dict__['name'] == 'project':
            import Accounting_project_management
            user_static_options = Accounting_project_management.project_dropdown_update ( trans.user.email, self.static_options )
-           for (title, value, selected) in user_static_options:
-                self.legal_values.add( value )
            return user_static_options
         else:
             return self.static_options
@@ -901,7 +899,16 @@ class SelectToolParameter(ToolParameter):
                     else:
                         raise ValueError("No option was selected for %s but input is not optional." % self.name)
             if value not in legal_values and require_legal_value:
-                raise ValueError("An invalid option was selected for %s, %r, please verify." % (self.name, value))
+                
+                # Nikolay USIT 
+                # Fix for lazy-apps in galaxy.yml which resumes the app for each worker and misses the self.legal_values
+                if re.match(r"(lp[0-9]{1,4}|nn[0-9]{4}k|staff|uio)",value) :
+                    self.legal_values.add(value)
+                    return value
+                    
+                else :
+                    raise ValueError("An invalid option was selected for %s, %r, please verify." % (self.name, value))
+            
             return value
 
     def to_param_dict_string(self, value, other_values={}):

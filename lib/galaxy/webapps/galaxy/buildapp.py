@@ -189,6 +189,8 @@ def postfork_setup():
     from galaxy.app import app
     app.control_worker.bind_and_start()
     app.application_stack.log_startup()
+    import Accounting_project_management
+    Accounting_project_management.gold_engine_dispose()
 
 
 def populate_api_routes(webapp, app):

@@ -35,6 +35,9 @@ metadata_galaxy = MetaData(application_db_engine_galaxy)
 connection_galaxy = application_db_engine_galaxy.connect()
 
 
+def gold_engine_dispose():
+    application_db_engine.dispose()
+
 def associate_users_to_projects ( emails, project) :
     """
     Used by PIs to associate users to the projects in GOLD which belong to the PI."
@@ -1360,19 +1363,19 @@ def get_member_of_MAS_projects ( email ):
     Selects the MAS projects the user is member of  
     """
     
-    # 1. email == mas_email for all non uio users
-    s = text("select projects from g_mas_projects where mas_email = :email ")
-    result = connection.execute(s, email=email )
+    # 1. email == mas_email for all non uio users    
+    s = text("select projects from g_mas_projects where mas_email = :email")
+    result_mas = connection.execute(s, email=email )
     
     # else 2. email[:-6] == 'uio.no' and uname == uname
-    if result.rowcount == 0 and email[-6:] == 'uio.no':
+    if result_mas.rowcount == 0 and email[-6:] == 'uio.no':
         s = text("select projects from g_mas_projects where uio_email = :email ")
-        result = connection.execute(s, email=email )
+        result_mas = connection.execute(s, email=email )
     
-    if result.rowcount == 0 :                                                           
+    if result_mas.rowcount == 0 :                                                           
         return None
     else :
-        for row in result :
+        for row in result_mas :
             mas_projects = row[0]
         
         # convert to list
@@ -1381,4 +1384,4 @@ def get_member_of_MAS_projects ( email ):
             
             print "Accounting : I (", email, ") am member of the following MAS projects ", sorted(mas_projects_list)
             
-            return 	mas_projects_list	
+            return 	mas_projects_list
