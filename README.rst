@@ -1,4 +1,5 @@
-===== The changes in Lifeportal for galaxy release 18.09  =======
+The changes in Lifeportal for galaxy release 18.09
+=================================================
 
 Remove .venv directory
 
@@ -76,7 +77,7 @@ RewriteRule ^/robots.txt /home/galaxy/galaxy/static/robots.txt [L]
 RewriteRule ^(.*) http://127.0.0.1:8080$1 [P]
 
 
-5. Check static/welcome.html
+6. Check static/welcome.html
 
 
 == To build
