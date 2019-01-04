@@ -1,3 +1,96 @@
+===== The changes in Lifeportal for galaxy release 18.09  =======
+
+Remove .venv directory
+
+1. (to be done after boot - .venv has to be created first) 
+
+Add file usit.pth into 
+
+.venv/lib/python2.7/site-packages
+
+the file contains the PATHs to custom python packages
+
+
+The file content is :
+/home/galaxy/galaxy/lib/Teusit/python
+/home/galaxy/galaxy/lib/
+
+2. (to be done after boot - .venv has to be created first)
+
+Edit the file 
+
+.venv/lib/python2.7/site-packages/sqalchemy_utils/functions/database.py
+
+It contains a DB check which blocks the read of Galaxy DB on a different host
+
+l.463
+if url.drivername.startswith('postgres'):
+        # Nikolay USIT
+        #url.database = 'postgres'
+        url.database = database
+
+3. 
+
+Edit the config files 
+
+galaxy.yml
+==
+mind the syntax, no '=' sign any more
+tricky issues : paths, dbs, secret must be taken from the ssl.conf file of Apache 
+OIDCClientID "fd81b09a-0d35-4ee7-915a-4785348b0e03"
+==
+
+
+local_env.sh
+==
+set all dbs to require=ssl
+==
+
+job_conf_xml.lifeportal
+==
+remove <handler> block
+==
+
+
+4.
+
+The following packages may be needed in .venv
+
+cp wkhtmltox dir (wkhtmltox-0.12.4_linux-generic-amd64.tar.gz) to .venv/bin 
+create a link : wkhtmltopdf -> /home/galaxy/galaxy/.venv/bin/wkhtmltox/bin/wkhtmltopdf
+   
+pip install pdfkit (if necessary)
+
+
+5. 
+
+ssl.conf file shall be modified as follows :
+
+RewriteEngine on
+RewriteRule ^/callback - [END]
+RewriteRule ^/logout https://auth.dataporten.no/logout [R,END]
+RewriteRule ^/static/style/(.*) /home/galaxy/galaxy/static/style/blue/$1 [L]
+RewriteRule ^/static/(.*) /home/galaxy/galaxy/static/$1 [L]
+RewriteRule ^/favicon.ico /home/galaxy/galaxy/static/favicon.ico [L]
+RewriteRule ^/robots.txt /home/galaxy/galaxy/static/robots.txt [L]
+RewriteRule ^(.*) http://127.0.0.1:8080$1 [P]
+
+
+5. Check static/welcome.html
+
+
+== To build
+
+as user galaxy
+source .venv/bin/activate
+make client-production-maps
+deactivate (if needed)
+
+
+
+
+================ FROM GALAXY TEAM ==========
+
 .. figure:: https://galaxyproject.org/images/galaxy-logos/galaxy_project_logo.jpg
    :alt: Galaxy Logo
 
