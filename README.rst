@@ -38,7 +38,7 @@ galaxy.yml
 ==
 mind the syntax, no '=' sign any more
 tricky issues : paths, dbs, secret must be taken from the ssl.conf file of Apache 
-OIDCClientID "fd81b09a-0d35-4ee7-915a-4785348b0e03"
+OIDCClientID "xxx000xx0-00xx00000x-000"
 ==
 
 
