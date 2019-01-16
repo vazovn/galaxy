@@ -31,9 +31,9 @@
         <form name="add_users_to_project" id="add_users_to_project" action="${h.url_for( controller='project_admin', action='associate_to_project' )}" method="post" >
             <div class="form-row">
                 <label>
-                    Associate user to project:
+                    Select the users in the dropdown below who will be associated to a project (press Ctrl for multiple users):
                 </label>
-                <select multiple name="gold_user">
+                <select multiple name="gold_user" size="15">
                        %for user in gold_user_list :  
                              <option value="${user}" >${user}</option>
                        %endfor
