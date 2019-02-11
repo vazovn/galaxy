@@ -216,8 +216,9 @@ class BaseJobRunner(object):
                             modify_command_for_container=True ):
         
         ## Nikolay - USIT - blocks the metadata action execution - as it is only possible locally
-        include_metadata=False								
-        
+        #include_metadata=False								
+        include_metadata=True        
+
         container = self._find_container( job_wrapper )
         if not container and job_wrapper.requires_containerization:
             raise Exception("Failed to find a container when required, contact Galaxy admin.")
