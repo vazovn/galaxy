@@ -249,3 +249,9 @@ else
     echo "Regenerating static plugin directories."
     python ./scripts/plugin_staging.py
 fi
+
+# NeLS temporary hack
+
+if [ $FETCH_WHEELS -eq 1 ]; then
+    pip install nels_wheels/nels.storage_client-2.0-py27-none-any.whl
+fi
