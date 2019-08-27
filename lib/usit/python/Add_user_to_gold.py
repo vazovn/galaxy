@@ -148,7 +148,8 @@ def add_remote_user_to_mas(email, idp_provider_type, request):
     """
     
     ## If logging in from Dataporten for the first time, 'userids' is missing in the request
-    request_dict = json.loads(urlparse.parse_qs(request)['acresponse'][0])
+    request_dict = manage_feide_acresponse(request)
+   
     if 'userids' not in request_dict:
         return "none"
     
@@ -196,7 +197,9 @@ def uname_from_request(request):
         return "none"
 
     try:
-        uname =  json.loads(urlparse.parse_qs(request)['acresponse'][0])['userids'][0].split(":")[1].split("@")[0]
+        #uname =  json.loads(urlparse.parse_qs(request)['acresponse'][0])['userids'][0].split(":")[1].split("@")[0]
+        request_dict = manage_feide_acresponse(request)
+        uname = request_dict['userids'][0].split(":")[1].split("@")[0]
     except (ValueError, TypeError, AttributeError) as e:
         log_message(e)
         log_message(request)
@@ -216,10 +219,12 @@ def idp_provider_type_from_request(request):
     if not request:
         return "none"
     else:
+
+        print "REQUEST ===== ", request
         
         try:
-            request_dict = json.loads(urlparse.parse_qs(request)['acresponse'][0])
-            
+            request_dict = manage_feide_acresponse(request)
+
             #This check is needed if logging for the first time from Dataporten
             if 'def' in request_dict:
                 idp_provider_type_id = request_dict['def'][0][0]
@@ -239,3 +244,18 @@ def idp_provider_type_from_request(request):
             idp_provider_type = "unknown",
             
     return idp_provider_type
+    
+## Nikolay fix after changes in Feide string   
+def manage_feide_acresponse(request):
+    """
+    Parses the url coming from Feide
+    """
+    request_dict = {}
+    request_dict_raw = urlparse.parse_qs(request)
+    for key in request_dict_raw :
+        if key.endswith("acresponse"):
+            request_dict = json.loads(request_dict_raw[key][0])
+
+    print "==== REQUEST DICTIONARY : \n", request_dict
+    
+    return request_dict
