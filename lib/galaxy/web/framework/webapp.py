@@ -41,7 +41,7 @@ from galaxy.web.framework import (
 )
 from galaxy.web.stack import get_app_kwds
 
-import Add_user_to_gold
+import Add_user_to_gold, Feide_fix_september_2019
 
 import logging
 log = logging.getLogger( __name__ )
@@ -445,7 +445,26 @@ class GalaxyWebTransaction(base.DefaultWebTransaction,
         # cases won't have a cookie set above, so we need to to check some
         # things now.
         if self.app.config.use_remote_user:
+            
             remote_user_email = self.environ.get(self.app.config.remote_user_header, None)
+            print "================ remote user mail" , remote_user_email
+            
+            # Needed for Add_user_to_gold.add_remote_user_to_mas for uio users only
+            remote_uname = None
+            
+            ## Nikolai USIT Feide_fix_september_2019 -affects only UiO users
+            if remote_user_email.endswith('@uio.no'):
+                 user = Feide_fix_september_2019.get_user_email_and_uname(remote_user_email)
+                 
+                 # if the user is in LP before the feide changes, get his real email from the GOLD 'g_feide_fix' table
+                 if user is not None :
+                     remote_user_email = user.email
+                     remote_uname = user.eppn.split('@')[0]
+                     print "===========================  REMOTES FROM FEIDE ================== : EPPN ", user.eppn, " EMAIL " , user.email , " UNAME ", remote_uname
+                 # else use the eppn as email (eppn comes from the new Feide procedure as email)
+                 else :
+                     remote_uname = remote_user_email.split('@')[0]
+                     
             if galaxy_session:
                 if remote_user_email and galaxy_session.user is None:
                     # No user, associate
@@ -473,7 +492,7 @@ class GalaxyWebTransaction(base.DefaultWebTransaction,
                     if self.environ['HTTP_REFERER'].startswith("https://auth.dataporten.no") :
                         idp_request = self.environ['HTTP_REFERER']
                         Add_user_to_gold.add_remote_user_to_gold( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request) )
-                        Add_user_to_gold.add_remote_user_to_mas( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request), idp_request )
+                        Add_user_to_gold.add_remote_user_to_mas( remote_user_email, Add_user_to_gold.idp_provider_type_from_request(idp_request), idp_request, remote_uname)
                         log.warning( "Added user '%s'to GOLD", remote_user_email)
             
             if ((galaxy_session and galaxy_session.user is None) and user_for_new_session is None):

@@ -136,7 +136,7 @@ def add_remote_user_to_gold(email, provider=None):
             log_message("Added {} to gx_default and credited {} hours to account id {}".format(username, HOURS, account_id))
 
 
-def add_remote_user_to_mas(email, idp_provider_type, request):
+def add_remote_user_to_mas(email, idp_provider_type, request, uname=None):
     """
     Inserts the users into the gold_db which contains their MAS projects.
     If users are not feide but social, their mas data will be populated directly by the cron script
@@ -148,16 +148,14 @@ def add_remote_user_to_mas(email, idp_provider_type, request):
     """
     
     ## If logging in from Dataporten for the first time, 'userids' is missing in the request
-    request_dict = manage_feide_acresponse(request)
+    request_dict = parse(request)
    
     if 'userids' not in request_dict:
         return "none"
     
-    if len(idp_provider_type) > 1 and idp_provider_type[0] == "feide" and idp_provider_type[1] == "uio.no":
+    if len(idp_provider_type) > 1 and idp_provider_type[0] == "feide" and idp_provider_type[2] == "uio.no":
 
-        uname = uname_from_request(request)
         user = Mas_projects.query.filter_by(uname=uname).first()
-
         if user:
             if user.uio_email != email and user.mas_email[-12:] == "ulrik.uio.no":
                 user.uio_email = email
@@ -187,27 +185,6 @@ def log_message(message):
         logfile.write(message)
 
 
-def uname_from_request(request):
-    """
-    :param request: From httpd server on the form email;dpid;http-request
-    :type request: String
-    :return: uname
-    """
-    if not request :
-        return "none"
-
-    try:
-        #uname =  json.loads(urlparse.parse_qs(request)['acresponse'][0])['userids'][0].split(":")[1].split("@")[0]
-        request_dict = manage_feide_acresponse(request)
-        uname = request_dict['userids'][0].split(":")[1].split("@")[0]
-    except (ValueError, TypeError, AttributeError) as e:
-        log_message(e)
-        log_message(request)
-        uname = "unknown",
-
-    return uname
-
-
 def idp_provider_type_from_request(request):
     """
     Extracts IDP provider and type from request
@@ -219,23 +196,18 @@ def idp_provider_type_from_request(request):
     if not request:
         return "none"
     else:
-
-        print "REQUEST ===== ", request
-        
         try:
-            request_dict = manage_feide_acresponse(request)
-
-            #This check is needed if logging for the first time from Dataporten
-            if 'def' in request_dict:
-                idp_provider_type_id = request_dict['def'][0][0]
-                idp_provider_type_sub_id = request_dict['def'][0][1] if len(request_dict['def'][0]) == 2 else request_dict['def'][0][2] 
+            request_dict = parse(request)
+            # e.g. feide|realm|uio
+            if '|' in request_dict:
+                provider_array = request_dict.split('|')
+                idp_provider_type_id = provider_array[0]
+                idp_provider_type_sub_id = provider_array[2]
                 idp_provider_type = [idp_provider_type_id, idp_provider_type_sub_id]
-            else :
-                if 'id' in request_dict and 'subid' in request_dict and request_dict['id'].startswith("https://idp.feide"):
-                    idp_provider_type = ['feide', request_dict['subid']]
-                elif 'type' in request_dict:
-                    idp_provider_type = [request_dict['type']]
-                    
+            # e.g. facebook, linkedin
+            else:
+                idp_provider_type = request_dict
+
             print "IDP PROVIDER TYPE ", idp_provider_type
             
         except (ValueError, TypeError, AttributeError) as e:
@@ -246,16 +218,17 @@ def idp_provider_type_from_request(request):
     return idp_provider_type
     
 ## Nikolay fix after changes in Feide string   
-def manage_feide_acresponse(request):
+def parse(request):
     """
     Parses the url coming from Feide
     """
     request_dict = {}
     request_dict_raw = urlparse.parse_qs(request)
+            
     for key in request_dict_raw :
-        if key.endswith("acresponse"):
-            request_dict = json.loads(request_dict_raw[key][0])
-
+        if key.endswith("authselection"):
+            request_dict = request_dict_raw[key][0]
+            
     print "==== REQUEST DICTIONARY : \n", request_dict
-    
+   
     return request_dict
